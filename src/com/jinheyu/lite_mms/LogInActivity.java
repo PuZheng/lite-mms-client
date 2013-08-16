@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -67,6 +69,8 @@ public class LogInActivity extends Activity {
         });
 	}
 
+
+
     class LoginTask extends AsyncTask<Void, Void, User> {
 
         private final String username;
@@ -122,5 +126,21 @@ public class LogInActivity extends Activity {
             }
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.add("设置");
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getTitle().equals("设置")) {
+                Intent intent = new Intent(LogInActivity.this, MyPreferenceActivity.class);
+                startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
