@@ -43,6 +43,7 @@
         </activity>
         <activity android:name=".SelectUnloadSessionActivity"/>
         <activity android:name=".SelectCustomerActivity"/>
+        <activity android:name=".SelectHarborActivity"/>
         <activity android:uiOptions="splitActionBarWhenNarrow" android:name=".TakeUnloadTaskPicActivity" >
             <meta-data android:name="android.support.UI_OPTIONS"
                        android:value="splitActionBarWhenNarrow" />
