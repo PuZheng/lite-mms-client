@@ -53,6 +53,7 @@ public class LoaderMainActivity extends FragmentActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Utils.clearUserToken(LoaderMainActivity.this);
+                        finish();
                         Intent intent = new Intent(LoaderMainActivity.this, LogInActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
