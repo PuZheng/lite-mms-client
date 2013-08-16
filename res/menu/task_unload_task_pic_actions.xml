@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        >
+
+    <item
+            android:id="@+id/action_unload_partly"
+            android:title="部分卸货"
+            android:showAsAction="always"
+        ></item>
+    <item
+        android:id="@+id/action_unload_done"
+        android:title="完全卸货"
+        android:showAsAction="always"
+        ></item>
+
+    <item
+            android:id="@+id/action_take_pic"
+            android:title="重新拍照"
+            android:showAsAction="always"
+            ></item>
+</menu>
