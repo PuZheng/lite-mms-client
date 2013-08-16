@@ -30,11 +30,13 @@ import java.util.List;
  */
 public class SelectUnloadSessionActivity extends ListActivity {
     private static final String TAG = "SelectUnloadSessionActivity";
-    private Toast backtoast;
+    private Toast backToast;
+    private TextView textViewNoData;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_unload_session);
+        textViewNoData = (TextView) findViewById(R.id.textViewNoData);
         new GetUnloadSessionListTask().execute();
     }
 
@@ -87,18 +89,25 @@ public class SelectUnloadSessionActivity extends ListActivity {
                 Utils.displayError(SelectUnloadSessionActivity.this, ex);
                 return;
             }
-            setListAdapter(new MyListAdapter(SelectUnloadSessionActivity.this, unloadSessionList));
+            if (unloadSessionList.isEmpty()) {
+                textViewNoData.setVisibility(View.VISIBLE);
+                getListView().setVisibility(View.GONE);
+            } else {
+                textViewNoData.setVisibility(View.GONE);
+                getListView().setVisibility(View.VISIBLE);
+                setListAdapter(new MyListAdapter(SelectUnloadSessionActivity.this, unloadSessionList));
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(backtoast!=null&&backtoast.getView().getWindowToken()!=null) {
+        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
             finish();
-            backtoast.cancel();
+            backToast.cancel();
         } else {
-            backtoast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
-            backtoast.show();
+            backToast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
+            backToast.show();
         }
     }
 

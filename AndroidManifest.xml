@@ -50,6 +50,7 @@
                 android:screenOrientation="portrait"/>
         <activity
                 android:name=".SelectCustomerActivity"
+                android:windowSoftInputMode="stateVisible"
                 android:screenOrientation="portrait"/>
         <activity
                 android:name=".SelectHarborActivity"
