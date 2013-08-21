@@ -1,6 +1,5 @@
 package com.jinheyu.lite_mms;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -85,13 +84,13 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
         Customer customer = getIntent().getParcelableExtra("customer");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag(
-                "NoticeFragment");
+                "NOTICE_FRAGMENT");
         if (prev != null) {
             ft.remove(prev);
         }
 
         DialogFragment dialog = new NoticeDialogFragment(unloadSession, harbor, customer, done);
-        dialog.show(ft, "NoticeFragment");
+        dialog.show(ft, "NOTICE_FRAGMENT");
     }
 
     @Override
@@ -128,17 +127,12 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
         }
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-        }
-
-        @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("");
+            builder.setTitle("生成卸货任务");
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            View view = inflater.inflate(R.layout.add_unload_task_dialog, null);
+            View view = inflater.inflate(R.layout.dialog_create_unload_task, null);
             TextView textViewPlate = (TextView) view.findViewById(R.id.textViewPlate);
             TextView textViewHarbor = (TextView) view.findViewById(R.id.textViewHarbor);
             TextView textViewCustomer = (TextView) view.findViewById(R.id.textViewCustomer);
@@ -161,7 +155,7 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
                     builder.run(new XProgressableRunnable.XRunnable() {
                         @Override
                         public void run() throws Exception {
-                            MyApp.getWebServieHandler().addUnloadTask(unloadSession, harbor, customer, done, Utils.getUnloadTaskPicUri().getPath());
+                            MyApp.getWebServieHandler().createUnloadTask(unloadSession, harbor, customer, done, Utils.getUnloadTaskPicUri().getPath());
                         }
                     });
                     builder.after(new Runnable() {

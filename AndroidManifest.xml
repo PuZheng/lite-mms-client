@@ -63,6 +63,14 @@
                     android:value="splitActionBarWhenNarrow"/>
         </activity>
         <activity android:name=".MyPreferenceActivity"/>
+        <activity android:name=".SelectDeliverySessionActivity"/>
+        <activity android:name=".CreateDeliveryTaskActivity" android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                    android:name="android.support.UI_OPTIONS"
+                    android:value="splitActionBarWhenNarrow"/>
+        </activity>
+        <activity android:name=".SelectSubOrderActivity"
+                android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

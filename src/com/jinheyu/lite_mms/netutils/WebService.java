@@ -6,7 +6,12 @@ import android.util.Pair;
 import com.jinheyu.lite_mms.MyApp;
 import com.jinheyu.lite_mms.Utils;
 import com.jinheyu.lite_mms.data_structures.Customer;
+import com.jinheyu.lite_mms.data_structures.DeliverySession;
+import com.jinheyu.lite_mms.data_structures.DeliverySessionDetail;
 import com.jinheyu.lite_mms.data_structures.Harbor;
+import com.jinheyu.lite_mms.data_structures.Order;
+import com.jinheyu.lite_mms.data_structures.StoreBill;
+import com.jinheyu.lite_mms.data_structures.SubOrder;
 import com.jinheyu.lite_mms.data_structures.UnloadSession;
 import com.jinheyu.lite_mms.data_structures.User;
 
@@ -30,6 +35,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +105,28 @@ public class WebService {
         return ret;
     }
 
+    public List<DeliverySession> getDeliverySessionList() throws IOException, JSONException, BadRequest {
+        List<DeliverySession> deliverySessionList = null;
+        String url = composeUrl("delivery_ws", "delivery-session-list");
+        HttpResponse response = sendRequest(url);
+        int stateCode = response.getStatusLine().getStatusCode();
+        String result = EntityUtils.toString(response.getEntity());
+        if (stateCode == 200) {
+            deliverySessionList = new ArrayList<DeliverySession>();
+            JSONArray jsonArray = new JSONArray(result);
+            for (int i=0; i < jsonArray.length(); ++i) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                int id = jsonObject.getInt("sessionID");
+                String plate = jsonObject.getString("plateNumber");
+                boolean locked = (jsonObject.getInt("isLocked") == 1);
+                deliverySessionList.add(new DeliverySession(id, plate, locked));
+            }
+        } else {
+            throw new BadRequest(result);
+        }
+
+        return deliverySessionList;
+    }
 
     public List<Harbor> getHarborList() throws IOException, JSONException, BadRequest {
         List<Harbor> ret;
@@ -146,7 +175,8 @@ public class WebService {
         return ret;
     }
 
-    public void addUnloadTask(UnloadSession unloadSession, Harbor harbor, Customer customer, boolean done, String picPath) throws BadRequest, IOException {
+    public void createUnloadTask(UnloadSession unloadSession, Harbor harbor, Customer customer,
+                                 boolean done, String picPath) throws BadRequest, IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
         params.put("customer_id", String.valueOf(customer.getId()));
@@ -183,6 +213,82 @@ public class WebService {
             throw new BadRequest(httpURLConnection.getResponseMessage());
         }
 
+    }
+
+    public DeliverySessionDetail getDeliverySessionDetail(int id) throws IOException, JSONException, BadRequest {
+
+        DeliverySessionDetail ret;
+        Map<String, String> params = new LinkedHashMap<String, String>();
+        params.put("id", String.valueOf(id));
+        String url = composeUrl("delivery_ws", "delivery-session", params);
+
+        HttpResponse response = sendRequest(url);
+
+        int stateCode = response.getStatusLine().getStatusCode();
+        String result = EntityUtils.toString(response.getEntity());
+        if (stateCode == 200) {
+            JSONObject root = new JSONObject(result);
+            String plate = root.getString("plate");
+            ret = new DeliverySessionDetail(id, plate);
+
+            JSONObject jsonObject = new JSONObject(result).getJSONObject("store_bills");
+            Iterator iterator = jsonObject.keys();
+            while (iterator.hasNext()) {
+                String customerOrderNumber = (String) iterator.next();
+                Order order = new Order();
+                order.setCustomerOrderNumber(customerOrderNumber);
+
+                JSONObject _subOrderMap_ = jsonObject.getJSONObject(customerOrderNumber);
+                Iterator iterator1 = _subOrderMap_.keys();
+                while (iterator1.hasNext()) {
+                    String subOrderId = (String) iterator1.next();
+                    SubOrder subOrder = new SubOrder(Integer.valueOf(subOrderId));
+                    JSONArray _storeBills_ = _subOrderMap_.getJSONArray(subOrderId);
+                    for (int i=0; i < _storeBills_.length(); ++i) {
+                        JSONObject _storeBill_ = _storeBills_.getJSONObject(i);
+                        int storeBillId = _storeBill_.getInt("id");
+                        String harborName = _storeBill_.getString("harbor");
+                        String productName = _storeBill_.getString("product_name");
+                        String customerName = _storeBill_.getString("customer_name");
+                        String picUrl = _storeBill_.getString("pic_url");
+                        String unit = _storeBill_.getString("unit");
+                        int weight = _storeBill_.getInt("weight");
+                        String spec = _storeBill_.getString("spec");
+                        String type = _storeBill_.getString("type");
+                        subOrder.addStoreBill(new StoreBill(storeBillId, harborName, productName, customerName, picUrl, unit, weight, spec, type));
+                    }
+                    order.addSubOrder(subOrder);
+                }
+                ret.addOrder(order);
+            }
+        } else {
+            throw new BadRequest(result);
+        }
+        return ret;
+    }
+
+    public void createDeliveryTask(DeliverySession deliverySession, boolean finished, int actorId,
+                                   List<Pair<StoreBill, Boolean>> storeBillPairList, int remainWeight) throws JSONException, IOException, BadRequest {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("sid", String.valueOf(deliverySession.getId()));
+        params.put("is_finished", finished? "1": "0");
+        params.put("actor_id", String.valueOf(actorId));
+        if (!finished) {
+            params.put("remain", String.valueOf(remainWeight));
+        }
+        String url = composeUrl("delivery_ws", "delivery-task", params);
+        JSONArray jsonArray = new JSONArray();
+        for (Pair<StoreBill, Boolean> pair: storeBillPairList) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("store_bill_id", pair.first.getId());
+            jsonObject.put("is_finished", pair.second? "1": "0");
+            jsonArray.put(jsonObject);
+        }
+        HttpResponse httpResponse = sendRequest(url, "POST", jsonArray.toString());
+        int stateCode = httpResponse.getStatusLine().getStatusCode();
+        if (stateCode != 200) {
+            throw new BadRequest(EntityUtils.toString(httpResponse.getEntity()));
+        }
     }
 
     private String composeUrl(String blueprint, String path) {
@@ -267,4 +373,5 @@ public class WebService {
         }
         return response;
     }
+
 }

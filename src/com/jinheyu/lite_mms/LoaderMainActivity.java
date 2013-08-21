@@ -32,6 +32,8 @@ public class LoaderMainActivity extends FragmentActivity {
         buttonStartLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(LoaderMainActivity.this, SelectDeliverySessionActivity.class);
+                startActivity(intent);
             }
         });
     }

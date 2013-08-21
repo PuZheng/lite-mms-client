@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/textViewStepName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/handle_delivery_session"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:textColor="@color/main_title"/>
+
+
+    <View
+            android:background="@drawable/title_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"/>
+
+
+    <TableLayout
+            android:id="@+id/tableLayoutSubOrderList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF">
+
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="15dp"
+                android:paddingBottom="10dp"
+                android:showDividers="beginning|middle|end">
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:text="完成状态"
+                    android:textStyle="bold"
+                    android:layout_column="0"
+                    android:gravity="center"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:text="编号"
+                    android:textStyle="bold"
+                    android:layout_column="1"
+                    android:gravity="center"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:text="装卸点"
+                    android:textStyle="bold"
+                    android:layout_column="2"
+                    android:gravity="center"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="约重"
+                    android:layout_column="3"
+                    android:gravity="center"/>
+
+        </TableRow>
+
+    </TableLayout>
+
+
+</LinearLayout>

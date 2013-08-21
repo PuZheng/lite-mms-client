@@ -14,6 +14,9 @@ import android.util.Pair;
 import com.jinheyu.lite_mms.data_structures.User;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Created by xc on 13-8-13.
@@ -92,5 +95,32 @@ public class Utils {
         int port = Integer.valueOf(sharedPreferences.getString("server_port",
                 String.valueOf(MyApp.DEFAULT_SERVER_PORT)));
         return new Pair<String, Integer>(ip, port);
+    }
+
+    public static String join(List<String> stringList, String delimiter) {
+        boolean first = true;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s: stringList) {
+            stringBuilder.append((first? "": delimiter) + s);
+            first = false;
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String join(String[] strings, String delimiter) {
+        boolean first = true;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s: strings) {
+            stringBuilder.append((first? "": delimiter) + s);
+            first = false;
+        }
+        return stringBuilder.toString();
+    }
+
+    public static CharSequence getVersion(Context context) throws IOException {
+        InputStream inputStream = context.getAssets().open("version.txt");
+        byte buf[] = new byte[inputStream.available()];
+        inputStream.read(buf);
+        return new String(buf);
     }
 }

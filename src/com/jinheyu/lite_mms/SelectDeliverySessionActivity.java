@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jinheyu.lite_mms.data_structures.UnloadSession;
+import com.jinheyu.lite_mms.data_structures.DeliverySession;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 
 import org.json.JSONException;
@@ -26,18 +26,29 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by xc on 13-8-13.
+ * Created by xc on 13-8-17.
  */
-public class SelectUnloadSessionActivity extends ListActivity {
-    private static final String TAG = "SelectUnloadSessionActivity";
-    private Toast backToast;
+public class SelectDeliverySessionActivity extends ListActivity {
+
     private TextView textViewNoData;
+    private Toast backToast;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_unload_session);
+        setContentView(R.layout.activity_select_delivery_session);
         textViewNoData = (TextView) findViewById(R.id.textViewNoData);
-        new GetUnloadSessionListTask().execute();
+        new GetDeliverySessionTask().execute();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
+            finish();
+            backToast.cancel();
+        } else {
+            backToast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
+            backToast.show();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -52,90 +63,74 @@ public class SelectUnloadSessionActivity extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getTitle().equals(getString(R.string.refresh))) {
-            new GetUnloadSessionListTask().execute();
+            new GetDeliverySessionTask().execute();
         }
         return super.onOptionsItemSelected(item);
     }
+    private class GetDeliverySessionTask extends AsyncTask<Void, Void, List<DeliverySession>> {
 
-    class GetUnloadSessionListTask extends AsyncTask<Void, Void, List<UnloadSession>> {
-        Exception ex = null;
+        private Exception ex;
 
         @Override
-        protected List<UnloadSession> doInBackground(Void... voids) {
-
-
+        protected List<DeliverySession> doInBackground(Void... voids) {
             try {
-                List<UnloadSession> unloadSessionList = MyApp.getWebServieHandler().getUnloadSessionList();
-                return unloadSessionList;
-
-            } catch (JSONException e) {
+                return MyApp.getWebServieHandler().getDeliverySessionList();
+            } catch (IOException e) {
                 e.printStackTrace();
                 ex = e;
-            } catch (IOException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
                 ex = e;
             } catch (BadRequest badRequest) {
                 badRequest.printStackTrace();
                 ex = badRequest;
             }
-
-
             return null;
         }
 
         @Override
-        protected void onPostExecute(List<UnloadSession> unloadSessionList) {
+        protected void onPostExecute(List<DeliverySession> deliverySessionList) {
             if (ex != null) {
-                Utils.displayError(SelectUnloadSessionActivity.this, ex);
+                Utils.displayError(SelectDeliverySessionActivity.this, ex);
                 return;
             }
-            if (unloadSessionList.isEmpty()) {
-                textViewNoData.setVisibility(View.VISIBLE);
+            if (deliverySessionList.isEmpty()) {
                 getListView().setVisibility(View.GONE);
+                textViewNoData.setVisibility(View.VISIBLE);
             } else {
                 textViewNoData.setVisibility(View.GONE);
                 getListView().setVisibility(View.VISIBLE);
-                setListAdapter(new MyListAdapter(SelectUnloadSessionActivity.this, unloadSessionList));
+                setListAdapter(new MyListAdapter(SelectDeliverySessionActivity.this, deliverySessionList));
             }
+
+            super.onPostExecute(deliverySessionList);
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
-            finish();
-            backToast.cancel();
-        } else {
-            backToast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
-            backToast.show();
-        }
-    }
-
-    class MyListAdapter extends BaseAdapter {
-
+    private class MyListAdapter extends BaseAdapter {
         private final Context context;
-        private final List<UnloadSession> unloadSessionList;
+        private final List<DeliverySession> deliverySessionList;
         private final LayoutInflater layoutInflater;
 
-        public MyListAdapter(Context context, List<UnloadSession> unloadSessionList) {
+        public MyListAdapter(Context context, List<DeliverySession> deliverySessionList) {
             this.context = context;
-            this.unloadSessionList = unloadSessionList;
+            this.deliverySessionList = deliverySessionList;
             this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
         public int getCount() {
-            return unloadSessionList.size();
+            return deliverySessionList.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return unloadSessionList.get(i);
+            return deliverySessionList.get(i);
         }
 
         @Override
         public long getItemId(int i) {
-            return unloadSessionList.get(i).getId();
+            return deliverySessionList.get(i).getId();
         }
 
         class ViewHolder {
@@ -150,8 +145,8 @@ public class SelectUnloadSessionActivity extends ListActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-
             ViewHolder viewHolder;
+
             if (view == null) {
                 view = layoutInflater.inflate(R.layout.session_list_item, null);
                 viewHolder = new ViewHolder((TextView) view.findViewById(R.id.textViewPlate),
@@ -160,30 +155,26 @@ public class SelectUnloadSessionActivity extends ListActivity {
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
-            final UnloadSession unloadSession = (UnloadSession) getItem(i);
-            viewHolder.textView.setText(unloadSession.getPlate());
-            if (unloadSession.isLocked()) {
-                viewHolder.imageView.setVisibility(View.VISIBLE);
-                viewHolder.textView.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            } else {
-                viewHolder.imageView.setVisibility(View.GONE);
-                viewHolder.textView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-            }
+            final DeliverySession deliverySession = (DeliverySession) getItem(i);
+            viewHolder.textView.setText(deliverySession.getPlate());
+            viewHolder.textView.setTextColor(deliverySession.isLocked()?
+                    getResources().getColor(android.R.color.darker_gray):
+                    getResources().getColor(android.R.color.primary_text_light));
+            viewHolder.imageView.setVisibility(deliverySession.isLocked()? View.VISIBLE: View.GONE);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (unloadSession.isLocked()) {
+                    if (deliverySession.isLocked()) {
                         Toast.makeText(context, getString(R.string.vehicle_weighing), Toast.LENGTH_SHORT).show();
                     } else {
-                        Intent intent = new Intent(SelectUnloadSessionActivity.this,
-                                SelectHarborActivity.class);
-                        intent.putExtra("unloadSession", unloadSession);
+                        Intent intent = new Intent(SelectDeliverySessionActivity.this,
+                                SelectSubOrderActivity.class);
+                        intent.putExtra("deliverySession", deliverySession);
                         startActivity(intent);
                     }
                 }
             });
             return view;
         }
-
     }
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/textViewStepName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:textColor="@color/main_title"/>
+
+    <View
+            android:background="@drawable/title_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"/>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="对不起！当前没有可选订单"
+                android:id="@+id/textViewNoData"
+                android:layout_gravity="center_horizontal|top"
+                android:visibility="gone"
+                android:textColor="@android:color/darker_gray"/>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayoutOrders"
+                >
+        </LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>

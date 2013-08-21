@@ -2,4 +2,7 @@
 
     <color name="black_overlay">#66000000</color>
     <color name="main_title">#3bc2ff</color>
+    <color name="sub_title">#3cc470</color>
+    <color name="sub_title_background">#D6D6D6</color>
+    <color name="undelivered">#D6D6D6</color>
 </resources>

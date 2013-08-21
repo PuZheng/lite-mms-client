@@ -2,6 +2,7 @@ package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -135,14 +136,28 @@ public class LogInActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem menuItem = menu.add("设置");
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menuItem = menu.add("关于");
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getTitle().equals("设置")) {
-                Intent intent = new Intent(LogInActivity.this, MyPreferenceActivity.class);
-                startActivity(intent);
+            Intent intent = new Intent(LogInActivity.this, MyPreferenceActivity.class);
+            startActivity(intent);
+        } else if (item.getTitle().equals("关于")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
+            builder.setTitle("关于");
+            View view = getLayoutInflater().inflate(R.layout.dialog_about, null);
+            builder.setView(view);
+            try {
+                ((TextView) view.findViewById(R.id.textViewVersion)).setText(Utils.getVersion(LogInActivity.this));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            builder.setPositiveButton(R.string.i_see, null);
+            builder.show();
         }
         return super.onOptionsItemSelected(item);
     }
