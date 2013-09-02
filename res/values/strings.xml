@@ -27,5 +27,9 @@
     <string name="choose_order">请选择子订单</string>
     <string name="step_n">第%s步</string>
     <string name="i_see">我知道了</string>
+    <string name="first">第一个</string>
+    <string name="last">最后个</string>
+    <string name="dummy_section_text">Section %1d is just a dummy section.</string>
+    <string name="noItems">无数据</string>
 
 </resources>

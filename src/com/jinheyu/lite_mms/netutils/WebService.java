@@ -5,15 +5,7 @@ import android.util.Pair;
 
 import com.jinheyu.lite_mms.MyApp;
 import com.jinheyu.lite_mms.Utils;
-import com.jinheyu.lite_mms.data_structures.Customer;
-import com.jinheyu.lite_mms.data_structures.DeliverySession;
-import com.jinheyu.lite_mms.data_structures.DeliverySessionDetail;
-import com.jinheyu.lite_mms.data_structures.Harbor;
-import com.jinheyu.lite_mms.data_structures.Order;
-import com.jinheyu.lite_mms.data_structures.StoreBill;
-import com.jinheyu.lite_mms.data_structures.SubOrder;
-import com.jinheyu.lite_mms.data_structures.UnloadSession;
-import com.jinheyu.lite_mms.data_structures.User;
+import com.jinheyu.lite_mms.data_structures.*;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -33,20 +25,21 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by xc on 13-8-12.
  */
 public class WebService {
 
+    private static final int MILLSECONDS_PER_SECOND = 1000;
     private static WebService instance;
-    private List<Customer> customerList;
+    private Context context;
+
+    private WebService(Context c) {
+        this.context = c;
+    }
 
     public static WebService getInstance(Context c) {
         if (instance == null) {
@@ -55,13 +48,16 @@ public class WebService {
         return instance;
     }
 
-    private Context context;
-
-    private WebService(Context c) {
-        this.context = c;
-    }
-
-    public User login(String username, String password) throws IOException, JSONException, BadRequest, ValidationError {
+    /**
+     * @param username username to authenticate
+     * @param password password to authenticate
+     * @return com.jinheyu.lite_mms.data_structures.User
+     * @throws IOException     send request fails
+     * @throws JSONException   parse fails or doesn't yield a JSONObject.
+     * @throws BadRequest      an unexpected response status code
+     * @throws ValidationError login failed because of authentication fails
+     */
+    public User login(String username, String password) throws IOException, JSONException, BadRequest, ValidationError, NumberFormatException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("username", username);
         params.put("password", password);
@@ -70,13 +66,27 @@ public class WebService {
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
         JSONObject root = new JSONObject(result);
-        if (stateCode == 200) {
-            return new User(root.getInt("userID"), root.getString("username"), root.getString("token"), root.getInt("userGroup"));
-        } else if (stateCode == 403) {
+        if (stateCode == HttpStatus.SC_OK) {
+            int[] teamIdList = Utils.parse2IntegerArray(root.getString("teamID"));
+            int[] departmentIdList = Utils.parse2IntegerArray(root.getString("departmentID"));
+            User user = new User(root.getInt("userID"), root.getString("username"), root.getString("token"), root.getInt("userGroup"), teamIdList, departmentIdList);
+            user.setTeamList(getTeamListByIds(teamIdList));
+            return user;
+        } else if (stateCode == HttpStatus.SC_FORBIDDEN) {
             throw new ValidationError(root.getString("reason"));
         } else {
             throw new BadRequest(result);
         }
+    }
+
+    private List<Team> getTeamListByIds(int[] teamIdList) throws JSONException, IOException, BadRequest {
+        List<Team> teamList = new ArrayList<Team>();
+        for (Team team : getTeamList()) {
+            if(Arrays.binarySearch(teamIdList, team.getId()) > -1) {
+                teamList.add(team);
+            }
+        }
+        return teamList;
     }
 
     public List<UnloadSession> getUnloadSessionList() throws JSONException, IOException, BadRequest {
@@ -87,11 +97,11 @@ public class WebService {
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
         JSONObject root = new JSONObject(result);
-        if (stateCode == 200) {
+        if (stateCode == HttpStatus.SC_OK) {
             int cnt = root.getInt("total_cnt");
             ret = new ArrayList<UnloadSession>(cnt);
             JSONArray data = root.getJSONArray("data");
-            for (int i=0; i < data.length(); ++i) {
+            for (int i = 0; i < data.length(); ++i) {
                 JSONObject jo = data.getJSONObject(i);
                 int id = jo.getInt("sessionID");
                 String plate = jo.getString("plateNumber");
@@ -106,15 +116,15 @@ public class WebService {
     }
 
     public List<DeliverySession> getDeliverySessionList() throws IOException, JSONException, BadRequest {
-        List<DeliverySession> deliverySessionList = null;
+        List<DeliverySession> deliverySessionList;
         String url = composeUrl("delivery_ws", "delivery-session-list");
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
-        if (stateCode == 200) {
+        if (stateCode == HttpStatus.SC_OK) {
             deliverySessionList = new ArrayList<DeliverySession>();
             JSONArray jsonArray = new JSONArray(result);
-            for (int i=0; i < jsonArray.length(); ++i) {
+            for (int i = 0; i < jsonArray.length(); ++i) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 int id = jsonObject.getInt("sessionID");
                 String plate = jsonObject.getString("plateNumber");
@@ -137,10 +147,10 @@ public class WebService {
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
 
-        if (stateCode == 200) {
+        if (stateCode == HttpStatus.SC_OK) {
             ret = new ArrayList<Harbor>();
             JSONArray data = new JSONArray(result);
-            for (int i=0; i < data.length(); ++i) {
+            for (int i = 0; i < data.length(); ++i) {
                 String harborName = data.getString(i);
                 ret.add(new Harbor(harborName));
             }
@@ -159,10 +169,10 @@ public class WebService {
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
 
-        if (stateCode == 200) {
+        if (stateCode == HttpStatus.SC_OK) {
             ret = new ArrayList<Customer>();
             JSONArray data = new JSONArray(result);
-            for (int i=0; i < data.length(); ++i) {
+            for (int i = 0; i < data.length(); ++i) {
                 JSONObject jo = data.getJSONObject(i);
                 int id = jo.getInt("id");
                 String name = jo.getString("name");
@@ -180,7 +190,7 @@ public class WebService {
         Map<String, String> params = new HashMap<String, String>();
         params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
         params.put("customer_id", String.valueOf(customer.getId()));
-        params.put("is_finished", done? "1": "0");
+        params.put("is_finished", done ? "1" : "0");
         params.put("harbour", URLEncoder.encode(harbor.getName(), "UTF-8"));
         params.put("session_id", String.valueOf(unloadSession.getId()));
 
@@ -226,7 +236,7 @@ public class WebService {
 
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity());
-        if (stateCode == 200) {
+        if (stateCode == HttpStatus.SC_OK) {
             JSONObject root = new JSONObject(result);
             String plate = root.getString("plate");
             ret = new DeliverySessionDetail(id, plate);
@@ -244,7 +254,7 @@ public class WebService {
                     String subOrderId = (String) iterator1.next();
                     SubOrder subOrder = new SubOrder(Integer.valueOf(subOrderId));
                     JSONArray _storeBills_ = _subOrderMap_.getJSONArray(subOrderId);
-                    for (int i=0; i < _storeBills_.length(); ++i) {
+                    for (int i = 0; i < _storeBills_.length(); ++i) {
                         JSONObject _storeBill_ = _storeBills_.getJSONObject(i);
                         int storeBillId = _storeBill_.getInt("id");
                         String harborName = _storeBill_.getString("harbor");
@@ -271,24 +281,142 @@ public class WebService {
                                    List<Pair<StoreBill, Boolean>> storeBillPairList, int remainWeight) throws JSONException, IOException, BadRequest {
         Map<String, String> params = new HashMap<String, String>();
         params.put("sid", String.valueOf(deliverySession.getId()));
-        params.put("is_finished", finished? "1": "0");
+        params.put("is_finished", finished ? "1" : "0");
         params.put("actor_id", String.valueOf(actorId));
         if (!finished) {
             params.put("remain", String.valueOf(remainWeight));
         }
         String url = composeUrl("delivery_ws", "delivery-task", params);
         JSONArray jsonArray = new JSONArray();
-        for (Pair<StoreBill, Boolean> pair: storeBillPairList) {
+        for (Pair<StoreBill, Boolean> pair : storeBillPairList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("store_bill_id", pair.first.getId());
-            jsonObject.put("is_finished", pair.second? "1": "0");
+            jsonObject.put("is_finished", pair.second ? "1" : "0");
             jsonArray.put(jsonObject);
         }
         HttpResponse httpResponse = sendRequest(url, "POST", jsonArray.toString());
         int stateCode = httpResponse.getStatusLine().getStatusCode();
-        if (stateCode != 200) {
+        if (stateCode != HttpStatus.SC_OK) {
             throw new BadRequest(EntityUtils.toString(httpResponse.getEntity()));
         }
+    }
+
+
+    public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int[] status) throws IOException, JSONException, BadRequest {
+        List<WorkCommand> list;
+        Map<String, String> params = new LinkedHashMap<String, String>();
+        List<String> statusList = new ArrayList<String>();
+        for (int i : status) {
+            statusList.add(String.valueOf(i));
+        }
+        params.put("status", Utils.join(statusList, ","));
+        if (department_id != Integer.MIN_VALUE) {
+            params.put("department_id", String.valueOf(department_id));
+        }
+        if (team_id != Integer.MIN_VALUE) {
+            params.put("team_id", String.valueOf(team_id));
+        }
+        String url = composeUrl("manufacture_ws", "work-command-list", params);
+        HttpResponse response = sendRequest(url);
+        int stateCode = response.getStatusLine().getStatusCode();
+        if (stateCode != HttpStatus.SC_OK) {
+            throw new BadRequest(EntityUtils.toString(response.getEntity()));
+        } else {
+            list = getWorkCommandListFromResp(response);
+        }
+        return list;
+    }
+
+    public List<WorkCommand> getWorkCommandListByDepartmentId(int department_id, int[] status) throws JSONException, IOException, BadRequest {
+        return getWorkCommandList(department_id, Integer.MIN_VALUE, status);
+    }
+
+    public List<WorkCommand> getWorkCommandListByTeamId(int team_id, int[] status) throws JSONException, IOException, BadRequest {
+        return getWorkCommandList(Integer.MIN_VALUE, team_id, status);
+    }
+
+    private List<Team> _getTeamList(Map<String, String> params) throws IOException, JSONException, BadRequest {
+        String url = composeUrl("manufacture_ws", "team-list", params);
+        HttpResponse response = sendRequest(url);
+        String result = EntityUtils.toString(response.getEntity());
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        }else{
+            return _parseTeamList(result);
+        }
+    }
+
+    private List<Team> _parseTeamList(String result) throws JSONException {
+        List<Team> teamList = new ArrayList<Team>();
+        JSONArray objs = new JSONArray(result);
+        for (int i = 0; i < objs.length(); i++) {
+            JSONObject obj = objs.getJSONObject(i);
+            teamList.add(new Team(obj.getInt("id"), obj.getString("name")));
+        }
+        return teamList;
+    }
+
+    public List<Team> getTeamList(int department_id) throws JSONException, IOException, BadRequest {
+        Map<String, String> params = new LinkedHashMap<String, String>();
+        params.put("department_id", String.valueOf(department_id));
+        return _getTeamList(params);
+    }
+
+    public List<Team> getTeamList() throws JSONException, IOException, BadRequest {
+        return _getTeamList(null);
+    }
+
+
+    private List<WorkCommand> getWorkCommandListFromResp(HttpResponse response) throws IOException, JSONException {
+        List<WorkCommand> list = new ArrayList<WorkCommand>();
+        String result = EntityUtils.toString(response.getEntity());
+        JSONObject object = new JSONObject(result);
+        JSONArray array = new JSONArray(object.getString("data"));
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject data = array.getJSONObject(i);
+            list.add(parse2WorkCommand(data));
+        }
+        return list;
+    }
+
+    private WorkCommand parse2WorkCommand(JSONObject o) throws JSONException {
+        int id = o.getInt("id");
+        String customerName = o.getString("customerName");
+        boolean urgent = o.getInt("isUrgent") == 1;
+        String spec = o.getString("spec");
+        String type = o.getString("type");
+        String lastMod = o.getString("lastMod");
+        int orderID = o.getInt("orderID");
+        int orderNum = o.getInt("orderNum");
+        int orderType = o.getInt("orderType");
+        int orgCount = o.getInt("orgCount");
+        int orgWeight = o.getInt("orgWeight");
+        String picPath = o.getString("picPath");
+        Date last_mod = new Date(o.getLong("lastMod") * MILLSECONDS_PER_SECOND);
+        Date orderCreateTime = new Date(o.getLong("orderCreateTime") * MILLSECONDS_PER_SECOND);
+        int subOrderId = o.getInt("subOrderId");
+        int processedCount = o.getInt("processedCount");
+        int processedWeight = o.getInt("processedWeight");
+        String productName = o.getString("productName");
+        int status = o.getInt("status");
+        String tech_req = o.getString("technicalRequirements");
+        int deduction = o.getInt("deduction");
+        boolean rejected = o.getInt("rejected") == 1;
+        String unit = o.getString("unit");
+        String procedure = o.getString("procedure");
+        String previousProcedure = o.getString("previousProcedure");
+        WorkCommand wc = new WorkCommand(id);
+        if (!Utils.isEmptyString(o.getString("team"))) {
+            JSONObject team = o.getJSONObject("team");
+            String teamName = team.getString("name");
+            wc.setTeamId(team.getInt("id"));
+        }
+        if (!Utils.isEmptyString(o.getString("department"))) {
+            JSONObject department = o.getJSONObject("department");
+            String departmentName = department.getString("name");
+            wc.setDepartmentId(department.getInt("id"));
+        }
+        return wc;
     }
 
     private String composeUrl(String blueprint, String path) {
@@ -297,16 +425,16 @@ public class WebService {
 
     private String composeUrl(String blueprint, String path, Map<String, String> params) {
         Pair<String, Integer> pair = Utils.getServerAddress(context);
-        String ret = String.format("http://%s:%d/%s/%s", pair.first, pair.second, blueprint, path);
+        StringBuilder ret = new StringBuilder();
+        ret.append(String.format("http://%s:%d/%s/%s", pair.first, pair.second, blueprint, path));
         if (params != null) {
-            ret += "?";
             boolean first = true;
-            for (Map.Entry<String, String> entry: params.entrySet()) {
-                ret += (first? "": "&") + entry.getKey() + "=" + entry.getValue();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                ret.append(first ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
                 first = false;
             }
         }
-        return ret;
+        return ret.toString();
     }
 
     private HttpResponse sendRequest(String url)
