@@ -56,8 +56,8 @@ public class Utils {
         int[] teamIdList;
         int[] departmentIdList;
         try {
-            teamIdList = parse2IntegerArray(preferences.getString("teamIdList", ""));
-            departmentIdList = parse2IntegerArray(preferences.getString("departmentIdList", ""));
+            teamIdList = parse2IntegerArray(preferences.getString("teamIdList", ""), ", ");
+            departmentIdList = parse2IntegerArray(preferences.getString("departmentIdList", ""), ", ");
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return null;

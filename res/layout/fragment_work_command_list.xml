@@ -24,18 +24,14 @@
             android:drawSelectorOnTop="false" />
 
         <!-- Here is the view to show if the list is emtpy -->
-        <ScrollView
-            android:id="@+id/scroll_view"
+        <TextView
+            android:id="@android:id/empty"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
-            <TextView
-                android:id="@android:id/empty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:visibility="gone"
-                android:text="@string/noItems" />
-        </ScrollView>
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:scrollbars="vertical"
+            android:gravity="center_horizontal"
+            android:text="@string/noItems" />
 
 
     </FrameLayout>
