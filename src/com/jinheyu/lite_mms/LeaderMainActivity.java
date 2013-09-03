@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.Team;
@@ -146,11 +145,11 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         @Override
         public Fragment getItem(int i) {
             // The other sections of the app are dummy placeholders.
-            Fragment fragment = new WorkCommandListFramgent(getCurrentTeam(i).getId());
+            Fragment mFragment = new WorkCommandListFragment(getCurrentTeam(i).getId());
             Bundle args = new Bundle();
-            args.putInt(WorkCommandListFramgent.ARG_SECTION_NUMBER, i);
-            fragment.setArguments(args);
-            return fragment;
+            args.putInt(WorkCommandListFragment.ARG_SECTION_NUMBER, i);
+            mFragment.setArguments(args);
+            return mFragment;
         }
 
 
@@ -169,22 +168,22 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
-    public static class WorkCommandListFramgent extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
+    public static class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
 
         public static final String ARG_SECTION_NUMBER = "section_number";
         private TextView noDataView;
-        private ProgressBar progressBar;
-        private int teamdId;
+        private ProgressBar mProgressBar;
+        private int teamId;
         private AsyncTask<Void, Void, List<WorkCommand>> task;
         private int mCategoryId;
         private PullToRefreshAttacher mPullToRefreshAttacher;
 
-        public WorkCommandListFramgent(int teamdId) {
-            this.teamdId = teamdId;
+        public WorkCommandListFragment(int teamId) {
+            this.teamId = teamId;
         }
 
         public void loadWorkCommandList() {
-            task = new GetWorkCommandListTask(teamdId);
+            task = new GetWorkCommandListTask(teamId);
             task.execute();
         }
 
@@ -195,9 +194,11 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             ListView listView = (ListView) rootView.findViewById(android.R.id.list);
             mPullToRefreshAttacher = ((LeaderMainActivity) getActivity()).getPullToRefreshAttacher();
             mPullToRefreshAttacher.addRefreshableView(listView, this);
+            ScrollView mScrollView = (ScrollView) rootView.findViewById(R.id.scroll_view);
+            mPullToRefreshAttacher.addRefreshableView(mScrollView, this);
             noDataView = (TextView) rootView.findViewById(android.R.id.empty);
             mCategoryId = getArguments() != null ? getArguments().getInt(ARG_SECTION_NUMBER) : 0;
-            progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+            mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             loadWorkCommandList();
             return rootView;
         }
@@ -217,12 +218,12 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         }
 
         class WorkCommandListAdapter extends BaseAdapter {
-            private final LayoutInflater layoutInflater;
+            private final LayoutInflater mInflater;
             private List<WorkCommand> workCommandList;
 
             public WorkCommandListAdapter(Context context, List<WorkCommand> workCommandList) {
                 this.workCommandList = workCommandList;
-                this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             }
 
             /**
@@ -255,7 +256,7 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
              */
             @Override
             public long getItemId(int position) {
-                return ((WorkCommand) getItem(position)).getId();
+                return workCommandList.get(position).getId();
             }
 
             /**
@@ -281,7 +282,7 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
                 final WorkCommand workCommand = workCommandList.get(position);
                 ViewHolder viewHolder;
                 if (convertView == null) {
-                    convertView = layoutInflater.inflate(R.layout.fragment_work_command, null);
+                    convertView = mInflater.inflate(R.layout.fragment_work_command, null);
                     viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView));
                     convertView.setTag(viewHolder);
                 } else {
@@ -352,7 +353,7 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             @Override
             protected void onPostExecute(List<WorkCommand> workCommandList) {
                 if (ex != null) {
-                    Utils.displayError(WorkCommandListFramgent.this.getActivity(), ex);
+                    Utils.displayError(WorkCommandListFragment.this.getActivity(), ex);
                     return;
                 }
                 if (workCommandList.isEmpty()) {
@@ -361,14 +362,14 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
                 } else {
                     doUpdateView(workCommandList);
                 }
-                progressBar.setVisibility(View.GONE);
+                mProgressBar.setVisibility(View.GONE);
                 mPullToRefreshAttacher.setRefreshComplete();
             }
 
             private void doUpdateView(List<WorkCommand> workCommandList) {
                 noDataView.setVisibility(View.GONE);
                 getListView().setVisibility(View.VISIBLE);
-                setListAdapter(new WorkCommandListAdapter(WorkCommandListFramgent.this.getActivity(), workCommandList));
+                setListAdapter(new WorkCommandListAdapter(WorkCommandListFragment.this.getActivity(), workCommandList));
             }
         }
     }
