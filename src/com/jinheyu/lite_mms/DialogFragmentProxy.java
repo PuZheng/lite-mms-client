@@ -21,7 +21,7 @@ public class DialogFragmentProxy extends DialogFragment {
             mListener = (DialogProxyListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement DialogProxyListener");
         }
     }
 

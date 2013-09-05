@@ -20,7 +20,8 @@ import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import java.util.HashMap;
 
 
-public class WorkCommandActivity extends FragmentActivity implements DialogFragmentProxy.DialogProxyListener {
+public class WorkCommandActivity extends FragmentActivity implements DialogFragmentProxy.DialogProxyListener,
+        ImageFragment.ImageFragmentListener {
     private WorkCommand workCommand;
     private EditText weightTextView;
     private EditText cntTextView;
@@ -77,7 +78,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         getIntent().putExtra("picUrl", url);
         if (!Utils.isEmptyString(url)) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ImageFragment imageFragment = new ImageFragment(url);
+            ImageFragment imageFragment = new ImageFragment();
             ft.add(R.id.image_row, imageFragment, "IMAGE");
             ft.commit();
         }
@@ -197,4 +198,8 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         builder.create().start();
     }
 
+    @Override
+    public String getFragmentPicUrl() {
+        return workCommand.getPicPath();
+    }
 }
