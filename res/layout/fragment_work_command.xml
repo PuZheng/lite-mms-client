@@ -9,7 +9,10 @@
         android:id="@+id/idTextView"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:background="@color/sub_title_background"
         android:layout_width="match_parent"
+        android:padding="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_height="wrap_content" />
 
 </LinearLayout>

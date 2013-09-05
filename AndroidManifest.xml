@@ -53,8 +53,17 @@
                 android:value="splitActionBarWhenNarrow" />
         </activity>
         <activity
+            android:label="@string/title_activity_leader_main_activity"
             android:name=".LeaderMainActivity"
             android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
+            android:name=".WorkCommandActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:label="@string/title_activity_work_command">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />

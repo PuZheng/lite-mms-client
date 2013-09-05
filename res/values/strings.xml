@@ -31,6 +31,30 @@
     <string name="last">最后个</string>
     <string name="dummy_section_text">Section %1d is just a dummy section.</string>
     <string name="noItems">无数据</string>
-    <string name="loading_data">正在加载中</string>
+    <string name="loading_data">正在载入…</string>
+    <string name="title_activity_work_command">工单详情</string>
+    <string name="work_command_id">工单号</string>
+    <string name="order_number">订单编号</string>
+    <string name="customer_name">客户名称</string>
+    <string name="image">图片</string>
+    <string name="pir_description">工单图片</string>
+    <string name="title_activity_leader_main_activity">工单列表</string>
+    <string name="please_wait">请稍等</string>
+    <string name="add_weight">增加重量</string>
+    <string name="quick_carryForward">快速结转</string>
+    <string name="carry_forward">结转</string>
+    <string name="completely_weight">完全称重</string>
+    <string name="part_weight">部分称重</string>
+    <string name="add_count">增加数量</string>
+    <string name="processed_weight">已加工的重量</string>
+    <string name="max_times">最大倍数</string>
+    <string name="max_times_description">添加数量的时候，输入的数量不能大于黑件数辆的倍数</string>
+    <string name="invalid_weight_data">输入的重量不能为0</string>
+    <string name="invalid_cnt_data">输入的重量不能为0</string>
+    <string name="too_large_data">输入的数量超过可接受范围</string>
+    <string name="add_work_command_weight">正在添加重量</string>
+    <string name="add_work_command_weight_success">添加重量成功</string>
+    <string name="previous_weight_greater">工序前重量大于工序后重量，你确定要全部完成吗？</string>
+    <string name="previous_count_greater">工序前数量大于工序后数量，你确定要全部完成吗？</string>
 
 </resources>

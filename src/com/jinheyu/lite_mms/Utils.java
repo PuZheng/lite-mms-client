@@ -123,6 +123,19 @@ public class Utils {
         return new Pair<String, Integer>(ip, port);
     }
 
+    public static int getMaxTimes(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return Integer.parseInt(sharedPreferences.getString("max_times", String.valueOf(MyApp.MAX_TIMES_PROCESSED_TO_ORG)));
+    }
+
+    public static int parseInt(String string, int defaultValue) {
+        try {
+            return Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     public static String join(List<String> stringList, String delimiter) {
         boolean first = true;
         StringBuilder stringBuilder = new StringBuilder();

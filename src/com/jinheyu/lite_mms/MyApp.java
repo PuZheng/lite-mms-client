@@ -13,6 +13,7 @@ public class MyApp extends Application {
 
     public static final String DEFAULT_SERVER_IP = "192.168.0.181";
     public static final int DEFAULT_SERVER_PORT = 80;
+    public static final int MAX_TIMES_PROCESSED_TO_ORG = 2;
     private static Context context;
     private static String server_address;
     private static WebService webServieHandler;

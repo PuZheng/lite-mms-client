@@ -10,6 +10,8 @@ import android.os.Parcelable;
  * Time: 下午12:07
  */
 public class WorkCommand implements Parcelable {
+
+
     public static final Creator<WorkCommand> CREATOR = new Creator<WorkCommand>() {
         @Override
         public WorkCommand createFromParcel(Parcel source) {
@@ -42,13 +44,80 @@ public class WorkCommand implements Parcelable {
     private String spec;
     private String type;
     private String lastMod;
+    private int orderType;
 
     public WorkCommand(Parcel parcel) {
         this.id = parcel.readInt();
+        this.picPath = parcel.readString();
+        this.processed_weight = parcel.readInt();
+        this.processed_cnt = parcel.readInt();
+        this.org_cnt = parcel.readInt();
+        this.org_weight = parcel.readInt();
+        this.orderType = parcel.readInt();
     }
 
-    public WorkCommand(int id) {
+    public WorkCommand(int id, int org_cnt, int org_weight) {
+        this.org_cnt = org_cnt;
+        this.org_weight = org_weight;
         this.id = id;
+    }
+
+    /**
+     * Describe the kinds of special objects contained in this Parcelable's
+     * marshalled representation.
+     *
+     * @return a bitmask indicating the set of special object types marshalled
+     * by the Parcelable.
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(picPath);
+        dest.writeInt(processed_weight);
+        dest.writeInt(org_cnt);
+        dest.writeInt(orderType);
+        dest.writeInt(processed_cnt);
+        dest.writeInt(processed_weight);
+    }
+
+    public String getPicPath() {
+        return picPath;
+    }
+
+    public void setPicPath(String picPath) {
+        this.picPath = picPath;
+    }
+
+    public int getProcessedWeight() {
+        return processed_weight;
+    }
+
+    public void setProcessedWeight(int processed_weight) {
+        this.processed_weight = processed_weight;
+    }
+
+    public boolean measured_by_weight() {
+        return orderType == Constants.STANDARD_ORDER_TYPE;
+    }
+
+    public void setOrderType(int orderType) {
+        this.orderType = orderType;
+    }
+
+    public int getOrgCnt() {
+        return org_cnt;
     }
 
     public int getId() {
@@ -71,27 +140,15 @@ public class WorkCommand implements Parcelable {
         this.departmentId = departmentId;
     }
 
-    /**
-     * Describe the kinds of special objects contained in this Parcelable's
-     * marshalled representation.
-     *
-     * @return a bitmask indicating the set of special object types marshalled
-     *         by the Parcelable.
-     */
-    @Override
-    public int describeContents() {
-        return 0;
+    public int getOrgWeight() {
+        return org_weight;
     }
 
-    /**
-     * Flatten this object in to a Parcel.
-     *
-     * @param dest  The Parcel in which the object should be written.
-     * @param flags Additional flags about how the object should be written.
-     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
-     */
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+    public int getProcessedCnt() {
+        return processed_cnt;
+    }
+
+    public void setProcessedCnt(int processedCnt) {
+        this.processed_cnt = processedCnt;
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.widget.*;
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import com.jinheyu.lite_mms.netutils.BadRequest;
@@ -34,7 +36,6 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
     AppSectionsPagerAdapter mAppSectionsPagerAdapter;
     ViewPager mViewPager;
     private PullToRefreshAttacher mPullToRefreshAttacher;
-
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,7 +150,6 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             return WorkCommandListFragment.newInstance(getCurrentTeam(i).getId());
         }
 
-
         @Override
         public int getCount() {
             return MyApp.getCurrentUser().getTeamIdList().length;
@@ -169,10 +169,10 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
 
         public static final String ARG_SECTION_NUMBER = "section_number";
         private TextView noDataView;
-        private ProgressBar mProgressBar;
         private int teamId;
         private AsyncTask<Void, Void, List<WorkCommand>> task;
         private PullToRefreshAttacher mPullToRefreshAttacher;
+        private ProgressDialog mProgressDialog;
 
         public static WorkCommandListFragment newInstance(int teamId) {
             WorkCommandListFragment mFragment = new WorkCommandListFragment();
@@ -183,6 +183,7 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         }
 
         public void loadWorkCommandList() {
+            mProgressDialog = ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
             task = new GetWorkCommandListTask(teamId);
             task.execute();
         }
@@ -195,12 +196,10 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             mPullToRefreshAttacher = ((LeaderMainActivity) getActivity()).getPullToRefreshAttacher();
             mPullToRefreshAttacher.addRefreshableView(listView, this);
             noDataView = (TextView) rootView.findViewById(android.R.id.empty);
-            noDataView.setText(R.string.loading_data);
             listView.setEmptyView(noDataView);
             mPullToRefreshAttacher.addRefreshableView(noDataView, this);
             noDataView.setMovementMethod(new ScrollingMovementMethod());
             teamId = getArguments() != null ? getArguments().getInt(ARG_SECTION_NUMBER) : 0;
-            mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             loadWorkCommandList();
             return rootView;
         }
@@ -209,7 +208,6 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         public void onRefreshStarted(View view) {
             loadWorkCommandList();
         }
-
 
         public class ViewHolder {
             public TextView idTextView;
@@ -294,7 +292,15 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
                 convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        Intent intent = new Intent(WorkCommandListFragment.this.getActivity(), WorkCommandActivity.class);
+                        intent.putExtra("work_command", workCommand);
+                        startActivity(intent);
+                    }
+                });
+                convertView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        return false;
                     }
                 });
                 return convertView;
@@ -326,8 +332,8 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             @Override
             protected List<WorkCommand> doInBackground(Void... params) {
                 try {
-                    int[] i = {1, 2};
-                    return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId, i);
+                    return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId,
+                            new int[]{Constants.STATUS_LOCKED, Constants.STATUS_ENDING});
                 } catch (IOException e) {
                     e.printStackTrace();
                     ex = e;
@@ -359,12 +365,13 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
                     return;
                 }
                 doUpdateView(workCommandList);
-                mProgressBar.setVisibility(View.GONE);
+                if (mProgressDialog != null) {
+                    mProgressDialog.dismiss();
+                }
                 mPullToRefreshAttacher.setRefreshComplete();
             }
 
             private void doUpdateView(List<WorkCommand> workCommandList) {
-                noDataView.setText(R.string.noItems);
                 setListAdapter(new WorkCommandListAdapter(WorkCommandListFragment.this.getActivity(), workCommandList));
             }
         }

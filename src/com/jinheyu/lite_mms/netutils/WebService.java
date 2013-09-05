@@ -1,12 +1,12 @@
 package com.jinheyu.lite_mms.netutils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Pair;
-
 import com.jinheyu.lite_mms.MyApp;
 import com.jinheyu.lite_mms.Utils;
 import com.jinheyu.lite_mms.data_structures.*;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -22,10 +22,10 @@ import org.json.JSONObject;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -82,7 +82,7 @@ public class WebService {
     private List<Team> getTeamListByIds(int[] teamIdList) throws JSONException, IOException, BadRequest {
         List<Team> teamList = new ArrayList<Team>();
         for (Team team : getTeamList()) {
-            if(Arrays.binarySearch(teamIdList, team.getId()) > -1) {
+            if (Arrays.binarySearch(teamIdList, team.getId()) > -1) {
                 teamList.add(team);
             }
         }
@@ -301,7 +301,6 @@ public class WebService {
         }
     }
 
-
     public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int[] status) throws IOException, JSONException, BadRequest {
         List<WorkCommand> list;
         Map<String, String> params = new LinkedHashMap<String, String>();
@@ -341,7 +340,7 @@ public class WebService {
         String result = EntityUtils.toString(response.getEntity());
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             throw new BadRequest(result);
-        }else{
+        } else {
             return _parseTeamList(result);
         }
     }
@@ -365,7 +364,6 @@ public class WebService {
     public List<Team> getTeamList() throws JSONException, IOException, BadRequest {
         return _getTeamList(null);
     }
-
 
     private List<WorkCommand> getWorkCommandListFromResp(HttpResponse response) throws IOException, JSONException {
         List<WorkCommand> list = new ArrayList<WorkCommand>();
@@ -405,7 +403,11 @@ public class WebService {
         String unit = o.getString("unit");
         String procedure = o.getString("procedure");
         String previousProcedure = o.getString("previousProcedure");
-        WorkCommand wc = new WorkCommand(id);
+        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight);
+        wc.setPicPath(picPath);
+        wc.setProcessedWeight(processedWeight);
+        wc.setProcessedCnt(processedCount);
+        wc.setOrderType(orderType);
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             String teamName = team.getString("name");
@@ -417,6 +419,19 @@ public class WebService {
             wc.setDepartmentId(department.getInt("id"));
         }
         return wc;
+    }
+
+    public Bitmap getImageFromUrl(String pirUrl) throws IOException {
+        Pair<String, Integer> pair = Utils.getServerAddress(context);
+        URL url = new URL(String.format("http://%s:%d%s", pair.first, pair.second, pirUrl));
+        InputStream is = url.openStream();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        return BitmapFactory.decodeStream(is, null, options);
     }
 
     private String composeUrl(String blueprint, String path) {
@@ -502,4 +517,23 @@ public class WebService {
         return response;
     }
 
+    public void doQuickCarryForward() {
+    }
+
+    public void doCarryForward() {
+    }
+
+    public String updateWorkCommand(WorkCommand workCommand, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
+        params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
+        params.put("work_command_id", String.valueOf(workCommand.getId()));
+        params.put("action", String.valueOf(action_code));
+        String url = composeUrl("manufacture_ws", "work-command", params);
+        HttpResponse response = sendRequest(url, "PUT", (String) null);
+        String result = EntityUtils.toString(response.getEntity());
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        } else {
+            return result;
+        }
+    }
 }

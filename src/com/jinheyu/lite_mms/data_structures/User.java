@@ -26,9 +26,9 @@ public class User implements Parcelable {
             return new User[0];
         }
     };
-    private static final int DEPARTMENT_LEADER = 1;
-    private static final int TEAM_LEADER = 2;
-    private static final int LOADER = 3;
+    public static final int DEPARTMENT_LEADER = 1;
+    public static final int TEAM_LEADER = 2;
+    public static final int LOADER = 3;
     private String userName;
     private String token;
     private int groupId;
