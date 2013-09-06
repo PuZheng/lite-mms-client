@@ -9,7 +9,8 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 
 /**
- * Created by abc549825@163.com on 2013-09-04.
+ * Created by abc549825@163.com
+ * 2013-09-05
  */
 public class DialogFragmentProxy extends DialogFragment {
     DialogProxyListener mListener;
@@ -60,7 +61,6 @@ public class DialogFragmentProxy extends DialogFragment {
         public int getNeutralButtonId();
 
         public int getPositiveButtonId();
-
 
     }
 }

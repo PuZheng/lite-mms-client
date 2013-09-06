@@ -56,5 +56,6 @@
     <string name="add_work_command_weight_success">添加重量成功</string>
     <string name="previous_weight_greater">工序前重量大于工序后重量，你确定要全部完成吗？</string>
     <string name="previous_count_greater">工序前数量大于工序后数量，你确定要全部完成吗？</string>
+    <string name="please_select">请选择</string>
 
 </resources>

@@ -14,7 +14,8 @@ import android.widget.LinearLayout;
 import java.io.IOException;
 
 /**
- * Created by abc549825@163.com on 2013-09-03.
+ * Created by abc549825@163.com
+ * 2013-09-05
  */
 public class ImageFragment extends Fragment {
     private LinearLayout mLayout;

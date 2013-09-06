@@ -94,6 +94,25 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.carry_forward:
+                break;
+            case R.id.quick_carryForward:
+                break;
+        }
+
+        return super.onContextItemSelected(item);
+    }
+
     PullToRefreshAttacher getPullToRefreshAttacher() {
         return mPullToRefreshAttacher;
     }
@@ -155,225 +174,13 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             return MyApp.getCurrentUser().getTeamIdList().length;
         }
 
-        private Team getCurrentTeam(int position) {
-            return MyApp.getCurrentUser().getTeamByIndex(position);
-        }
-
         @Override
         public CharSequence getPageTitle(int position) {
             return String.format("班组 %s", getCurrentTeam(position).getName());
         }
-    }
 
-    public static class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
-
-        public static final String ARG_SECTION_NUMBER = "section_number";
-        private TextView noDataView;
-        private int teamId;
-        private AsyncTask<Void, Void, List<WorkCommand>> task;
-        private PullToRefreshAttacher mPullToRefreshAttacher;
-        private ProgressDialog mProgressDialog;
-
-        public static WorkCommandListFragment newInstance(int teamId) {
-            WorkCommandListFragment mFragment = new WorkCommandListFragment();
-            Bundle args = new Bundle();
-            args.putInt(WorkCommandListFragment.ARG_SECTION_NUMBER, teamId);
-            mFragment.setArguments(args);
-            return mFragment;
-        }
-
-        public void loadWorkCommandList() {
-            mProgressDialog = ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
-            task = new GetWorkCommandListTask(teamId);
-            task.execute();
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
-            ListView listView = (ListView) rootView.findViewById(android.R.id.list);
-            mPullToRefreshAttacher = ((LeaderMainActivity) getActivity()).getPullToRefreshAttacher();
-            mPullToRefreshAttacher.addRefreshableView(listView, this);
-            noDataView = (TextView) rootView.findViewById(android.R.id.empty);
-            listView.setEmptyView(noDataView);
-            mPullToRefreshAttacher.addRefreshableView(noDataView, this);
-            noDataView.setMovementMethod(new ScrollingMovementMethod());
-            teamId = getArguments() != null ? getArguments().getInt(ARG_SECTION_NUMBER) : 0;
-            loadWorkCommandList();
-            return rootView;
-        }
-
-        @Override
-        public void onRefreshStarted(View view) {
-            loadWorkCommandList();
-        }
-
-        public class ViewHolder {
-            public TextView idTextView;
-
-            public ViewHolder(TextView idTextView) {
-                this.idTextView = idTextView;
-            }
-        }
-
-        class WorkCommandListAdapter extends BaseAdapter {
-            private final LayoutInflater mInflater;
-            private List<WorkCommand> workCommandList;
-
-            public WorkCommandListAdapter(Context context, List<WorkCommand> workCommandList) {
-                this.workCommandList = workCommandList;
-                this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            }
-
-            /**
-             * How many items are in the data set represented by this Adapter.
-             *
-             * @return Count of items.
-             */
-            @Override
-            public int getCount() {
-                return workCommandList.size();
-            }
-
-            /**
-             * Get the data item associated with the specified position in the data set.
-             *
-             * @param position Position of the item whose data we want within the adapter's
-             *                 data set.
-             * @return The data at the specified position.
-             */
-            @Override
-            public Object getItem(int position) {
-                return workCommandList.get(position);
-            }
-
-            /**
-             * Get the row id associated with the specified position in the list.
-             *
-             * @param position The position of the item within the adapter's data set whose row id we want.
-             * @return The id of the item at the specified position.
-             */
-            @Override
-            public long getItemId(int position) {
-                return workCommandList.get(position).getId();
-            }
-
-            /**
-             * Get a View that displays the data at the specified position in the data set. You can either
-             * create a View manually or inflate it from an XML layout file. When the View is inflated, the
-             * parent View (GridView, ListView...) will apply default layout parameters unless you use
-             * {@link android.view.LayoutInflater#inflate(int, android.view.ViewGroup, boolean)}
-             * to specify a root view and to prevent attachment to the root.
-             *
-             * @param position    The position of the item within the adapter's data set of the item whose view
-             *                    we want.
-             * @param convertView The old view to reuse, if possible. Note: You should check that this view
-             *                    is non-null and of an appropriate type before using. If it is not possible to convert
-             *                    this view to display the correct data, this method can create a new view.
-             *                    Heterogeneous lists can specify their number of view types, so that this View is
-             *                    always of the right type (see {@link #getViewTypeCount()} and
-             *                    {@link #getItemViewType(int)}).
-             * @param parent      The parent that this view will eventually be attached to
-             * @return A View corresponding to the data at the specified position.
-             */
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                final WorkCommand workCommand = workCommandList.get(position);
-                ViewHolder viewHolder;
-                if (convertView == null) {
-                    convertView = mInflater.inflate(R.layout.fragment_work_command, null);
-                    viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView));
-                    convertView.setTag(viewHolder);
-                } else {
-                    viewHolder = (ViewHolder) convertView.getTag();
-                }
-                viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(WorkCommandListFragment.this.getActivity(), WorkCommandActivity.class);
-                        intent.putExtra("work_command", workCommand);
-                        startActivity(intent);
-                    }
-                });
-                convertView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return false;
-                    }
-                });
-                return convertView;
-            }
-        }
-
-        class GetWorkCommandListTask extends AsyncTask<Void, Void, List<WorkCommand>> {
-            private final int teamId;
-            Exception ex;
-
-            public GetWorkCommandListTask(int teamdId) {
-                this.teamId = teamdId;
-            }
-
-            /**
-             * Override this method to perform a computation on a background thread. The
-             * specified parameters are the parameters passed to {@link #execute}
-             * by the caller of this task.
-             * <p/>
-             * This method can call {@link #publishProgress} to publish updates
-             * on the UI thread.
-             *
-             * @param params The parameters of the task.
-             * @return A result, defined by the subclass of this task.
-             * @see #onPreExecute()
-             * @see #onPostExecute
-             * @see #publishProgress
-             */
-            @Override
-            protected List<WorkCommand> doInBackground(Void... params) {
-                try {
-                    return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId,
-                            new int[]{Constants.STATUS_LOCKED, Constants.STATUS_ENDING});
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    ex = e;
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    ex = e;
-                } catch (BadRequest badRequest) {
-                    badRequest.printStackTrace();
-                    ex = badRequest;
-                }
-                return null;
-            }
-
-            /**
-             * <p>Runs on the UI thread after {@link #doInBackground}. The
-             * specified result is the value returned by {@link #doInBackground}.</p>
-             * <p/>
-             * <p>This method won't be invoked if the task was cancelled.</p>
-             *
-             * @param workCommandList The result of the operation computed by {@link #doInBackground}.
-             * @see #onPreExecute
-             * @see #doInBackground
-             * @see #onCancelled(Object)
-             */
-            @Override
-            protected void onPostExecute(List<WorkCommand> workCommandList) {
-                if (ex != null) {
-                    Utils.displayError(WorkCommandListFragment.this.getActivity(), ex);
-                    return;
-                }
-                doUpdateView(workCommandList);
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                }
-                mPullToRefreshAttacher.setRefreshComplete();
-            }
-
-            private void doUpdateView(List<WorkCommand> workCommandList) {
-                setListAdapter(new WorkCommandListAdapter(WorkCommandListFragment.this.getActivity(), workCommandList));
-            }
+        private Team getCurrentTeam(int position) {
+            return MyApp.getCurrentUser().getTeamByIndex(position);
         }
     }
 

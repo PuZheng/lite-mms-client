@@ -40,7 +40,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
     }
 
     private void setTeamLeaderMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.team_leader_menu, menu);
+        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
     }
 
     @Override
