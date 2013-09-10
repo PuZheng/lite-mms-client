@@ -45,7 +45,7 @@ public class Utils {
         return new User(id, username, token, groupId);
     }
 
-    public static void storeUserToken(User user, Context context) {
+    public static void storeUserPrefs(User user, Context context) {
         SharedPreferences preferences = context.getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("id", user.getId());
@@ -55,7 +55,7 @@ public class Utils {
         editor.commit();
     }
 
-    public static void clearUserToken(Context context) {
+    public static void clearUserPrefs(Context context) {
         SharedPreferences preferences = context.getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
