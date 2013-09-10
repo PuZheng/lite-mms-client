@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.Constants;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
     public static final String ARG_SECTION_NUMBER = "section_number";
-    private ActionMode mActionMod;
+    private boolean isActionModeStart;
     private TextView noDataView;
     private int teamId;
     private AsyncTask<Void, Void, List<WorkCommand>> task;
@@ -50,15 +51,33 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
         final ListView listView = (ListView) rootView.findViewById(android.R.id.list);
+
+        noDataView = (TextView) rootView.findViewById(android.R.id.empty);
+        noDataView.setMovementMethod(new ScrollingMovementMethod());
+
         mPullToRefreshAttacher = ((LeaderMainActivity) getActivity()).getPullToRefreshAttacher();
         mPullToRefreshAttacher.addRefreshableView(listView, this);
-        noDataView = (TextView) rootView.findViewById(android.R.id.empty);
-        listView.setEmptyView(noDataView);
         mPullToRefreshAttacher.addRefreshableView(noDataView, this);
-        noDataView.setMovementMethod(new ScrollingMovementMethod());
+        listView.setEmptyView(noDataView);
         teamId = getArguments() != null ? getArguments().getInt(ARG_SECTION_NUMBER) : 0;
-        loadWorkCommandList();
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        final ListView listView = getListView();
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), WorkCommandActivity.class);
+                intent.putExtra("work_command", (WorkCommand) listView.getItemAtPosition(position));
+                startActivity(intent);
+            }
+        });
+        listView.setMultiChoiceModeListener(new LongTimeClickActionModeCallback());
+        loadWorkCommandList();
     }
 
     @Override
@@ -76,19 +95,17 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
             final int checkedCount = getListView().getCheckedItemCount();
             switch (checkedCount) {
                 case 0:
-                    mode.setSubtitle(null);
-                    break;
-                case 1:
-                    mode.setSubtitle("One item selected");
+                    mode.setSubtitle("未选择");
                     break;
                 default:
-                    mode.setSubtitle("" + checkedCount + " items selected");
+                    mode.setSubtitle("已选中" + checkedCount + "项");
                     break;
             }
         }
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            isActionModeStart = true;
             MenuInflater mInflater = mode.getMenuInflater();
             mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
             mode.setTitle(getString(R.string.please_select));
@@ -108,12 +125,8 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            if (mode == mActionMod) {
-                getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                mActionMod = null;
-            }
+            isActionModeStart = false;
         }
-
     }
 
     public class ViewHolder {
@@ -127,11 +140,14 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
     }
 
     class WorkCommandListAdapter extends ArrayAdapter<WorkCommand> {
+        private final LayoutInflater mInflater;
         private int mResource;
+
 
         public WorkCommandListAdapter(Context context, int resourceId, List<WorkCommand> workCommandList) {
             super(context, resourceId, workCommandList);
             this.mResource = resourceId;
+            mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         /**
@@ -155,7 +171,6 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             final WorkCommand workCommand = getItem(position);
-            LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             ViewHolder viewHolder;
             if (convertView == null) {
                 convertView = mInflater.inflate(mResource, null);
@@ -164,48 +179,18 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            if (getListView().getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
-                viewHolder.checkBox.setVisibility(View.VISIBLE);
-                final CheckBox checkBox = viewHolder.checkBox;
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        boolean selected = !v.isSelected();
-                        getListView().setItemChecked(position, selected);
-                        checkBox.setChecked(selected);
-                        v.setSelected(selected);
-                    }
-                });
-            } else {
-                viewHolder.checkBox.setVisibility(View.GONE);
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(), WorkCommandActivity.class);
-                        intent.putExtra("work_command", workCommand);
-                        startActivity(intent);
-                    }
-                });
-            }
+            viewHolder.checkBox.setVisibility(isActionModeStart ? View.VISIBLE : View.GONE);
             viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
-
-            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+            viewHolder.checkBox.setChecked(getListView().isItemChecked(position));
+            viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public boolean onLongClick(View v) {
-                    if (mActionMod != null) {
-                        return false;
-                    }else{
-                        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                        LongTimeClickActionModeCallback callback = new LongTimeClickActionModeCallback();
-                        getListView().setMultiChoiceModeListener(callback);
-                        mActionMod = getActivity().startActionMode(callback);
-                        v.setSelected(true);
-                        return true;
-                    }
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    getListView().setItemChecked(position, isChecked);
                 }
             });
             return convertView;
         }
+
 
     }
 
