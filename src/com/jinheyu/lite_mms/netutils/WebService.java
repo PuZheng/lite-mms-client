@@ -403,7 +403,7 @@ public class WebService {
         String unit = o.getString("unit");
         String procedure = o.getString("procedure");
         String previousProcedure = o.getString("previousProcedure");
-        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight);
+        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight, status);
         wc.setPicPath(picPath);
         wc.setProcessedWeight(processedWeight);
         wc.setProcessedCnt(processedCount);
@@ -517,19 +517,16 @@ public class WebService {
         return response;
     }
 
-    public void doQuickCarryForward() {
-    }
-
-    public void doCarryForward() {
-    }
-
-    public String updateWorkCommand(WorkCommand workCommand, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
+    public String updateWorkCommand(long workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
+        if (params == null) {
+            params = new HashMap<String, String>();
+        }
         params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
-        params.put("work_command_id", String.valueOf(workCommand.getId()));
+        params.put("work_command_id", String.valueOf(workCommandId));
         params.put("action", String.valueOf(action_code));
         String url = composeUrl("manufacture_ws", "work-command", params);
         HttpResponse response = sendRequest(url, "PUT", (String) null);
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             throw new BadRequest(result);
         } else {

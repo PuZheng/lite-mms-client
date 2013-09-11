@@ -120,7 +120,15 @@ public class WorkCommandListFragment extends ListFragment implements PullToRefre
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            return false;
+            TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity());
+            switch (item.getItemId()) {
+                case R.id.carry_forward:
+                    return true;
+                case R.id.quick_carryForward:
+                    return true;
+                default :
+                    return false;
+            }
         }
 
         @Override

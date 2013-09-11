@@ -50,12 +50,18 @@
     <string name="max_times">最大倍数</string>
     <string name="max_times_description">添加数量的时候，输入的数量不能大于黑件数辆的倍数</string>
     <string name="invalid_weight_data">输入的重量不能为0</string>
-    <string name="invalid_cnt_data">输入的重量不能为0</string>
+    <string name="invalid_cnt_data">输入的数量不能为0</string>
     <string name="too_large_data">输入的数量超过可接受范围</string>
     <string name="add_work_command_weight">正在添加重量</string>
     <string name="add_work_command_weight_success">添加重量成功</string>
     <string name="previous_weight_greater">工序前重量大于工序后重量，你确定要全部完成吗？</string>
     <string name="previous_count_greater">工序前数量大于工序后数量，你确定要全部完成吗？</string>
     <string name="please_select">请选择</string>
-
+    <string name="invalid_quick_carryForward">工单%s快速结转失败</string>
+    <string name="quick_carryForward_success">工单%s快速结转成功</string>
+    <string name="end_success">工单%s结束成功</string>
+    <string name="end">结束</string>
+    <string name="locked_work_command_warning">已锁定的工单不能再增加重量</string>
+    <string name="carryForward_success">工单%s结转成功</string>
+    <string name="more">更多</string>
 </resources>

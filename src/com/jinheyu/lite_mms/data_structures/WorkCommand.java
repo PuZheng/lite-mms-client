@@ -54,12 +54,14 @@ public class WorkCommand implements Parcelable {
         this.org_cnt = parcel.readInt();
         this.org_weight = parcel.readInt();
         this.orderType = parcel.readInt();
+        this.status = parcel.readInt();
     }
 
-    public WorkCommand(int id, int org_cnt, int org_weight) {
+    public WorkCommand(int id, int org_cnt, int org_weight, int status) {
         this.org_cnt = org_cnt;
         this.org_weight = org_weight;
         this.id = id;
+        this.status = status;
     }
 
     /**
@@ -90,6 +92,7 @@ public class WorkCommand implements Parcelable {
         dest.writeInt(orderType);
         dest.writeInt(processed_cnt);
         dest.writeInt(processed_weight);
+        dest.writeInt(status);
     }
 
     public String getPicPath() {
@@ -150,5 +153,9 @@ public class WorkCommand implements Parcelable {
 
     public void setProcessedCnt(int processedCnt) {
         this.processed_cnt = processedCnt;
+    }
+
+    public int getStatus() {
+        return status;
     }
 }

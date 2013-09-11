@@ -27,6 +27,11 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
     private EditText cntTextView;
 
     @Override
+    public String getFragmentPicUrl() {
+        return workCommand.getPicPath();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_command_detail);
@@ -39,38 +44,9 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         setPic();
     }
 
-    private void setTeamLeaderMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        User user = MyApp.getCurrentUser();
-        switch (user.getGroupId()) {
-            case User.TEAM_LEADER:
-                setTeamLeaderMenu(menu);
-                break;
-            default:
-                break;
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.quick_carryForward:
-                // TODO add quick_carryforward action
-                break;
-            case R.id.carry_forward:
-                // TODO add carry_forward action
-                break;
-            case R.id.add_weight:
-                DialogFragmentProxy dialog = new DialogFragmentProxy();
-                dialog.show(getSupportFragmentManager(), "AddWeightDialog");
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+    private void setIdTextView() {
+        TextView idTextView = (TextView) findViewById(R.id.work_command_id);
+        idTextView.setText(String.valueOf(workCommand.getId()));
     }
 
     private void setPic() {
@@ -84,62 +60,50 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         }
     }
 
-    private void setIdTextView() {
-        TextView idTextView = (TextView) findViewById(R.id.work_command_id);
-        idTextView.setText(String.valueOf(workCommand.getId()));
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        switch (MyApp.getCurrentUser().getGroupId()) {
+            case User.TEAM_LEADER:
+                setTeamLeaderMenu(menu);
+                break;
+            default:
+                break;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(this);
+        switch (item.getItemId()) {
+            case R.id.quick_carryForward:
+                wrapper.carryForwardQuickly(workCommand.getId());
+                return true;
+            case R.id.carry_forward:
+                wrapper.carryForward(workCommand.getId());
+                return true;
+            case R.id.end_work_command:
+                wrapper.endWorkCommand(workCommand.getId());
+                return true;
+            case R.id.add_weight:
+                if (workCommand.getStatus() == Constants.STATUS_LOCKED) {
+                    Toast.makeText(this, R.string.locked_work_command_warning, Toast.LENGTH_SHORT).show();
+                } else {
+                    DialogFragmentProxy dialog = new DialogFragmentProxy();
+                    dialog.show(getSupportFragmentManager(), "AddWeightDialog");
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setTeamLeaderMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
     }
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialogFragment) {
         _addWeight(true);
-    }
-
-    @Override
-    public void onDialogNeutralClick(DialogFragment dialogFragment) {
-        _addWeight(false);
-    }
-
-    @Override
-    public View getDefaultFragmentView() {
-        LayoutInflater inflater = getLayoutInflater();
-        View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
-
-        TextView mTextView = (TextView) rootView.findViewById(R.id.dialog_add_currentweight);
-        mTextView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
-
-        weightTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
-        cntTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
-        if (!workCommand.measured_by_weight()) {
-            rootView.findViewById(R.id.count_row).setVisibility(View.VISIBLE);
-        }
-
-        return rootView;
-    }
-
-    @Override
-    public int getNeutralButtonId() {
-        return R.string.part_weight;
-    }
-
-    @Override
-    public int getPositiveButtonId() {
-        return R.string.completely_weight;
-    }
-
-    private boolean _checkWeightAndCntValue(int weight, int cnt) {
-        if (weight == 0) {
-            Toast.makeText(WorkCommandActivity.this, R.string.invalid_weight_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (!workCommand.measured_by_weight() && cnt == 0) {
-            Toast.makeText(WorkCommandActivity.this, R.string.invalid_cnt_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (workCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
-            Toast.makeText(WorkCommandActivity.this, R.string.too_large_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -191,15 +155,58 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                 if (!workCommand.measured_by_weight()) {
                     params.put("quantity", String.valueOf(cnt));
                 }
-                MyApp.getWebServieHandler().updateWorkCommand(workCommand, Constants.ACT_ADD_WEIGHT, params);
+                MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_ADD_WEIGHT, params);
             }
         });
         builder.okMsg(getString(R.string.add_work_command_weight_success));
         builder.create().start();
     }
 
+    private boolean _checkWeightAndCntValue(int weight, int cnt) {
+        if (weight == 0) {
+            Toast.makeText(WorkCommandActivity.this, R.string.invalid_weight_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!workCommand.measured_by_weight() && cnt == 0) {
+            Toast.makeText(WorkCommandActivity.this, R.string.invalid_cnt_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (workCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
+            Toast.makeText(WorkCommandActivity.this, R.string.too_large_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     @Override
-    public String getFragmentPicUrl() {
-        return workCommand.getPicPath();
+    public void onDialogNeutralClick(DialogFragment dialogFragment) {
+        _addWeight(false);
+    }
+
+    @Override
+    public View getDefaultFragmentView() {
+        LayoutInflater inflater = getLayoutInflater();
+        View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
+
+        TextView mTextView = (TextView) rootView.findViewById(R.id.dialog_add_currentweight);
+        mTextView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
+
+        weightTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
+        cntTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
+        if (!workCommand.measured_by_weight()) {
+            rootView.findViewById(R.id.count_row).setVisibility(View.VISIBLE);
+        }
+
+        return rootView;
+    }
+
+    @Override
+    public int getNeutralButtonId() {
+        return R.string.part_weight;
+    }
+
+    @Override
+    public int getPositiveButtonId() {
+        return R.string.completely_weight;
     }
 }
