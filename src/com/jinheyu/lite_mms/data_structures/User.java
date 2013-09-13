@@ -124,7 +124,7 @@ public class User implements Parcelable {
     }
 
     public List<Team> getTeamList() {
-        return getTeamListByIds(departmentIdList);
+        return getTeamListByIds(teamIdList);
     }
 
     private List<Team> getTeamListByIds(int[] teamIdList) {

@@ -6,16 +6,16 @@
 
     <!-- The frame layout is here since we will be showing either
     the empty view or the list view.  -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center">
+    <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
+        android:id="@+id/ptr_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:drawSelectorOnTop="false" />
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="true" />
 
         <!-- Here is the view to show if the list is emtpy -->
         <TextView
@@ -28,7 +28,7 @@
             android:text="@string/noItems" />
 
 
-    </FrameLayout>
+    </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
 
 
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.view.*;
 import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -187,13 +188,14 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
+        mPullToRefreshAttacher = ((PullToRefresh) getActivity()).getPullToRefreshAttacher();
+        final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
+        ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
+
         final ListView listView = (ListView) rootView.findViewById(android.R.id.list);
         TextView noDataView = (TextView) rootView.findViewById(android.R.id.empty);
         noDataView.setMovementMethod(new ScrollingMovementMethod());
 
-        mPullToRefreshAttacher = ((PullToRefresh) getActivity()).getPullToRefreshAttacher();
-        mPullToRefreshAttacher.addRefreshableView(listView, this);
-        mPullToRefreshAttacher.addRefreshableView(noDataView, this);
         listView.setEmptyView(noDataView);
         mProgressDialog = ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
         loadWorkCommandList();
