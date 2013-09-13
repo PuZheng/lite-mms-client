@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,9 +33,7 @@ import com.jinheyu.lite_mms.data_structures.SubOrder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by xc on 13-8-17.
@@ -134,7 +133,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
         private int status;
         private final StoreBill storeBill;
         private TextView textViewStatus;
-        private Map<Integer, Pair<String, Integer>> statusMap;
+        private SparseArray<Pair<String,Integer>> statusMap;
         private View view;
 
         public String getCurrentStatusText() {
@@ -147,7 +146,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
 
         public StoreBillFragment(StoreBill storeBill) {
             this.storeBill = storeBill;
-            this.statusMap = new HashMap<Integer, Pair<String, Integer>>();
+            this.statusMap = new SparseArray<Pair<String, Integer>>();
             this.status = UNDELIVERED;
         }
 

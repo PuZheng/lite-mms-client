@@ -4,18 +4,13 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
-import android.text.method.ScrollingMovementMethod;
 import android.view.*;
-import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
@@ -32,21 +27,25 @@ import java.util.List;
  * Date: 13-8-23
  * Time: 上午10:11
  */
-public class LeaderMainActivity extends FragmentActivity implements ActionBar.TabListener {
-    AppSectionsPagerAdapter mAppSectionsPagerAdapter;
+public class TeamLeaderActivity extends FragmentActivity implements ActionBar.TabListener, PullToRefresh {
+    TeamLeaderAdapter mTeamLeaderAdapter;
     ViewPager mViewPager;
     private PullToRefreshAttacher mPullToRefreshAttacher;
 
+    public PullToRefreshAttacher getPullToRefreshAttacher() {
+        return mPullToRefreshAttacher;
+    }
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_leader_main);
-        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
+        setContentView(R.layout.activity_work_command_list_main);
+        mTeamLeaderAdapter = new TeamLeaderAdapter(getSupportFragmentManager());
         mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
         final ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAppSectionsPagerAdapter);
+        mViewPager.setAdapter(mTeamLeaderAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -57,13 +56,13 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
             }
         });
 
-        for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
+        for (int i = 0; i < mTeamLeaderAdapter.getCount(); i++) {
             // Create a tab with text corresponding to the page title defined by the adapter.
             // Also specify this Activity object, which implements the TabListener interface, as the
             // listener for when this tab is selected.
             actionBar.addTab(
                     actionBar.newTab()
-                            .setText(mAppSectionsPagerAdapter.getPageTitle(i))
+                            .setText(mTeamLeaderAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
     }
@@ -77,44 +76,23 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(LeaderMainActivity.this);
-        builder.setMessage("您确认要登出?");
-        builder.setNegativeButton(R.string.cancel, null);
-        builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Utils.clearUserToken(LeaderMainActivity.this);
-                finish();
-                Intent intent = new Intent(LeaderMainActivity.this, LogInActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
-        builder.create().show();
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.carry_forward:
-                break;
-            case R.id.quick_carryForward:
-                break;
+        if (item.getItemId() == R.id.action_logout) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TeamLeaderActivity.this);
+            builder.setMessage("您确认要登出?");
+            builder.setNegativeButton(R.string.cancel, null);
+            builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Utils.clearUserToken(TeamLeaderActivity.this);
+                    finish();
+                    Intent intent = new Intent(TeamLeaderActivity.this, LogInActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+            });
+            builder.create().show();
         }
-
-        return super.onContextItemSelected(item);
-    }
-
-    PullToRefreshAttacher getPullToRefreshAttacher() {
-        return mPullToRefreshAttacher;
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -157,32 +135,62 @@ public class LeaderMainActivity extends FragmentActivity implements ActionBar.Ta
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
     }
 
-    public static class AppSectionsPagerAdapter extends FragmentPagerAdapter {
+    public static class TeamLeaderAdapter extends FragmentPagerAdapter {
 
-        public AppSectionsPagerAdapter(FragmentManager fm) {
+        private List<Team> teamList;
+
+        public TeamLeaderAdapter(FragmentManager fm) {
             super(fm);
+            teamList = MyApp.getCurrentUser().getTeamList();
+        }
+
+        @Override
+        public int getCount() {
+            return teamList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return String.format("班组 %s", getCurrentTeamName(position));
+        }
+
+        private String getCurrentTeamName(int position) {
+            return teamList.get(position).getName();
         }
 
         @Override
         public Fragment getItem(int i) {
             // The other sections of the app are dummy placeholders.
-            return WorkCommandListFragment.newInstance(getCurrentTeam(i).getId());
-        }
-
-        @Override
-        public int getCount() {
-            return MyApp.getCurrentUser().getTeamIdList().length;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return String.format("班组 %s", getCurrentTeam(position).getName());
-        }
-
-        private Team getCurrentTeam(int position) {
-            return MyApp.getCurrentUser().getTeamByIndex(position);
+            return TeamLeaderWorkCommandListFragment.newInstance(teamList.get(i).getId());
         }
     }
+}
 
+class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
+    public static TeamLeaderWorkCommandListFragment newInstance(int teamId) {
+        TeamLeaderWorkCommandListFragment fragment = new TeamLeaderWorkCommandListFragment();
+        Bundle args = new Bundle();
+        args.putInt(WorkCommandListFragment.ARG_SECTION_NUMBER, teamId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
+    @Override
+    protected void loadWorkCommandList() {
+        new GetWorkCommandListTask(getSymbol(), this).execute();
+    }
+
+    class GetWorkCommandListTask extends AbstractGetWorkCommandList {
+        private int teamId;
+
+        GetWorkCommandListTask(int teamId, WorkCommandListFragment fragment) {
+            super(fragment);
+            this.teamId = teamId;
+        }
+
+        @Override
+        protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
+            return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId, new int[]{Constants.STATUS_ENDING, Constants.STATUS_LOCKED});
+        }
+    }
 }

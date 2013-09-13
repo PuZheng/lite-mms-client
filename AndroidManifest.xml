@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jinheyu.lite_mms"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.1">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -54,7 +54,15 @@
         </activity>
         <activity
             android:label="@string/title_activity_leader_main_activity"
-            android:name=".LeaderMainActivity"
+            android:name=".TeamLeaderActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+         <activity
+            android:label="@string/title_activity_leader_main_activity"
+            android:name=".DepartmentLeaderActivity"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"

@@ -1,7 +1,10 @@
 package com.jinheyu.lite_mms;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.TaskStackBuilder;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -35,7 +38,13 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_command_detail);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         initView();
+    }
+
+    @Override
+    public Intent getParentActivityIntent() {
+        return new Intent(this, TeamLeaderActivity.class);
     }
 
     private void initView() {

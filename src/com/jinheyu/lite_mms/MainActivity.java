@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.jinheyu.lite_mms.data_structures.Department;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 import org.json.JSONException;
@@ -124,6 +125,7 @@ public class MainActivity extends Activity {
         protected Void doInBackground(Void... params) {
             try {
                 initTeamList();
+                initDepartmentList();
             } catch (JSONException e) {
                 e.printStackTrace();
                 ex = e;
@@ -135,6 +137,10 @@ public class MainActivity extends Activity {
                 ex = badRequest;
             }
             return null;
+        }
+
+        private void initDepartmentList() throws JSONException, IOException, BadRequest {
+            Department.initDepartmentCollection(MyApp.getWebServieHandler().getDepartmentList());
         }
 
         /**

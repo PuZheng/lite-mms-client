@@ -2,7 +2,9 @@ package com.jinheyu.lite_mms.data_structures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.SparseArray;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,27 +25,37 @@ public class Department implements Parcelable {
             return new Department[0];
         }
     };
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<User> getLeader_list() {
-        return leader_list;
-    }
-
+    private final static SparseArray<Department> DEPARTMENT_COLLECTION = new SparseArray<Department>();
     private int id;
     private String name;
     private List<User> leader_list;
+    private List<Team> team_list;
+
 
     public Department(Parcel parcel) {
         id = parcel.readInt();
         name = parcel.readString();
         parcel.readTypedList(leader_list, User.CREATOR);
+        parcel.readTypedList(team_list, Team.CREATOR);
+    }
+
+    public Department(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static void initDepartmentCollection(List<Department> departmentList) {
+        for (Department department : departmentList) {
+            DEPARTMENT_COLLECTION.put(department.getId(), department);
+        }
+    }
+
+    public static Department getDepartmentById(int i) {
+        return DEPARTMENT_COLLECTION.get(i);
+    }
+
+    public int getId() {
+        return id;
     }
 
     /**
@@ -51,7 +63,7 @@ public class Department implements Parcelable {
      * marshalled representation.
      *
      * @return a bitmask indicating the set of special object types marshalled
-     *         by the Parcelable.
+     * by the Parcelable.
      */
     @Override
     public int describeContents() {
@@ -67,6 +79,30 @@ public class Department implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeTypedList(leader_list);
+        dest.writeTypedList(team_list);
+    }
 
+    public List<User> getLeaderList() {
+        return leader_list;
+    }
+
+    public List<Team> getTeamList() {
+        return team_list;
+    }
+
+    public void setTeamList(int[] teamIds) {
+        team_list = new ArrayList<Team>();
+        for (int teamId : teamIds) {
+            Team team = Team.getTeamById(teamId);
+            team_list.add(team);
+        }
+    }
+
+
+    public String getName() {
+        return name;
     }
 }

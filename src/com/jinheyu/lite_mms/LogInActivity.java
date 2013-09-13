@@ -17,15 +17,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jinheyu.lite_mms.data_structures.User;
-import com.jinheyu.lite_mms.data_structures.Team;
-import com.jinheyu.lite_mms.netutils.BadRequest;
 import com.jinheyu.lite_mms.netutils.ValidationError;
 
-import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 public class LogInActivity extends Activity {
 

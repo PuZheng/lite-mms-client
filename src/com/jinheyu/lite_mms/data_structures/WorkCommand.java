@@ -2,6 +2,7 @@ package com.jinheyu.lite_mms.data_structures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.SparseArray;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,6 +12,19 @@ import android.os.Parcelable;
  */
 public class WorkCommand implements Parcelable {
 
+    private final static SparseArray<String> mStatusMap = new SparseArray<String>() {{
+        put(Constants.STATUS_DISPATCHING, "待排产");
+        put(Constants.STATUS_ASSIGNING, "待分配");
+        put(Constants.STATUS_LOCKED, "已锁定");
+        put(Constants.STATUS_ENDING, "待结转或结束");
+        put(Constants.STATUS_QUALITY_INSPECTING, "待质检");
+        put(Constants.STATUS_REFUSED, "车间主任打回");
+        put(Constants.STATUS_ENDING, "已结束");
+    }};
+
+    public static String getStatusString(int status) {
+        return mStatusMap.get(status);
+    }
 
     public static final Creator<WorkCommand> CREATOR = new Creator<WorkCommand>() {
         @Override

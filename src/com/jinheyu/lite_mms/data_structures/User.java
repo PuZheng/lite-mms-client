@@ -2,13 +2,12 @@ package com.jinheyu.lite_mms.data_structures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.jinheyu.lite_mms.LeaderMainActivity;
+import com.jinheyu.lite_mms.DepartmentLeaderActivity;
+import com.jinheyu.lite_mms.TeamLeaderActivity;
 import com.jinheyu.lite_mms.LoaderMainActivity;
 import com.jinheyu.lite_mms.LogInActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,8 +34,6 @@ public class User implements Parcelable {
     private int id;
     private int[] teamIdList;
     private int[] departmentIdList;
-    private List<Team> teamList;
-    private List<Department> departmentList;
 
     public User(int id, String userName, String token, int groupId, int[] teamIdList, int[] departmentIdList) {
         this.id = id;
@@ -45,7 +42,6 @@ public class User implements Parcelable {
         this.groupId = groupId;
         this.teamIdList = teamIdList;
         this.departmentIdList = departmentIdList;
-        this.teamList = Team.getTeamListByIdList(teamIdList);
     }
 
     public User(Parcel parcel) {
@@ -57,43 +53,12 @@ public class User implements Parcelable {
         this.token = parcel.readString();
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public Class getDefaultActivity() {
-        switch (groupId) {
-            case LOADER:
-                return LoaderMainActivity.class;
-            case TEAM_LEADER:
-                return LeaderMainActivity.class;
-            default:
-                return LogInActivity.class;
-        }
-    }
-
-    public int getGroupId() {
-        return groupId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int[] getTeamIdList() {
-        return teamIdList;
-    }
-
     /**
      * Describe the kinds of special objects contained in this Parcelable's
      * marshalled representation.
      *
      * @return a bitmask indicating the set of special object types marshalled
-     *         by the Parcelable.
+     * by the Parcelable.
      */
     @Override
     public int describeContents() {
@@ -117,25 +82,68 @@ public class User implements Parcelable {
         dest.writeString(token);
     }
 
-    public Team getTeamByIndex(int mNum) {
-        int team_id = teamIdList[mNum];
-        for (Team team : teamList) {
-            if (team.getId() == team_id) {
-                return team;
-            }
+    public Class getDefaultActivity() {
+        switch (groupId) {
+            case LOADER:
+                return LoaderMainActivity.class;
+            case TEAM_LEADER:
+                return TeamLeaderActivity.class;
+            case DEPARTMENT_LEADER:
+                return DepartmentLeaderActivity.class;
+            default:
+                return LogInActivity.class;
         }
-        return null;
     }
 
     public int[] getDepartmentIdList() {
         return departmentIdList;
     }
 
+    public List<Department> getDepartmentList() {
+        return getDepartmentListByIds(departmentIdList);
+    }
+
+    private List<Department> getDepartmentListByIds(int[] departmentIdList) {
+        List<Department> departmentList = new ArrayList<Department>();
+        for (int i : departmentIdList) {
+            departmentList.add(Department.getDepartmentById(i));
+        }
+        return departmentList;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int[] getTeamIdList() {
+        return teamIdList;
+    }
+
     public List<Team> getTeamList() {
+        return getTeamListByIds(departmentIdList);
+    }
+
+    private List<Team> getTeamListByIds(int[] teamIdList) {
+        List<Team> teamList = new ArrayList<Team>();
+        for (int i : teamIdList) {
+            teamList.add(Team.getTeamById(i));
+        }
         return teamList;
     }
 
-    public void setTeamList(List<Team> teamList) {
-        this.teamList = teamList;
+    public String getToken() {
+        return token;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public boolean isDepartmentLeader() {
+        return groupId == DEPARTMENT_LEADER;
     }
 }

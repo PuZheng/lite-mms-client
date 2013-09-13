@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">LiteMMS</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
@@ -63,5 +62,7 @@
     <string name="end">结束</string>
     <string name="locked_work_command_warning">已锁定的工单不能再增加重量</string>
     <string name="carryForward_success">工单%s结转成功</string>
-    <string name="more">更多</string>
+    <string name="more">更多…</string>
+    <string name="search">查询</string>
+    <string name="assign">分配</string>
 </resources>
