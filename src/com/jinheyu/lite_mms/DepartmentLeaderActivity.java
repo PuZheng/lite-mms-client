@@ -130,11 +130,6 @@ public class DepartmentLeaderActivity extends FragmentActivity implements Action
 class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
     @Override
-    protected String[] getDrawerTitles() {
-        return new String[]{"状态123","状态234"};
-    }
-
-    @Override
     protected void loadWorkCommandList() {
         new GetWorkCommandListTask(MyApp.getCurrentUser().getDepartmentIdList(), getSymbol(), this).execute();
     }

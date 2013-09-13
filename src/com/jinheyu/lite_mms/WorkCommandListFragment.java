@@ -1,15 +1,11 @@
 package com.jinheyu.lite_mms;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.widget.DrawerLayout;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
@@ -21,7 +17,6 @@ import java.util.List;
 
 public abstract class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
     public static final String ARG_SECTION_NUMBER = "section_number";
-    private List<WorkCommand> mWorkCommandList;
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
     private ActionMode mActionMode;
     private PullToRefreshAttacher mPullToRefreshAttacher;
@@ -84,7 +79,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     private List<WorkCommand> getCheckedWorkCommands() {
         List<WorkCommand> result = new ArrayList<WorkCommand>();
         for (Integer position : mSelectedPositions) {
-            result.add(mWorkCommandList.get(position));
+            result.add(getWorkCommandAtPosition(position));
         }
         return result;
     }
@@ -147,7 +142,11 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     }
 
     private WorkCommand getWorkCommandAtPosition(int position) {
-        return mWorkCommandList.get(position);
+        try {
+            return (WorkCommand) getListAdapter().getItem(position);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getListAdapter().toString() + "无WorkCommand");
+        }
     }
 
     private boolean isCheckedAtPosition(int position) {
@@ -211,11 +210,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     public void setRefreshComplete() {
         mPullToRefreshAttacher.setRefreshComplete();
     }
-
-    public void setWorkCommandList(List<WorkCommand> mWorkCommandList) {
-        this.mWorkCommandList = mWorkCommandList;
-    }
-
 }
 
 class ViewHolder {
@@ -228,17 +222,34 @@ class ViewHolder {
     }
 }
 
-class WorkCommandListAdapter extends ArrayAdapter<WorkCommand> {
+class WorkCommandListAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;
     private WorkCommandListFragment mFragment;
     private int mResource;
+    private Context mContext;
+    private List<WorkCommand> mWorkCommandList;
 
     public WorkCommandListAdapter(WorkCommandListFragment fragment, List<WorkCommand> workCommandList) {
-        super(fragment.getActivity(), R.layout.fragment_work_command, workCommandList);
+        mContext = fragment.getActivity();
         this.mFragment = fragment;
-        mFragment.setWorkCommandList(workCommandList);
+        mWorkCommandList = workCommandList;
         this.mResource = R.layout.fragment_work_command;
-        mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    @Override
+    public int getCount() {
+        return mWorkCommandList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return mWorkCommandList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mWorkCommandList.get(position).getId();
     }
 
     @Override
