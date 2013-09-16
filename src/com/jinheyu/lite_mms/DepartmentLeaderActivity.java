@@ -14,14 +14,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import com.jinheyu.lite_mms.data_structures.Constants;
+import com.jinheyu.lite_mms.data_structures.Department;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 import org.json.JSONException;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,30 +38,6 @@ public class DepartmentLeaderActivity extends FragmentActivity implements Action
 
     public PullToRefreshAttacher getPullToRefreshAttacher() {
         return mPullToRefreshAttacher;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_work_command_list_main);
-        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
-        mAdapter = new DepartmentLeaderAdapter(getSupportFragmentManager());
-        final ActionBar actionBar = getActionBar();
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-        for (int i = 0; i < mAdapter.getCount(); i++) {
-            actionBar.addTab(actionBar.newTab().setText(mAdapter.getPageTitle(i)).setTabListener(this));
-        }
-
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -88,6 +67,11 @@ public class DepartmentLeaderActivity extends FragmentActivity implements Action
     }
 
     @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
         mViewPager.setCurrentItem(tab.getPosition());
     }
@@ -98,16 +82,69 @@ public class DepartmentLeaderActivity extends FragmentActivity implements Action
     }
 
     @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_work_command_list_main);
+        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
+        final ActionBar actionBar = getActionBar();
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setCustomView(_getSpinner());
+        actionBar.setDisplayShowCustomEnabled(true);
+    }
 
+    private Spinner _getSpinner() {
+        Spinner spinner = new Spinner(this);
+        ArrayAdapter<Department> adapter = new ArrayAdapter<Department>(this, android.R.layout.simple_spinner_item, MyApp.getCurrentUser().getDepartmentList());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        final ActionBar actionBar = getActionBar();
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mViewPager = (ViewPager) findViewById(R.id.pager);
+                int department_id = MyApp.getCurrentUser().getDepartmentIds()[position];
+                mAdapter = new DepartmentLeaderAdapter(getSupportFragmentManager(), department_id);
+                mAdapter.notifyDataSetChanged();
+                mViewPager.setAdapter(mAdapter);
+                mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        // When swiping between different app sections, select the corresponding tab.
+                        // We can also use ActionBar.Tab#select() to do this if we have a reference to the
+                        // Tab.
+                        actionBar.setSelectedNavigationItem(position);
+                    }
+                });
+                actionBar.removeAllTabs();
+                for (int i = 0; i < mAdapter.getCount(); i++) {
+                    // Create a tab with text corresponding to the page title defined by the adapter.
+                    // Also specify this Activity object, which implements the TabListener interface, as the
+                    // listener for when this tab is selected.
+                    actionBar.addTab(
+                            actionBar.newTab()
+                                    .setText(mAdapter.getPageTitle(i))
+                                    .setTabListener(DepartmentLeaderActivity.this));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        return spinner;
     }
 
     public class DepartmentLeaderAdapter extends FragmentPagerAdapter {
 
         private int[] statuses = new int[]{Constants.STATUS_ASSIGNING, Constants.STATUS_LOCKED};
+        private int departmentId;
 
-        public DepartmentLeaderAdapter(FragmentManager fragmentManager) {
+        public DepartmentLeaderAdapter(FragmentManager fragmentManager, int departmentId) {
             super(fragmentManager);
+            this.departmentId = departmentId;
         }
 
         @Override
@@ -116,49 +153,46 @@ public class DepartmentLeaderActivity extends FragmentActivity implements Action
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
-            return String.format("状态 %s", WorkCommand.getStatusString(statuses[position]));
+        public Fragment getItem(int position) {
+            return DepartmentListWorkCommandListFragment.newInstance(departmentId, statuses[position]);
         }
 
         @Override
-        public Fragment getItem(int position) {
-            return DepartmentListWorkCommandListFragment.newInstance(statuses[position]);
+        public CharSequence getPageTitle(int position) {
+            return String.format("状态 %s", WorkCommand.getStatusString(statuses[position]));
         }
     }
 }
 
 class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
-    @Override
-    protected void loadWorkCommandList() {
-        new GetWorkCommandListTask(MyApp.getCurrentUser().getDepartmentIdList(), getSymbol(), this).execute();
-    }
-
-    public static DepartmentListWorkCommandListFragment newInstance(int symbol) {
+    public static DepartmentListWorkCommandListFragment newInstance(int departmentId, int status) {
         DepartmentListWorkCommandListFragment mFragment = new DepartmentListWorkCommandListFragment();
         Bundle args = new Bundle();
-        args.putInt(WorkCommandListFragment.ARG_SECTION_NUMBER, symbol);
+        args.putIntArray(WorkCommandListFragment.ARG_SECTION_NUMBER, new int[]{departmentId, status});
         mFragment.setArguments(args);
         return mFragment;
     }
 
+    @Override
+    protected void loadWorkCommandList() {
+        int[] symbols = getSymbols();
+        new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();
+    }
+
     class GetWorkCommandListTask extends AbstractGetWorkCommandList {
-        private int[] departmentIds;
+        private int departmentId;
         private int status;
 
-        public GetWorkCommandListTask(int[] departmentIds, int status, WorkCommandListFragment listFragment) {
+        public GetWorkCommandListTask(int departmentId, int status, WorkCommandListFragment listFragment) {
             super(listFragment);
-            this.departmentIds = departmentIds;
+            this.departmentId = departmentId;
             this.status = status;
         }
 
         @Override
         protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
-            List<WorkCommand> workCommandList = new ArrayList<WorkCommand>();
-            for (int departmentId : departmentIds) {
-                workCommandList.addAll(MyApp.getWebServieHandler().getWorkCommandListByDepartmentId(departmentId, status));
-            }
-            return workCommandList;
+            return MyApp.getWebServieHandler().getWorkCommandListByDepartmentId(departmentId, status);
         }
     }
 }

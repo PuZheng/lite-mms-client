@@ -38,7 +38,7 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
         setContentView(R.layout.activity_take_unload_task_pic);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        
+
         if (new File(Utils.getUnloadTaskPicUri().getPath()).exists()) {
             Bitmap photo;
 

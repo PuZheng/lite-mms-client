@@ -7,16 +7,13 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Parcel;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 
-import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.data_structures.User;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,8 +53,8 @@ public class Utils {
         int[] teamIdList;
         int[] departmentIdList;
         try {
-            teamIdList = parse2IntegerArray(preferences.getString("teamIdList", ""), ", ");
-            departmentIdList = parse2IntegerArray(preferences.getString("departmentIdList", ""), ", ");
+            teamIdList = parse2IntegerArray(preferences.getString("teamIds", ""), ", ");
+            departmentIdList = parse2IntegerArray(preferences.getString("departmentIds", ""), ", ");
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return null;
@@ -76,10 +73,10 @@ public class Utils {
         editor.putString("username", user.getUserName());
         editor.putString("token", user.getToken());
         editor.putInt("groupId", user.getGroupId());
-        String teamIdString = Arrays.toString(user.getTeamIdList());
-        editor.putString("teamIdList", teamIdString.substring(1, teamIdString.length() - 1));
-        String departmentIdString = Arrays.toString(user.getDepartmentIdList());
-        editor.putString("departmentIdList", departmentIdString.substring(1, departmentIdString.length() - 1));
+        String teamIdString = Arrays.toString(user.getTeamIds());
+        editor.putString("teamIds", teamIdString.substring(1, teamIdString.length() - 1));
+        String departmentIds = Arrays.toString(user.getDepartmentIds());
+        editor.putString("departmentIds", departmentIds.substring(1, departmentIds.length() - 1));
         editor.commit();
     }
 

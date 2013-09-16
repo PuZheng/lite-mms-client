@@ -102,7 +102,7 @@ public class SelectUnloadSessionActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
+        if (backToast != null && backToast.getView().getWindowToken() != null) {
             finish();
             backToast.cancel();
         } else {

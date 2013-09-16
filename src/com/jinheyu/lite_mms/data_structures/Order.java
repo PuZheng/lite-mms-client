@@ -51,8 +51,8 @@ public class Order {
 
     public String getCustomerName() {
         String customerName = "";
-        for (SubOrder subOrder: subOrderList) {
-            for (StoreBill storeBill: subOrder.getStoreBillList()) {
+        for (SubOrder subOrder : subOrderList) {
+            for (StoreBill storeBill : subOrder.getStoreBillList()) {
                 customerName = storeBill.getCustomerName();
                 break;
             }

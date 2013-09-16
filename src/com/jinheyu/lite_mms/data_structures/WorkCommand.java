@@ -19,7 +19,7 @@ public class WorkCommand implements Parcelable {
         put(Constants.STATUS_ENDING, "待结转或结束");
         put(Constants.STATUS_QUALITY_INSPECTING, "待质检");
         put(Constants.STATUS_REFUSED, "车间主任打回");
-        put(Constants.STATUS_ENDING, "已结束");
+        put(Constants.STATUS_FINISHED, "已结束");
     }};
 
     public static String getStatusString(int status) {

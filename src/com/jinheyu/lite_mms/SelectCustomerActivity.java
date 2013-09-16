@@ -59,7 +59,7 @@ public class SelectCustomerActivity extends ListActivity {
             public void afterTextChanged(Editable editable) {
                 String needle = editable.toString();
                 getCustomerListTask.appearedCustomerList.clear();
-                for (Customer customer: getCustomerListTask.customerList) {
+                for (Customer customer : getCustomerListTask.customerList) {
                     if (customer.getAbbr().startsWith(needle)) {
                         Map<String, Object> row = new HashMap<String, Object>();
                         row.put("name", customer.getName());
@@ -67,7 +67,7 @@ public class SelectCustomerActivity extends ListActivity {
                         getCustomerListTask.appearedCustomerList.add(row);
                     }
                 }
-                ((SimpleAdapter)getListAdapter()).notifyDataSetChanged();
+                ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
             }
         });
 
@@ -109,7 +109,7 @@ public class SelectCustomerActivity extends ListActivity {
         }
 
         @Override
-        protected void onPreExecute () {
+        protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
             getListView().setVisibility(View.INVISIBLE);
         }
@@ -139,7 +139,7 @@ public class SelectCustomerActivity extends ListActivity {
                 return;
             }
 
-            for (Customer customer: customerList) {
+            for (Customer customer : customerList) {
                 Map<String, Object> row = new HashMap<String, Object>();
                 row.put("name", customer.getName());
                 row.put("id", customer.getId());
@@ -148,9 +148,9 @@ public class SelectCustomerActivity extends ListActivity {
 
             if (getListAdapter() == null) {
                 setListAdapter(new SimpleAdapter(SelectCustomerActivity.this, appearedCustomerList, R.layout.simple_list_item,
-                        new String[] {"name"}, new int[] {R.id.text1}));
+                        new String[]{"name"}, new int[]{R.id.text1}));
             } else {
-                ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
             }
             getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override

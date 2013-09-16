@@ -358,17 +358,13 @@ public class WebService {
     }
 
     public List<WorkCommand> getWorkCommandListByDepartmentId(int department_id, int status) throws JSONException, IOException, BadRequest {
-        return getWorkCommandList(department_id, Integer.MIN_VALUE, new int[]{status});
+        return getWorkCommandList(department_id, Integer.MIN_VALUE, status);
     }
 
-    public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int[] statuses) throws IOException, JSONException, BadRequest {
+    public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int status) throws IOException, JSONException, BadRequest {
         List<WorkCommand> list;
         Map<String, String> params = new LinkedHashMap<String, String>();
-        List<String> statusList = new ArrayList<String>();
-        for (int i : statuses) {
-            statusList.add(String.valueOf(i));
-        }
-        params.put("status", Utils.join(statusList, ","));
+        params.put("status", String.valueOf(status));
         if (department_id != Integer.MIN_VALUE) {
             params.put("department_id", String.valueOf(department_id));
         }
@@ -440,7 +436,7 @@ public class WebService {
         return wc;
     }
 
-    public List<WorkCommand> getWorkCommandListByTeamId(int team_id, int[] status) throws JSONException, IOException, BadRequest {
+    public List<WorkCommand> getWorkCommandListByTeamId(int team_id, int status) throws JSONException, IOException, BadRequest {
         return getWorkCommandList(Integer.MIN_VALUE, team_id, status);
     }
 

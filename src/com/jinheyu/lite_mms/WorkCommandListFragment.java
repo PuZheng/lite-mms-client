@@ -18,24 +18,7 @@ import java.util.List;
 
 public abstract class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
     public static final String ARG_SECTION_NUMBER = "section_number";
-    private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
-    private ActionMode mActionMode;
-    private PullToRefreshAttacher mPullToRefreshAttacher;
-    private ProgressDialog mProgressDialog;
     protected ActionMode.Callback mActionModeListener = new ActionMode.Callback() {
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater mInflater = mode.getMenuInflater();
-            mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
-            mode.setTitle(getString(R.string.please_select));
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
@@ -53,36 +36,34 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         }
 
         @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater mInflater = mode.getMenuInflater();
+            mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
+            mode.setTitle(getString(R.string.please_select));
+            return true;
+        }
+
+        @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
             clearAllCheckedItems();
         }
 
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
     };
+    private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
+    private ActionMode mActionMode;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
+    private ProgressDialog mProgressDialog;
 
     public void dismissProcessDialog() {
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
-    }
-    private void clearAllCheckedItems() {
-        mSelectedPositions.clear();
-    }
-    private int[] getCheckedWorkCommandIds() {
-        List<WorkCommand> workCommands = getCheckedWorkCommands();
-        int[] result = new int[workCommands.size()];
-        for (int i = 0; i < workCommands.size(); i++) {
-            result[i] = workCommands.get(i).getId();
-        }
-        return result;
-    }
-
-    private List<WorkCommand> getCheckedWorkCommands() {
-        List<WorkCommand> result = new ArrayList<WorkCommand>();
-        for (Integer position : mSelectedPositions) {
-            result.add(getWorkCommandAtPosition(position));
-        }
-        return result;
     }
 
     public View getItemView(final int position, View convertView) {
@@ -138,52 +119,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return convertView;
     }
 
-    private void selectAtPosition(int position) {
-        mSelectedPositions.add(position);
-    }
-
-    private WorkCommand getWorkCommandAtPosition(int position) {
-        try {
-            return (WorkCommand) getListAdapter().getItem(position);
-        } catch (ClassCastException e) {
-            throw new ClassCastException(getListAdapter().toString() + "无WorkCommand");
-        }
-    }
-
-    private boolean isCheckedAtPosition(int position) {
-        return mSelectedPositions.contains(position);
-    }
-
-    private boolean isInActionMode() {
-        return mActionMode != null;
-    }
-
-    private void setActionModeSubTitle() {
-        if (mActionMode != null) {
-            final int checkedCount = mSelectedPositions.size();
-            switch (checkedCount) {
-                case 0:
-                    mActionMode.setSubtitle("未选择");
-                    break;
-                default:
-                    mActionMode.setSubtitle("已选中" + checkedCount + "项");
-                    break;
-            }
-        }
-    }
-
-    private void startActionMode() {
-        mActionMode = getActivity().startActionMode(mActionModeListener);
-    }
-
-    private boolean deselectAtPosition(int position) {
-        return mSelectedPositions.remove(position);
-    }
-
-    protected int getSymbol() {
-        return getArguments() != null ? getArguments().getInt(ARG_SECTION_NUMBER) : 0;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -202,8 +137,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return rootView;
     }
 
-    protected abstract void loadWorkCommandList();
-
     @Override
     public void onRefreshStarted(View view) {
         loadWorkCommandList();
@@ -211,6 +144,75 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     public void setRefreshComplete() {
         mPullToRefreshAttacher.setRefreshComplete();
+    }
+
+    protected int[] getSymbols() {
+        return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
+    }
+
+    protected abstract void loadWorkCommandList();
+
+    private void clearAllCheckedItems() {
+        mSelectedPositions.clear();
+    }
+
+    private boolean deselectAtPosition(int position) {
+        return mSelectedPositions.remove(position);
+    }
+
+    private int[] getCheckedWorkCommandIds() {
+        List<WorkCommand> workCommands = getCheckedWorkCommands();
+        int[] result = new int[workCommands.size()];
+        for (int i = 0; i < workCommands.size(); i++) {
+            result[i] = workCommands.get(i).getId();
+        }
+        return result;
+    }
+
+    private List<WorkCommand> getCheckedWorkCommands() {
+        List<WorkCommand> result = new ArrayList<WorkCommand>();
+        for (Integer position : mSelectedPositions) {
+            result.add(getWorkCommandAtPosition(position));
+        }
+        return result;
+    }
+
+    private WorkCommand getWorkCommandAtPosition(int position) {
+        try {
+            return (WorkCommand) getListAdapter().getItem(position);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getListAdapter().toString() + "无WorkCommand");
+        }
+    }
+
+    private boolean isCheckedAtPosition(int position) {
+        return mSelectedPositions.contains(position);
+    }
+
+    private boolean isInActionMode() {
+        return mActionMode != null;
+    }
+
+    private void selectAtPosition(int position) {
+        mSelectedPositions.add(position);
+    }
+
+    private void setActionModeSubTitle() {
+        if (mActionMode != null) {
+            final int checkedCount = mSelectedPositions.size();
+            switch (checkedCount) {
+                case 0:
+                    mActionMode.setSubtitle("未选择");
+                    break;
+                default:
+                    mActionMode.setSubtitle("已选中" + checkedCount + "项");
+                    break;
+            }
+        }
+    }
+
+    private void startActionMode() {
+        mActionMode = getActivity().startActionMode(mActionModeListener);
     }
 }
 

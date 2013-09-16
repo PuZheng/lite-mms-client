@@ -1,8 +1,6 @@
 package com.jinheyu.lite_mms;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.TaskStackBuilder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,55 +28,62 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
     private EditText cntTextView;
 
     @Override
+    public View getDefaultFragmentView() {
+        LayoutInflater inflater = getLayoutInflater();
+        View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
+
+        TextView mTextView = (TextView) rootView.findViewById(R.id.dialog_add_currentweight);
+        mTextView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
+
+        weightTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
+        cntTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
+        if (!workCommand.measured_by_weight()) {
+            rootView.findViewById(R.id.count_row).setVisibility(View.VISIBLE);
+        }
+
+        return rootView;
+    }
+
+    @Override
     public String getFragmentPicUrl() {
         return workCommand.getPicPath();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_work_command_detail);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        initView();
+    public int getNeutralButtonId() {
+        return R.string.part_weight;
     }
 
     @Override
     public Intent getParentActivityIntent() {
-        return new Intent(this, TeamLeaderActivity.class);
+        return new Intent(this, MyApp.getCurrentUser().getDefaultActivity());
     }
 
-    private void initView() {
-        workCommand = getIntent().getParcelableExtra("work_command");
-        setIdTextView();
-        setPic();
-    }
-
-    private void setIdTextView() {
-        TextView idTextView = (TextView) findViewById(R.id.work_command_id);
-        idTextView.setText(String.valueOf(workCommand.getId()));
-    }
-
-    private void setPic() {
-        String url = workCommand.getPicPath();
-        getIntent().putExtra("picUrl", url);
-        if (!Utils.isEmptyString(url)) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ImageFragment imageFragment = new ImageFragment();
-            ft.add(R.id.image_row, imageFragment, "IMAGE");
-            ft.commit();
-        }
+    @Override
+    public int getPositiveButtonId() {
+        return R.string.completely_weight;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         switch (MyApp.getCurrentUser().getGroupId()) {
             case User.TEAM_LEADER:
-                setTeamLeaderMenu(menu);
+                _setTeamLeaderMenu(menu);
                 break;
             default:
                 break;
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onDialogNeutralClick(DialogFragment dialogFragment) {
+        _addWeight(false);
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+        _addWeight(true);
     }
 
     @Override
@@ -106,13 +111,12 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         return super.onOptionsItemSelected(item);
     }
 
-    private void setTeamLeaderMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
-    }
-
     @Override
-    public void onDialogPositiveClick(DialogFragment dialogFragment) {
-        _addWeight(true);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_work_command_detail);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        initView();
     }
 
     /**
@@ -152,6 +156,22 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         }
     }
 
+    private boolean _checkWeightAndCntValue(int weight, int cnt) {
+        if (weight == 0) {
+            Toast.makeText(WorkCommandActivity.this, R.string.invalid_weight_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!workCommand.measured_by_weight() && cnt == 0) {
+            Toast.makeText(WorkCommandActivity.this, R.string.invalid_cnt_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (workCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
+            Toast.makeText(WorkCommandActivity.this, R.string.too_large_data, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     private void _put2server(final boolean isFinished, final int weight, final int cnt) {
         XProgressableRunnable.Builder builder = new XProgressableRunnable.Builder(WorkCommandActivity.this);
         builder.msg(getString(R.string.add_work_command_weight));
@@ -171,51 +191,29 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         builder.create().start();
     }
 
-    private boolean _checkWeightAndCntValue(int weight, int cnt) {
-        if (weight == 0) {
-            Toast.makeText(WorkCommandActivity.this, R.string.invalid_weight_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (!workCommand.measured_by_weight() && cnt == 0) {
-            Toast.makeText(WorkCommandActivity.this, R.string.invalid_cnt_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (workCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
-            Toast.makeText(WorkCommandActivity.this, R.string.too_large_data, Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
+    private void initView() {
+        workCommand = getIntent().getParcelableExtra("work_command");
+        _setIdTextView();
+        _setPic();
     }
 
-    @Override
-    public void onDialogNeutralClick(DialogFragment dialogFragment) {
-        _addWeight(false);
+    private void _setIdTextView() {
+        TextView idTextView = (TextView) findViewById(R.id.work_command_id);
+        idTextView.setText(String.valueOf(workCommand.getId()));
     }
 
-    @Override
-    public View getDefaultFragmentView() {
-        LayoutInflater inflater = getLayoutInflater();
-        View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
-
-        TextView mTextView = (TextView) rootView.findViewById(R.id.dialog_add_currentweight);
-        mTextView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
-
-        weightTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
-        cntTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
-        if (!workCommand.measured_by_weight()) {
-            rootView.findViewById(R.id.count_row).setVisibility(View.VISIBLE);
+    private void _setPic() {
+        String url = workCommand.getPicPath();
+        getIntent().putExtra("picUrl", url);
+        if (!Utils.isEmptyString(url)) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ImageFragment imageFragment = new ImageFragment();
+            ft.add(R.id.image_row, imageFragment, "IMAGE");
+            ft.commit();
         }
-
-        return rootView;
     }
 
-    @Override
-    public int getNeutralButtonId() {
-        return R.string.part_weight;
-    }
-
-    @Override
-    public int getPositiveButtonId() {
-        return R.string.completely_weight;
+    private void _setTeamLeaderMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
     }
 }

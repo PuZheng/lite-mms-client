@@ -56,7 +56,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
         subOrder = getIntent().getParcelableExtra("subOrder");
         storeBillFragmentList = new ArrayList<StoreBillFragment>();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        for (StoreBill storeBill: subOrder.getStoreBillList()) {
+        for (StoreBill storeBill : subOrder.getStoreBillList()) {
             StoreBillFragment storeBillFragment = new StoreBillFragment(storeBill);
             storeBillFragmentList.add(storeBillFragment);
             ft.add(R.id.tableLayoutSubOrderList, storeBillFragment, "STORE_BILL");
@@ -79,10 +79,10 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         List<Pair<StoreBill, Boolean>> storeBillPairList = new ArrayList<Pair<StoreBill, Boolean>>();
-        for (StoreBillFragment storeBillFragment: storeBillFragmentList) {
+        for (StoreBillFragment storeBillFragment : storeBillFragmentList) {
             if (storeBillFragment.getStatus() != StoreBillFragment.UNDELIVERED) {
                 storeBillPairList.add(new Pair<StoreBill, Boolean>(storeBillFragment.getStoreBill(),
-                        storeBillFragment.getStatus()==StoreBillFragment.DELIVERED));
+                        storeBillFragment.getStatus() == StoreBillFragment.DELIVERED));
             }
         }
         if ((item.getTitle().equals("完全装货") || item.getTitle().equals("部分装货")) && storeBillPairList.isEmpty()) {
@@ -133,7 +133,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
         private int status;
         private final StoreBill storeBill;
         private TextView textViewStatus;
-        private SparseArray<Pair<String,Integer>> statusMap;
+        private SparseArray<Pair<String, Integer>> statusMap;
         private View view;
 
         public String getCurrentStatusText() {
@@ -231,15 +231,15 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
             TextView textViewProduct = (TextView) view.findViewById(R.id.textViewProduct);
             TextView textViewStoreBillList = (TextView) view.findViewById(R.id.textViewStoreBillList);
 
-            textViewResult.setText(finished? "完全装货": "部分装货");
+            textViewResult.setText(finished ? "完全装货" : "部分装货");
             textViewCustomer.setText(getIntent().getStringExtra("customer"));
             textViewOrder.setText(getIntent().getStringExtra("customerOrderNumber"));
             SubOrder subOrder = getIntent().getParcelableExtra("subOrder");
             textViewSubOrder.setText(String.valueOf(subOrder.getId()));
             textViewProduct.setText(subOrder.getWholeProductName());
             List<String> strings = new ArrayList<String>();
-            for (Pair<StoreBill, Boolean> pair: storeBillPairList) {
-                strings.add(pair.first.getId() + (pair.second? "(完成)": "(部分完成)"));
+            for (Pair<StoreBill, Boolean> pair : storeBillPairList) {
+                strings.add(pair.first.getId() + (pair.second ? "(完成)" : "(部分完成)"));
             }
             textViewStoreBillList.setText(Utils.join(strings, ", "));
             builder.setNegativeButton(R.string.cancel, null);
@@ -257,7 +257,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
         }
 
         private boolean anyStoreBillRemain() {
-            for (Pair<StoreBill, Boolean> pair: storeBillPairList) {
+            for (Pair<StoreBill, Boolean> pair : storeBillPairList) {
                 if (!pair.second) {
                     return true;
                 }

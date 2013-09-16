@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by xc on 13-8-19.
  */
-public class SubOrder implements Parcelable{
+public class SubOrder implements Parcelable {
 
     private List<StoreBill> storeBillList;
     private int id;
@@ -72,7 +72,7 @@ public class SubOrder implements Parcelable{
 
     public String getWholeProductName() {
         StringBuilder wholeProductName = new StringBuilder();
-        for (StoreBill storeBill: storeBillList) {
+        for (StoreBill storeBill : storeBillList) {
             wholeProductName.append(storeBill.getProductName());
             boolean appendRightParen = false;
             String spec = storeBill.getSpec();

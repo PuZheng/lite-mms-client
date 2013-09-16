@@ -95,4 +95,8 @@ public class Team implements Parcelable {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return "班组 " + name;
+    }
 }

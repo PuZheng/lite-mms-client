@@ -42,7 +42,7 @@ public class SelectDeliverySessionActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
+        if (backToast != null && backToast.getView().getWindowToken() != null) {
             finish();
             backToast.cancel();
         } else {
@@ -67,6 +67,7 @@ public class SelectDeliverySessionActivity extends ListActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private class GetDeliverySessionTask extends AsyncTask<Void, Void, List<DeliverySession>> {
 
         private Exception ex;
@@ -157,10 +158,10 @@ public class SelectDeliverySessionActivity extends ListActivity {
             }
             final DeliverySession deliverySession = (DeliverySession) getItem(i);
             viewHolder.textView.setText(deliverySession.getPlate());
-            viewHolder.textView.setTextColor(deliverySession.isLocked()?
-                    getResources().getColor(android.R.color.darker_gray):
+            viewHolder.textView.setTextColor(deliverySession.isLocked() ?
+                    getResources().getColor(android.R.color.darker_gray) :
                     getResources().getColor(android.R.color.primary_text_light));
-            viewHolder.imageView.setVisibility(deliverySession.isLocked()? View.VISIBLE: View.GONE);
+            viewHolder.imageView.setVisibility(deliverySession.isLocked() ? View.VISIBLE : View.GONE);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

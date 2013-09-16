@@ -105,4 +105,9 @@ public class Department implements Parcelable {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "车间 " + name;
+    }
 }

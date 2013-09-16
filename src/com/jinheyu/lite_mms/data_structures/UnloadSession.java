@@ -46,7 +46,7 @@ public class UnloadSession implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
         parcel.writeString(plate);
-        parcel.writeByte((byte) (locked? 1: 0));
+        parcel.writeByte((byte) (locked ? 1 : 0));
     }
 
     public static final Parcelable.Creator<UnloadSession> CREATOR

@@ -95,7 +95,7 @@ public class User implements Parcelable {
         }
     }
 
-    public int[] getDepartmentIdList() {
+    public int[] getDepartmentIds() {
         return departmentIdList;
     }
 
@@ -119,7 +119,7 @@ public class User implements Parcelable {
         return id;
     }
 
-    public int[] getTeamIdList() {
+    public int[] getTeamIds() {
         return teamIdList;
     }
 

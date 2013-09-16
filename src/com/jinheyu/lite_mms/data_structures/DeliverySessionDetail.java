@@ -27,8 +27,8 @@ public class DeliverySessionDetail {
 
     public int getStoreBillCount() {
         int storeBillCount = 0;
-        for (Order order: this.orderList) {
-            for (SubOrder subOrder: order.getSubOrderList()) {
+        for (Order order : this.orderList) {
+            for (SubOrder subOrder : order.getSubOrderList()) {
                 storeBillCount += subOrder.getStoreBillList().size();
             }
         }
@@ -37,7 +37,7 @@ public class DeliverySessionDetail {
 
     public int getSubOrderCount() {
         int subOrderCount = 0;
-        for (Order order: this.orderList) {
+        for (Order order : this.orderList) {
             subOrderCount += order.getSubOrderList().size();
         }
         return subOrderCount;
