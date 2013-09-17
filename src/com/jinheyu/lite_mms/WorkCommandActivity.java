@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class WorkCommandActivity extends FragmentActivity implements DialogFragmentProxy.DialogProxyListener,
         ImageFragment.ImageFragmentListener {
-    private WorkCommand workCommand;
+    private WorkCommand mWorkCommand;
     private EditText weightTextView;
     private EditText cntTextView;
 
@@ -33,11 +33,11 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
 
         TextView mTextView = (TextView) rootView.findViewById(R.id.dialog_add_currentweight);
-        mTextView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
+        mTextView.setText(String.format("%d 千克", mWorkCommand.getProcessedWeight()));
 
         weightTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
         cntTextView = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
-        if (!workCommand.measured_by_weight()) {
+        if (!mWorkCommand.measured_by_weight()) {
             rootView.findViewById(R.id.count_row).setVisibility(View.VISIBLE);
         }
 
@@ -46,7 +46,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
 
     @Override
     public String getFragmentPicUrl() {
-        return workCommand.getPicPath();
+        return mWorkCommand.getPicPath();
     }
 
     @Override
@@ -91,16 +91,16 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(this);
         switch (item.getItemId()) {
             case R.id.quick_carryForward:
-                wrapper.carryForwardQuickly(workCommand.getId());
+                wrapper.carryForwardQuickly(mWorkCommand.getId());
                 return true;
             case R.id.carry_forward:
-                wrapper.carryForward(workCommand.getId());
+                wrapper.carryForward(mWorkCommand.getId());
                 return true;
             case R.id.end_work_command:
-                wrapper.endWorkCommand(workCommand.getId());
+                wrapper.endWorkCommand(mWorkCommand.getId());
                 return true;
             case R.id.add_weight:
-                if (workCommand.getStatus() == Constants.STATUS_LOCKED) {
+                if (mWorkCommand.getStatus() == Constants.STATUS_LOCKED) {
                     Toast.makeText(this, R.string.locked_work_command_warning, Toast.LENGTH_SHORT).show();
                 } else {
                     DialogFragmentProxy dialog = new DialogFragmentProxy();
@@ -116,7 +116,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_command_detail);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        initView();
+        _initView();
     }
 
     /**
@@ -128,10 +128,10 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         if (_checkWeightAndCntValue(weight, cnt)) {
             if (isFinished) {
                 String alertMessage = null;
-                if (weight + workCommand.getProcessedWeight() < workCommand.getOrgWeight()) {
+                if (weight + mWorkCommand.getProcessedWeight() < mWorkCommand.getOrgWeight()) {
                     alertMessage = getString(R.string.previous_weight_greater);
                 }
-                if (!workCommand.measured_by_weight() && (cnt + workCommand.getProcessedCnt() < workCommand.getOrgCnt())) {
+                if (!mWorkCommand.measured_by_weight() && (cnt + mWorkCommand.getProcessedCnt() < mWorkCommand.getOrgCnt())) {
                     alertMessage = getString(R.string.previous_count_greater);
                 }
                 if (!Utils.isEmptyString(alertMessage)) {
@@ -139,7 +139,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                     builder.setMessage(alertMessage).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            _put2server(isFinished, weight, cnt);
+                            _put2server(true, weight, cnt);
                         }
                     }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
@@ -161,11 +161,11 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
             Toast.makeText(WorkCommandActivity.this, R.string.invalid_weight_data, Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!workCommand.measured_by_weight() && cnt == 0) {
+        if (!mWorkCommand.measured_by_weight() && cnt == 0) {
             Toast.makeText(WorkCommandActivity.this, R.string.invalid_cnt_data, Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (workCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
+        if (mWorkCommand.getOrgCnt() * Utils.getMaxTimes(WorkCommandActivity.this) <= cnt) {
             Toast.makeText(WorkCommandActivity.this, R.string.too_large_data, Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -181,29 +181,29 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("weight", String.valueOf(weight));
                 params.put("is_finished", isFinished ? "1" : "0");
-                if (!workCommand.measured_by_weight()) {
+                if (!mWorkCommand.measured_by_weight()) {
                     params.put("quantity", String.valueOf(cnt));
                 }
-                MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_ADD_WEIGHT, params);
+                MyApp.getWebServieHandler().updateWorkCommand(mWorkCommand.getId(), Constants.ACT_ADD_WEIGHT, params);
             }
         });
         builder.okMsg(getString(R.string.add_work_command_weight_success));
         builder.create().start();
     }
 
-    private void initView() {
-        workCommand = getIntent().getParcelableExtra("work_command");
+    private void _initView() {
+        mWorkCommand = getIntent().getParcelableExtra("work_command");
         _setIdTextView();
         _setPic();
     }
 
     private void _setIdTextView() {
         TextView idTextView = (TextView) findViewById(R.id.work_command_id);
-        idTextView.setText(String.valueOf(workCommand.getId()));
+        idTextView.setText(String.valueOf(mWorkCommand.getId()));
     }
 
     private void _setPic() {
-        String url = workCommand.getPicPath();
+        String url = mWorkCommand.getPicPath();
         getIntent().putExtra("picUrl", url);
         if (!Utils.isEmptyString(url)) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

@@ -35,9 +35,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by xc on 13-8-17.
- */
 public class CreateDeliveryTaskActivity extends FragmentActivity {
 
     private DeliverySession deliverySession;
@@ -242,7 +239,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
                 strings.add(pair.first.getId() + (pair.second ? "(完成)" : "(部分完成)"));
             }
             textViewStoreBillList.setText(Utils.join(strings, ", "));
-            builder.setNegativeButton(R.string.cancel, null);
+            builder.setNegativeButton(android.R.string.cancel, null);
             builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -293,7 +290,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
             View view = CreateDeliveryTaskActivity.this.getLayoutInflater().inflate(R.layout.dialog_ask_remaing_weight, null);
             builder.setView(view);
             final EditText editText = (EditText) view.findViewById(R.id.editText);
-            builder.setNegativeButton(R.string.cancel, null);
+            builder.setNegativeButton(android.R.string.cancel, null);
             builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {

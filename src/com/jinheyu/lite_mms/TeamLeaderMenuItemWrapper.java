@@ -1,7 +1,8 @@
 package com.jinheyu.lite_mms;
 
 import android.app.Activity;
-import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import com.jinheyu.lite_mms.data_structures.Constants;
 
 import java.util.Arrays;
@@ -18,13 +19,20 @@ public class TeamLeaderMenuItemWrapper {
     }
 
     public void carryForward(final int workCommandId) {
-        XProgressableRunnable.Builder builder = new XProgressableRunnable.Builder(mActivity);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mActivity);
+        alertDialogBuilder.setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                XProgressableRunnable.Builder builder = new XProgressableRunnable.Builder(mActivity);
         builder.msg(String.format("工单%d请求结转中", workCommandId)).run(new XProgressableRunnable.XRunnable() {
             @Override
             public void run() throws Exception {
                 MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_CARRY_FORWARD, null);
             }
         }).okMsg(mActivity.getString(R.string.carryForward_success, workCommandId)).create().start();
+            }
+        }).show();
+
     }
 
     public void carryForward(final int[] workCommandIds) {

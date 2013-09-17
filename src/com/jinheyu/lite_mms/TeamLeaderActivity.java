@@ -1,9 +1,6 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
@@ -18,39 +15,24 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: yangminghua
- * Date: 13-8-23
- * Time: 上午10:11
- */
 public class TeamLeaderActivity extends WorkCommandListActivity {
 
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.logout_menu, menu);
+        getMenuInflater().inflate(R.menu.logout_or_off_duty, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TeamLeaderActivity.this);
-            builder.setMessage("您确认要登出?");
-            builder.setNegativeButton(R.string.cancel, null);
-            builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Utils.clearUserToken(TeamLeaderActivity.this);
-                    finish();
-                    Intent intent = new Intent(TeamLeaderActivity.this, LogInActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-            });
-            builder.create().show();
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                new LogoutDialog(this).show();
+                break;
+            case R.id.action_off_duty:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -83,7 +65,6 @@ class TeamLeaderAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
-        // The other sections of the app are dummy placeholders.
         return TeamLeaderWorkCommandListFragment.newInstance(teamId, statuses[i]);
     }
 
@@ -113,20 +94,19 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
         new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();
     }
 
-}
+    class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
+        private int status;
+        private int teamId;
 
-class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
-    private int status;
-    private int teamId;
+        GetWorkCommandListTask(int teamId, int status, WorkCommandListFragment fragment) {
+            super(fragment);
+            this.teamId = teamId;
+            this.status = status;
+        }
 
-    GetWorkCommandListTask(int teamId, int status, WorkCommandListFragment fragment) {
-        super(fragment);
-        this.teamId = teamId;
-        this.status = status;
-    }
-
-    @Override
-    protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
-        return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId, status);
+        @Override
+        protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
+            return MyApp.getWebServieHandler().getWorkCommandListByTeamId(teamId, status);
+        }
     }
 }

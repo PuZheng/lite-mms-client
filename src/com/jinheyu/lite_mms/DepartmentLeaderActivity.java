@@ -1,9 +1,6 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,26 +22,19 @@ public class DepartmentLeaderActivity extends WorkCommandListActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.logout_menu, menu);
+        getMenuInflater().inflate(R.menu.logout_or_off_duty, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(DepartmentLeaderActivity.this);
-        builder.setMessage("您确认要登出?");
-        builder.setNegativeButton(R.string.cancel, null);
-        builder.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Utils.clearUserToken(DepartmentLeaderActivity.this);
-                finish();
-                Intent intent = new Intent(DepartmentLeaderActivity.this, LogInActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
-        builder.create().show();
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                new LogoutDialog(this).show();
+                break;
+            case R.id.action_off_duty:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

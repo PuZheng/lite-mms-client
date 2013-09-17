@@ -26,9 +26,6 @@ import com.jinheyu.lite_mms.data_structures.UnloadSession;
 
 import java.io.File;
 
-/**
- * Created by xc on 13-8-14.
- */
 public class TakeUnloadTaskPicActivity extends FragmentActivity {
     private ImageView imageView;
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
@@ -172,7 +169,7 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
                     builder.create().start();
                 }
             });
-            builder.setNegativeButton(R.string.cancel, null);
+            builder.setNegativeButton(android.R.string.cancel, null);
             return builder.create();
         }
     }
