@@ -2,7 +2,6 @@ package com.jinheyu.lite_mms;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -11,14 +10,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import com.jinheyu.lite_mms.data_structures.Team;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
-import java.util.List;
 
-/**
- * Created by root at 09-17.
- */
 public abstract class WorkCommandListActivity extends FragmentActivity implements PullToRefresh {
 
     protected ActionBar.TabListener mTabListener = new ActionBar.TabListener() {

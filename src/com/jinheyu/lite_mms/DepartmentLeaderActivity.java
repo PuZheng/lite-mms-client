@@ -80,6 +80,11 @@ class DepartmentLeaderAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public long getItemId(int position) {
+        return departmentId * getCount() + position;
+    }
+
+    @Override
     public CharSequence getPageTitle(int position) {
         return String.format("状态 %s", WorkCommand.getStatusString(statuses[position]));
     }
@@ -101,7 +106,7 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
         new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();
     }
 
-    class GetWorkCommandListTask extends AbstractGetWorkCommandList {
+    class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
         private int departmentId;
         private int status;
 

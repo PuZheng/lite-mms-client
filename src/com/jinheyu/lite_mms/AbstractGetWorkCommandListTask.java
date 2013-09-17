@@ -12,11 +12,11 @@ import java.util.List;
  * Created by abc549825@163.com
  * 2013-09-12
  */
-public abstract class AbstractGetWorkCommandList extends AsyncTask<Void, Void, List<WorkCommand>> {
+public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Void, List<WorkCommand>> {
     Exception ex;
     WorkCommandListFragment mFragment;
 
-    public AbstractGetWorkCommandList(WorkCommandListFragment listFragment) {
+    public AbstractGetWorkCommandListTask(WorkCommandListFragment listFragment) {
         mFragment = listFragment;
     }
 

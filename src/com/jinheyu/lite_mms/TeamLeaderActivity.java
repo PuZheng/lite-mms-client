@@ -115,7 +115,7 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
 
 }
 
-class GetWorkCommandListTask extends AbstractGetWorkCommandList {
+class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
     private int status;
     private int teamId;
 
