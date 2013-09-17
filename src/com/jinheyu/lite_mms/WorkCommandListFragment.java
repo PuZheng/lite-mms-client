@@ -123,7 +123,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
-        mPullToRefreshAttacher = ((PullToRefresh) getActivity()).getPullToRefreshAttacher();
+        mPullToRefreshAttacher = ((WorkCommandListActivity) getActivity()).getPullToRefreshAttacher();
         final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
         ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
 

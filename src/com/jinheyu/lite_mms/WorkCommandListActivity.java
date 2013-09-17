@@ -13,7 +13,7 @@ import android.widget.Spinner;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 
-public abstract class WorkCommandListActivity extends FragmentActivity implements PullToRefresh {
+public abstract class WorkCommandListActivity extends FragmentActivity {
 
     protected ActionBar.TabListener mTabListener = new ActionBar.TabListener() {
         /**
