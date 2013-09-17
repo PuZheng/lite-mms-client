@@ -1,25 +1,19 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
-import android.support.v4.view.ViewPager;
 import android.view.*;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 import org.json.JSONException;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,26 +24,8 @@ import java.util.List;
  * Date: 13-8-23
  * Time: 上午10:11
  */
-public class TeamLeaderActivity extends FragmentActivity implements ActionBar.TabListener, PullToRefresh {
-    TeamLeaderAdapter mTeamLeaderAdapter;
-    ViewPager mViewPager;
-    private PullToRefreshAttacher mPullToRefreshAttacher;
+public class TeamLeaderActivity extends WorkCommandListActivity {
 
-    public PullToRefreshAttacher getPullToRefreshAttacher() {
-        return mPullToRefreshAttacher;
-    }
-
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_work_command_list_main);
-
-        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
-        final ActionBar actionBar = getActionBar();
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setCustomView(getSpinner());
-        actionBar.setDisplayShowCustomEnabled(true);
-    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -79,120 +55,46 @@ public class TeamLeaderActivity extends FragmentActivity implements ActionBar.Ta
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Called when a tab that is already selected is chosen again by the user.
-     * Some applications may use this action to return to the top level of a category.
-     *
-     * @param tab The tab that was reselected.
-     * @param ft  A {@link android.app.FragmentTransaction} for queuing fragment operations to execute
-     *            once this method returns. This FragmentTransaction does not support
-     *            being added to the back stack.
-     */
     @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+    protected ArrayAdapter<Team> getArrayAdapter(int resource) {
+        return new ArrayAdapter<Team>(this, resource, MyApp.getCurrentUser().getTeamList());
     }
 
-    /**
-     * Called when a tab enters the selected state.
-     *
-     * @param tab The tab that was selected
-     * @param ft  A {@link android.app.FragmentTransaction} for queuing fragment operations to execute
-     *            during a tab switch. The previous tab's unselect and this tab's select will be
-     *            executed in a single transaction. This FragmentTransaction does not support
-     *            being added to the back stack.
-     */
     @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-        mViewPager.setCurrentItem(tab.getPosition());
+    protected FragmentPagerAdapter getFragmentPagerAdapter(int position) {
+        return new TeamLeaderAdapter(getSupportFragmentManager(), MyApp.getCurrentUser().getTeamIds()[position]);
+    }
+}
+
+class TeamLeaderAdapter extends FragmentPagerAdapter {
+
+    private int[] statuses = new int[]{Constants.STATUS_ENDING, Constants.STATUS_LOCKED};
+    private int teamId;
+
+    public TeamLeaderAdapter(FragmentManager fm, int teamId) {
+        super(fm);
+        this.teamId = teamId;
     }
 
-    /**
-     * Called when a tab exits the selected state.
-     *
-     * @param tab The tab that was unselected
-     * @param ft  A {@link android.app.FragmentTransaction} for queuing fragment operations to execute
-     *            during a tab switch. This tab's unselect and the newly selected tab's select
-     *            will be executed in a single transaction. This FragmentTransaction does not
-     *            support being added to the back stack.
-     */
     @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+    public int getCount() {
+        return statuses.length;
     }
 
-    private Spinner getSpinner() {
-        Spinner spinner = new Spinner(this);
-        ArrayAdapter<Team> adapter = new ArrayAdapter<Team>(this, android.R.layout.simple_spinner_item, MyApp.getCurrentUser().getTeamList());
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        final ActionBar actionBar = getActionBar();
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mViewPager = (ViewPager) findViewById(R.id.pager);
-                int teamId = MyApp.getCurrentUser().getTeamIds()[position];
-                mTeamLeaderAdapter = new TeamLeaderAdapter(getSupportFragmentManager(), teamId);
-                mTeamLeaderAdapter.notifyDataSetChanged();
-                mViewPager.setAdapter(mTeamLeaderAdapter);
-                mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between different app sections, select the corresponding tab.
-                        // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                        // Tab.
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
-                actionBar.removeAllTabs();
-                for (int i = 0; i < mTeamLeaderAdapter.getCount(); i++) {
-                    // Create a tab with text corresponding to the page title defined by the adapter.
-                    // Also specify this Activity object, which implements the TabListener interface, as the
-                    // listener for when this tab is selected.
-                    actionBar.addTab(
-                            actionBar.newTab()
-                                    .setText(mTeamLeaderAdapter.getPageTitle(i))
-                                    .setTabListener(TeamLeaderActivity.this));
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        return spinner;
+    @Override
+    public Fragment getItem(int i) {
+        // The other sections of the app are dummy placeholders.
+        return TeamLeaderWorkCommandListFragment.newInstance(teamId, statuses[i]);
     }
 
-    public class TeamLeaderAdapter extends FragmentPagerAdapter {
+    @Override
+    public long getItemId(int position) {
+        return teamId * getCount() + position;
+    }
 
-        private int[] statuses = new int[]{Constants.STATUS_ENDING, Constants.STATUS_LOCKED};
-        private int teamId;
-
-        public TeamLeaderAdapter(FragmentManager fm, int teamId) {
-            super(fm);
-            this.teamId = teamId;
-        }
-
-        @Override
-        public int getCount() {
-            return statuses.length;
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            // The other sections of the app are dummy placeholders.
-            return TeamLeaderWorkCommandListFragment.newInstance(teamId, statuses[i]);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return teamId * getCount() + position;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return String.format("状态 %s", WorkCommand.getStatusString(statuses[position]));
-        }
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return String.format("状态 %s", WorkCommand.getStatusString(statuses[position]));
     }
 }
 
