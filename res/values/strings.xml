@@ -65,4 +65,7 @@
     <string name="assign">分配</string>
     <string name="off_duty">下班</string>
     <string name="logout">登出</string>
+    <string name="confirm_carry_forward">确认结转工单%s？</string>
+    <string name="confirm_carry_forward_quickly">确认快速结转工单%s？</string>
+    <string name="confirm_end">确认结束工单%s？</string>
 </resources>
