@@ -192,8 +192,21 @@ public class MenuItemWrapper {
         ).show();
     }
 
-    public void refuse(int[] workCommandId) {
-
+    public void refuse(final int[] workCommandIds) {
+        final String workCommandIdsStr = Arrays.toString(workCommandIds);
+        newBuilder(mActivity.getString(R.string.confirm_refuse, workCommandIdsStr),
+                String.format("工单%s批量打回中", workCommandIds),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        for (int workCommandId : workCommandIds) {
+                            MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_REFUSE, null);
+                        }
+                        return null;
+                    }
+                },
+                mActivity.getString(R.string.confirm_refuse_success, workCommandIdsStr)
+        ).show();
     }
 
     public void refuse(final int workCommandId) {
