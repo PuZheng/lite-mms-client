@@ -67,6 +67,7 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
     @Override
     protected void onPostExecute(List<WorkCommand> workCommandList) {
         if (ex != null) {
+            dismiss();
             Utils.displayError(mFragment.getActivity(), ex);
             return;
         }
@@ -75,6 +76,10 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
 
     private void doUpdateView(List<WorkCommand> workCommandList) {
         mFragment.setListAdapter(new WorkCommandListAdapter(mFragment, workCommandList));
+        dismiss();
+    }
+
+    private void dismiss() {
         mFragment.dismissProcessDialog();
         mFragment.setRefreshComplete();
     }
