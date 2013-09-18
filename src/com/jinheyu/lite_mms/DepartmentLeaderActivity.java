@@ -82,15 +82,57 @@ class DepartmentLeaderAdapter extends FragmentPagerAdapter {
 
 class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
+    @Override
+    protected ActionMode.Callback getActionModeCallback() {
+        return new ActionMode.Callback() {
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity());
+                switch (item.getItemId()) {
+                    case R.id.carry_forward:
+                        wrapper.carryForward(getCheckedWorkCommandIds());
+                        return true;
+                    case R.id.quick_carryForward:
+                        wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater mInflater = mode.getMenuInflater();
+                mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
+                mode.setTitle(getString(R.string.please_select));
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mActionMode = null;
+                clearAllCheckedItems();
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+        };
+    }
+
     public static DepartmentListWorkCommandListFragment newInstance(int departmentId, int status) {
         DepartmentListWorkCommandListFragment mFragment = new DepartmentListWorkCommandListFragment();
         Bundle args = new Bundle();
         args.putIntArray(WorkCommandListFragment.ARG_SECTION_NUMBER, new int[]{departmentId, status});
         mFragment.setArguments(args);
+
+
         return mFragment;
     }
 
-    @Override
     protected void loadWorkCommandList() {
         int[] symbols = getSymbols();
         new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();

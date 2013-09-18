@@ -267,9 +267,10 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
             builder.msg("正在创建发货任务");
             builder.run(new XProgressableRunnable.XRunnable() {
                 @Override
-                public void run() throws Exception {
+                public Void run() throws Exception {
                     MyApp.getWebServieHandler().createDeliveryTask(deliverySession, finished, MyApp.getCurrentUser().getId(),
                             storeBillPairList, remainingWeight);
+                    return null;
                 }
             });
             builder.okMsg("创建成功");

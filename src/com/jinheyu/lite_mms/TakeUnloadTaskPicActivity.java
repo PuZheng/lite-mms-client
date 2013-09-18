@@ -151,8 +151,9 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
                     builder.okMsg("恭喜您！卸货任务成功提交");
                     builder.run(new XProgressableRunnable.XRunnable() {
                         @Override
-                        public void run() throws Exception {
+                        public Void run() throws Exception {
                             MyApp.getWebServieHandler().createUnloadTask(unloadSession, harbor, customer, done, Utils.getUnloadTaskPicUri().getPath());
+                            return null;
                         }
                     });
                     builder.after(new Runnable() {

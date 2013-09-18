@@ -224,72 +224,6 @@ public class WebService {
 
     }
 
-    private HttpResponse sendRequest(String url)
-            throws IOException, JSONException {
-        return sendRequest(url, "GET", (String) null);
-    }
-
-    private HttpResponse sendRequest(String url, String method, String data)
-            throws IOException {
-
-        HttpResponse response = null;
-
-        if (method.equals("GET")) {
-            HttpGet hg = new HttpGet(url);
-            response = new DefaultHttpClient().execute(hg);
-        } else if (method.equals("POST")) {
-            HttpPost hp = new HttpPost(url);
-            if (data != null) {
-                hp.setHeader("Content-type", "application/json");
-                hp.setEntity(new StringEntity(data, "utf-8"));
-            }
-            response = new DefaultHttpClient().execute(hp);
-        } else if (method.equals("PUT")) {
-            HttpPut hp = new HttpPut(url);
-            if (data != null) {
-                hp.setHeader("Content-type", "application/json");
-                hp.setEntity(new StringEntity(data, "utf-8"));
-            }
-            response = new DefaultHttpClient().execute(hp);
-        }
-        return response;
-    }
-
-    private String composeUrl(String blueprint, String path) {
-        return composeUrl(blueprint, path, null);
-    }
-
-    private String composeUrl(String blueprint, String path, Map<String, String> params) {
-        Pair<String, Integer> pair = Utils.getServerAddress(context);
-        StringBuilder ret = new StringBuilder();
-        ret.append(String.format("http://%s:%d/%s/%s", pair.first, pair.second, blueprint, path));
-        if (params != null) {
-            boolean first = true;
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                ret.append(first ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
-                first = false;
-            }
-        }
-        return ret.toString();
-    }
-
-    private List<Department> _parseDepartmentList(String str) throws JSONException {
-        List<Department> result = new ArrayList<Department>();
-        JSONArray data = new JSONArray(str);
-        for (int i = 0; i < data.length(); i++) {
-            JSONObject obj = data.getJSONObject(i);
-            Department department = new Department(obj.getInt("id"), obj.getString("name"));
-            JSONArray id_array = obj.getJSONArray("team_id_list");
-            int[] ids = new int[id_array.length()];
-            for (int j = 0; j < ids.length; j++) {
-                ids[j] = id_array.getInt(j);
-            }
-            department.setTeamList(ids);
-            result.add(department);
-        }
-        return result;
-    }
-
     public List<Harbor> getHarborList() throws IOException, JSONException, BadRequest {
         List<Harbor> ret;
 
@@ -325,10 +259,8 @@ public class WebService {
         return BitmapFactory.decodeStream(is, null, options);
     }
 
-    public List<Team> getTeamList(int department_id) throws JSONException, IOException, BadRequest {
-        Map<String, String> params = new LinkedHashMap<String, String>();
-        params.put("department_id", String.valueOf(department_id));
-        return _getTeamList(params);
+    public List<Team> getTeamList() throws JSONException, IOException, BadRequest {
+        return _getTeamList(null);
     }
 
     public List<UnloadSession> getUnloadSessionList() throws JSONException, IOException, BadRequest {
@@ -357,10 +289,6 @@ public class WebService {
         return ret;
     }
 
-    public List<WorkCommand> getWorkCommandListByDepartmentId(int department_id, int status) throws JSONException, IOException, BadRequest {
-        return getWorkCommandList(department_id, Integer.MIN_VALUE, status);
-    }
-
     public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int status) throws IOException, JSONException, BadRequest {
         List<WorkCommand> list;
         Map<String, String> params = new LinkedHashMap<String, String>();
@@ -381,6 +309,128 @@ public class WebService {
             list = getWorkCommandListFromResp(result);
         }
         return list;
+    }
+
+    public List<WorkCommand> getWorkCommandListByDepartmentId(int department_id, int status) throws JSONException, IOException, BadRequest {
+        return getWorkCommandList(department_id, Integer.MIN_VALUE, status);
+    }
+
+    public List<WorkCommand> getWorkCommandListByTeamId(int team_id, int status) throws JSONException, IOException, BadRequest {
+        return getWorkCommandList(Integer.MIN_VALUE, team_id, status);
+    }
+
+    /**
+     * @param username username to authenticate
+     * @param password password to authenticate
+     * @return com.jinheyu.lite_mms.data_structures.User
+     * @throws IOException     send request fails
+     * @throws JSONException   parse fails or doesn't yield a JSONObject.
+     * @throws BadRequest      an unexpected response status code
+     * @throws ValidationError login failed because of authentication fails
+     */
+    public User login(String username, String password) throws IOException, JSONException, BadRequest, ValidationError, NumberFormatException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("username", username);
+        params.put("password", password);
+        String url = composeUrl("auth_ws", "login", params);
+        HttpResponse response = sendRequest(url, "POST", "");
+        int stateCode = response.getStatusLine().getStatusCode();
+        String result = EntityUtils.toString(response.getEntity());
+        JSONObject root = new JSONObject(result);
+        if (stateCode == HttpStatus.SC_OK) {
+            int[] teamIdList = Utils.parse2IntegerArray(root.getString("teamID"));
+            int[] departmentIdList = Utils.parse2IntegerArray(root.getString("departmentID"));
+            return new User(root.getInt("userID"), root.getString("username"), root.getString("token"), root.getInt("userGroup"), teamIdList, departmentIdList);
+        } else if (stateCode == HttpStatus.SC_FORBIDDEN) {
+            throw new ValidationError(root.getString("reason"));
+        } else {
+            throw new BadRequest(result);
+        }
+    }
+
+    public String off_duty() throws IOException, BadRequest, JSONException {
+        String url = composeUrl("manufacture_ws", "off-duty", new HashMap<String, String>() {{
+            put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
+        }});
+        HttpResponse response = postRequest(url);
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        }
+        return result;
+    }
+
+    public String updateWorkCommand(int workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
+        if (params == null) {
+            params = new HashMap<String, String>();
+        }
+        params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
+        params.put("work_command_id", String.valueOf(workCommandId));
+        params.put("action", String.valueOf(action_code));
+        String url = composeUrl("manufacture_ws", "work-command", params);
+        HttpResponse response = sendRequest(url, "PUT", (String) null);
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        } else {
+            return result;
+        }
+    }
+
+    private List<Team> _getTeamList(Map<String, String> params) throws IOException, JSONException, BadRequest {
+        String url = composeUrl("manufacture_ws", "team-list", params);
+        HttpResponse response = sendRequest(url);
+        String result = EntityUtils.toString(response.getEntity());
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        } else {
+            return _parseTeamList(result);
+        }
+    }
+
+    private List<Department> _parseDepartmentList(String str) throws JSONException {
+        List<Department> result = new ArrayList<Department>();
+        JSONArray data = new JSONArray(str);
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject obj = data.getJSONObject(i);
+            Department department = new Department(obj.getInt("id"), obj.getString("name"));
+            JSONArray id_array = obj.getJSONArray("team_id_list");
+            int[] ids = new int[id_array.length()];
+            for (int j = 0; j < ids.length; j++) {
+                ids[j] = id_array.getInt(j);
+            }
+            department.setTeamList(ids);
+            result.add(department);
+        }
+        return result;
+    }
+
+    private List<Team> _parseTeamList(String result) throws JSONException {
+        List<Team> teamList = new ArrayList<Team>();
+        JSONArray objs = new JSONArray(result);
+        for (int i = 0; i < objs.length(); i++) {
+            JSONObject obj = objs.getJSONObject(i);
+            teamList.add(new Team(obj.getInt("id"), obj.getString("name")));
+        }
+        return teamList;
+    }
+
+    private String composeUrl(String blueprint, String path) {
+        return composeUrl(blueprint, path, null);
+    }
+
+    private String composeUrl(String blueprint, String path, Map<String, String> params) {
+        Pair<String, Integer> pair = Utils.getServerAddress(context);
+        StringBuilder ret = new StringBuilder();
+        ret.append(String.format("http://%s:%d/%s/%s", pair.first, pair.second, blueprint, path));
+        if (params != null) {
+            boolean first = true;
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                ret.append(first ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
+                first = false;
+            }
+        }
+        return ret.toString();
     }
 
     private List<WorkCommand> getWorkCommandListFromResp(String result) throws IOException, JSONException {
@@ -436,63 +486,39 @@ public class WebService {
         return wc;
     }
 
-    public List<WorkCommand> getWorkCommandListByTeamId(int team_id, int status) throws JSONException, IOException, BadRequest {
-        return getWorkCommandList(Integer.MIN_VALUE, team_id, status);
+    private HttpResponse postRequest(String url) throws IOException {
+        return sendRequest(url, "POST", (String) null);
     }
 
-    /**
-     * @param username username to authenticate
-     * @param password password to authenticate
-     * @return com.jinheyu.lite_mms.data_structures.User
-     * @throws IOException     send request fails
-     * @throws JSONException   parse fails or doesn't yield a JSONObject.
-     * @throws BadRequest      an unexpected response status code
-     * @throws ValidationError login failed because of authentication fails
-     */
-    public User login(String username, String password) throws IOException, JSONException, BadRequest, ValidationError, NumberFormatException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("username", username);
-        params.put("password", password);
-        String url = composeUrl("auth_ws", "login", params);
-        HttpResponse response = sendRequest(url, "POST", "");
-        int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
-        JSONObject root = new JSONObject(result);
-        if (stateCode == HttpStatus.SC_OK) {
-            int[] teamIdList = Utils.parse2IntegerArray(root.getString("teamID"));
-            int[] departmentIdList = Utils.parse2IntegerArray(root.getString("departmentID"));
-            return new User(root.getInt("userID"), root.getString("username"), root.getString("token"), root.getInt("userGroup"), teamIdList, departmentIdList);
-        } else if (stateCode == HttpStatus.SC_FORBIDDEN) {
-            throw new ValidationError(root.getString("reason"));
-        } else {
-            throw new BadRequest(result);
+    private HttpResponse sendRequest(String url)
+            throws IOException, JSONException {
+        return sendRequest(url, "GET", (String) null);
+    }
+
+    private HttpResponse sendRequest(String url, String method, String data)
+            throws IOException {
+
+        HttpResponse response = null;
+
+        if (method.equals("GET")) {
+            HttpGet hg = new HttpGet(url);
+            response = new DefaultHttpClient().execute(hg);
+        } else if (method.equals("POST")) {
+            HttpPost hp = new HttpPost(url);
+            if (data != null) {
+                hp.setHeader("Content-type", "application/json");
+                hp.setEntity(new StringEntity(data, "utf-8"));
+            }
+            response = new DefaultHttpClient().execute(hp);
+        } else if (method.equals("PUT")) {
+            HttpPut hp = new HttpPut(url);
+            if (data != null) {
+                hp.setHeader("Content-type", "application/json");
+                hp.setEntity(new StringEntity(data, "utf-8"));
+            }
+            response = new DefaultHttpClient().execute(hp);
         }
-    }
-
-
-    public List<Team> getTeamList() throws JSONException, IOException, BadRequest {
-        return _getTeamList(null);
-    }
-
-    private List<Team> _getTeamList(Map<String, String> params) throws IOException, JSONException, BadRequest {
-        String url = composeUrl("manufacture_ws", "team-list", params);
-        HttpResponse response = sendRequest(url);
-        String result = EntityUtils.toString(response.getEntity());
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new BadRequest(result);
-        } else {
-            return _parseTeamList(result);
-        }
-    }
-
-    private List<Team> _parseTeamList(String result) throws JSONException {
-        List<Team> teamList = new ArrayList<Team>();
-        JSONArray objs = new JSONArray(result);
-        for (int i = 0; i < objs.length(); i++) {
-            JSONObject obj = objs.getJSONObject(i);
-            teamList.add(new Team(obj.getInt("id"), obj.getString("name")));
-        }
-        return teamList;
+        return response;
     }
 
     private HttpResponse sendRequest(String url, String method,
@@ -527,22 +553,5 @@ public class WebService {
             response = new DefaultHttpClient().execute(hp);
         }
         return response;
-    }
-
-    public String updateWorkCommand(int workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
-        if (params == null) {
-            params = new HashMap<String, String>();
-        }
-        params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
-        params.put("work_command_id", String.valueOf(workCommandId));
-        params.put("action", String.valueOf(action_code));
-        String url = composeUrl("manufacture_ws", "work-command", params);
-        HttpResponse response = sendRequest(url, "PUT", (String) null);
-        String result = EntityUtils.toString(response.getEntity(), "utf-8");
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new BadRequest(result);
-        } else {
-            return result;
-        }
     }
 }

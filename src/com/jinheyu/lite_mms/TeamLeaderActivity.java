@@ -1,6 +1,10 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
@@ -17,7 +21,6 @@ import java.util.List;
 
 public class TeamLeaderActivity extends WorkCommandListActivity {
 
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -32,6 +35,7 @@ public class TeamLeaderActivity extends WorkCommandListActivity {
                 new LogoutDialog(this).show();
                 break;
             case R.id.action_off_duty:
+                new LogoutDialog(this, true).show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -86,6 +90,47 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
         args.putIntArray(WorkCommandListFragment.ARG_SECTION_NUMBER, new int[]{teamId, status});
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    protected ActionMode.Callback getActionModeCallback() {
+        return new ActionMode.Callback() {
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity(), mode);
+                switch (item.getItemId()) {
+                    case R.id.carry_forward:
+                        wrapper.carryForward(getCheckedWorkCommandIds());
+                        return true;
+                    case R.id.quick_carryForward:
+                        wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
+                        return true;
+                    case R.id.end_work_command:
+                        wrapper.endWorkCommand(getCheckedWorkCommandIds());
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater mInflater = mode.getMenuInflater();
+                mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
+                mode.setTitle(getString(R.string.please_select));
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mActionMode = null;
+                clearAllCheckedItems();
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+        };
     }
 
     @Override

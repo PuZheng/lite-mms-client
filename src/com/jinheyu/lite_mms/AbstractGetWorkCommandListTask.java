@@ -51,6 +51,8 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
         return null;
     }
 
+    protected abstract List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest;
+
     /**
      * <p>Runs on the UI thread after {@link #doInBackground}. The
      * specified result is the value returned by {@link #doInBackground}.</p>
@@ -69,7 +71,6 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
             return;
         }
         doUpdateView(workCommandList);
-
     }
 
     private void doUpdateView(List<WorkCommand> workCommandList) {
@@ -77,6 +78,4 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
         mFragment.dismissProcessDialog();
         mFragment.setRefreshComplete();
     }
-
-    protected abstract List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest;
 }

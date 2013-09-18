@@ -70,10 +70,17 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
             case User.TEAM_LEADER:
                 _setTeamLeaderMenu(menu);
                 break;
+            case User.DEPARTMENT_LEADER:
+                _setDepartmentLeaderMenu(menu);
             default:
                 break;
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void _setDepartmentLeaderMenu(Menu menu) {
+
+
     }
 
     @Override
@@ -88,17 +95,18 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(this);
+        TeamLeaderMenuItemWrapper teamLeaderMenuItemWrapper = new TeamLeaderMenuItemWrapper(this);
+
         switch (item.getItemId()) {
             case R.id.quick_carryForward:
-                wrapper.carryForwardQuickly(mWorkCommand.getId());
-                return true;
+                teamLeaderMenuItemWrapper.carryForwardQuickly(mWorkCommand.getId());
+                break;
             case R.id.carry_forward:
-                wrapper.carryForward(mWorkCommand.getId());
-                return true;
+                teamLeaderMenuItemWrapper.carryForward(mWorkCommand.getId());
+                break;
             case R.id.end_work_command:
-                wrapper.endWorkCommand(mWorkCommand.getId());
-                return true;
+                teamLeaderMenuItemWrapper.endWorkCommand(mWorkCommand.getId());
+                break;
             case R.id.add_weight:
                 if (mWorkCommand.getStatus() == Constants.STATUS_LOCKED) {
                     Toast.makeText(this, R.string.locked_work_command_warning, Toast.LENGTH_SHORT).show();
@@ -177,7 +185,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         builder.msg(getString(R.string.add_work_command_weight));
         builder.run(new XProgressableRunnable.XRunnable() {
             @Override
-            public void run() throws Exception {
+            public Void run() throws Exception {
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("weight", String.valueOf(weight));
                 params.put("is_finished", isFinished ? "1" : "0");
@@ -185,6 +193,7 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                     params.put("quantity", String.valueOf(cnt));
                 }
                 MyApp.getWebServieHandler().updateWorkCommand(mWorkCommand.getId(), Constants.ACT_ADD_WEIGHT, params);
+                return null;
             }
         });
         builder.okMsg(getString(R.string.add_work_command_weight_success));

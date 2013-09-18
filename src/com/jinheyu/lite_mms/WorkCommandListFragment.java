@@ -18,45 +18,9 @@ import java.util.List;
 
 public abstract class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
     public static final String ARG_SECTION_NUMBER = "section_number";
-    protected ActionMode.Callback mActionModeListener = new ActionMode.Callback() {
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity());
-            switch (item.getItemId()) {
-                case R.id.carry_forward:
-                    wrapper.carryForward(getCheckedWorkCommandIds());
-                    return true;
-                case R.id.quick_carryForward:
-                    wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            MenuInflater mInflater = mode.getMenuInflater();
-            mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
-            mode.setTitle(getString(R.string.please_select));
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            mActionMode = null;
-            clearAllCheckedItems();
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-    };
+    protected ActionMode mActionMode;
+    private ActionMode.Callback mActionModeListener = getActionModeCallback();
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
-    private ActionMode mActionMode;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ProgressDialog mProgressDialog;
 
@@ -132,7 +96,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         noDataView.setMovementMethod(new ScrollingMovementMethod());
 
         listView.setEmptyView(noDataView);
-        mProgressDialog = ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
+        mProgressDialog = newProgressDialog();
         loadWorkCommandList();
         return rootView;
     }
@@ -146,27 +110,31 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         mPullToRefreshAttacher.setRefreshComplete();
     }
 
-    protected int[] getSymbols() {
-        return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
-    }
-
-    protected abstract void loadWorkCommandList();
-
-    private void clearAllCheckedItems() {
+    protected void clearAllCheckedItems() {
+        mProgressDialog = newProgressDialog();
+        loadWorkCommandList();
         mSelectedPositions.clear();
     }
 
-    private boolean deselectAtPosition(int position) {
-        return mSelectedPositions.remove(position);
-    }
+    protected abstract ActionMode.Callback getActionModeCallback();
 
-    private int[] getCheckedWorkCommandIds() {
+    protected int[] getCheckedWorkCommandIds() {
         List<WorkCommand> workCommands = getCheckedWorkCommands();
         int[] result = new int[workCommands.size()];
         for (int i = 0; i < workCommands.size(); i++) {
             result[i] = workCommands.get(i).getId();
         }
         return result;
+    }
+
+    protected int[] getSymbols() {
+        return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
+    }
+
+    protected abstract void loadWorkCommandList();
+
+    private boolean deselectAtPosition(int position) {
+        return mSelectedPositions.remove(position);
     }
 
     private List<WorkCommand> getCheckedWorkCommands() {
@@ -191,6 +159,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     private boolean isInActionMode() {
         return mActionMode != null;
+    }
+
+    private ProgressDialog newProgressDialog() {
+        return ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
     }
 
     private void selectAtPosition(int position) {
@@ -230,15 +202,13 @@ class WorkCommandListAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;
     private WorkCommandListFragment mFragment;
     private int mResource;
-    private Context mContext;
     private List<WorkCommand> mWorkCommandList;
 
     public WorkCommandListAdapter(WorkCommandListFragment fragment, List<WorkCommand> workCommandList) {
-        mContext = fragment.getActivity();
         this.mFragment = fragment;
         mWorkCommandList = workCommandList;
         this.mResource = R.layout.fragment_work_command;
-        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) fragment.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
