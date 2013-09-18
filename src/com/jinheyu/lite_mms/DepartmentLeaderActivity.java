@@ -101,6 +101,9 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
                     case R.id.action_dispatch:
                         wrapper.dispatch(getCheckedWorkCommandIds());
                         break;
+                    case R.id.action_refuse:
+                        wrapper.refuse(getCheckedWorkCommandIds());
+                        break;
                     case R.id.action_deny_retrieve:
                         wrapper.deny_retrieve(getCheckedWorkCommandIds());
                         break;

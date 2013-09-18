@@ -76,6 +76,9 @@
     <string name="confirm_retrieve_sucess">工单%s确认回收成功</string>
     <string name="refuse_retrieval">拒绝回收工单%s？</string>
     <string name="refuse_retrieval_success">拒绝回收工单%s成功</string>
-    <string name="confirm_assign">分配工单%s</string>
+    <string name="confirm_assign">确认分配工单%s？</string>
     <string name="confirm_assign_success">工单%s分配成功</string>
+    <string name="refuse">打回</string>
+    <string name="confirm_refuse">确认打回工单%s？</string>
+    <string name="confirm_refuse_success">打回工单%s成功</string>
 </resources>

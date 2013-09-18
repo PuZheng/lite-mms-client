@@ -111,7 +111,10 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                 }
                 break;
             case R.id.action_dispatch:
-                menuItemWrapper.dispatch(mWorkCommand);
+                menuItemWrapper.dispatch(mWorkCommand.getId(), mWorkCommand.getDepartmentId());
+                break;
+            case R.id.action_refuse:
+                menuItemWrapper.refuse(mWorkCommand.getId());
                 break;
             case R.id.action_confirm_retrieve:
                 menuItemWrapper.confirm_retrieve(workCommandId);

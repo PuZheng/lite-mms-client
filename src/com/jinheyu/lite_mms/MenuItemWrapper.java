@@ -132,9 +132,8 @@ public class MenuItemWrapper {
                 }, mActivity.getString(R.string.refuse_retrieval_success, workCommandIdsStr)).show();
     }
 
-    public void dispatch(WorkCommand workCommand) {
-        final int workCommandId = workCommand.getId();
-        final Department department = Department.getDepartmentById(workCommand.getDepartmentId());
+    public void dispatch(final int workCommandId, final int departmentId) {
+        final Department department = Department.getDepartmentById(departmentId);
 
         newBuilder(mActivity.getString(R.string.confirm_assign, workCommandId),
                 String.format("工单%s分配中", workCommandId),
@@ -190,6 +189,24 @@ public class MenuItemWrapper {
                     }
                 },
                 mActivity.getString(R.string.end_success, workCommandIdsStr)
+        ).show();
+    }
+
+    public void refuse(int[] workCommandId) {
+
+    }
+
+    public void refuse(final int workCommandId) {
+        newBuilder(mActivity.getString(R.string.confirm_refuse, workCommandId),
+                String.format("工单%s打回中", workCommandId),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_REFUSE, null);
+                        return null;
+                    }
+                },
+                mActivity.getString(R.string.confirm_refuse_success, workCommandId)
         ).show();
     }
 
