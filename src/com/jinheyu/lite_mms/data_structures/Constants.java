@@ -1,8 +1,5 @@
 package com.jinheyu.lite_mms.data_structures;
 
-/**
- * Created by abc549825@163.com on 2013-09-05.
- */
 public interface Constants {
     /**
      * 订单类型

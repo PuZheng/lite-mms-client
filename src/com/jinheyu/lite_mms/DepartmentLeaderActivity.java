@@ -82,29 +82,36 @@ class DepartmentLeaderAdapter extends FragmentPagerAdapter {
 
 class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
+    public static DepartmentListWorkCommandListFragment newInstance(int departmentId, int status) {
+        DepartmentListWorkCommandListFragment mFragment = new DepartmentListWorkCommandListFragment();
+        Bundle args = new Bundle();
+        args.putIntArray(WorkCommandListFragment.ARG_SECTION_NUMBER, new int[]{departmentId, status});
+        mFragment.setArguments(args);
+        return mFragment;
+    }
+
     @Override
     protected ActionMode.Callback getActionModeCallback() {
         return new ActionMode.Callback() {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity());
+                MenuItemWrapper wrapper = new MenuItemWrapper(getActivity(), mode);
                 switch (item.getItemId()) {
-                    case R.id.carry_forward:
-                        wrapper.carryForward(getCheckedWorkCommandIds());
-                        return true;
-                    case R.id.quick_carryForward:
-                        wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
-                        return true;
-                    default:
-                        return false;
+                    case R.id.action_dispatch:
+                        wrapper.dispatch(getCheckedWorkCommandIds());
+                        break;
+                    case R.id.action_deny_retrieve:
+                        wrapper.deny_retrieve(getCheckedWorkCommandIds());
+                        break;
                 }
+                return true;
             }
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                MenuInflater mInflater = mode.getMenuInflater();
-                mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
+                mode.getMenuInflater().inflate(getSymbols()[1] == Constants.STATUS_LOCKED ?
+                        R.menu.department_leader_deny_only : R.menu.department_leader_dispatch, menu);
                 mode.setTitle(getString(R.string.please_select));
                 return true;
             }
@@ -121,16 +128,6 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
             }
 
         };
-    }
-
-    public static DepartmentListWorkCommandListFragment newInstance(int departmentId, int status) {
-        DepartmentListWorkCommandListFragment mFragment = new DepartmentListWorkCommandListFragment();
-        Bundle args = new Bundle();
-        args.putIntArray(WorkCommandListFragment.ARG_SECTION_NUMBER, new int[]{departmentId, status});
-        mFragment.setArguments(args);
-
-
-        return mFragment;
     }
 
     protected void loadWorkCommandList() {

@@ -69,4 +69,13 @@
     <string name="confirm_carry_forward_quickly">确认快速结转工单%s？</string>
     <string name="confirm_end">确认结束工单%s？</string>
     <string name="confirm_off_duty">确认下班吗？</string>
+    <string name="confirm">确认</string>
+    <string name="confirm_retrieve">确认回收</string>
+    <string name="deny_retrieve">拒绝回收</string>
+    <string name="confirm_retrieve_work_command">确认回收工单%s？</string>
+    <string name="confirm_retrieve_sucess">工单%s确认回收成功</string>
+    <string name="refuse_retrieval">拒绝回收工单%s？</string>
+    <string name="refuse_retrieval_success">拒绝回收工单%s成功</string>
+    <string name="confirm_assign">分配工单%s</string>
+    <string name="confirm_assign_success">工单%s分配成功</string>
 </resources>

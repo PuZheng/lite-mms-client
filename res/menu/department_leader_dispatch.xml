@@ -2,7 +2,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/assign"
-        android:title="@string/assign"
-        android:showAsAction="always" />
+        android:id="@+id/action_dispatch"
+        android:showAsAction="always"
+        android:title="@string/assign" />
 </menu>

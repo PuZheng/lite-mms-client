@@ -78,11 +78,6 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void _setDepartmentLeaderMenu(Menu menu) {
-
-
-    }
-
     @Override
     public void onDialogNeutralClick(DialogFragment dialogFragment) {
         _addWeight(false);
@@ -95,17 +90,17 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        TeamLeaderMenuItemWrapper teamLeaderMenuItemWrapper = new TeamLeaderMenuItemWrapper(this);
-
+        MenuItemWrapper menuItemWrapper = new MenuItemWrapper(this);
+        int workCommandId = mWorkCommand.getId();
         switch (item.getItemId()) {
             case R.id.quick_carryForward:
-                teamLeaderMenuItemWrapper.carryForwardQuickly(mWorkCommand.getId());
+                menuItemWrapper.carryForwardQuickly(workCommandId);
                 break;
             case R.id.carry_forward:
-                teamLeaderMenuItemWrapper.carryForward(mWorkCommand.getId());
+                menuItemWrapper.carryForward(workCommandId);
                 break;
             case R.id.end_work_command:
-                teamLeaderMenuItemWrapper.endWorkCommand(mWorkCommand.getId());
+                menuItemWrapper.endWorkCommand(workCommandId);
                 break;
             case R.id.add_weight:
                 if (mWorkCommand.getStatus() == Constants.STATUS_LOCKED) {
@@ -114,6 +109,15 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
                     DialogFragmentProxy dialog = new DialogFragmentProxy();
                     dialog.show(getSupportFragmentManager(), "AddWeightDialog");
                 }
+                break;
+            case R.id.action_dispatch:
+                menuItemWrapper.dispatch(mWorkCommand);
+                break;
+            case R.id.action_confirm_retrieve:
+                menuItemWrapper.confirm_retrieve(workCommandId);
+                break;
+            case R.id.action_deny_retrieve:
+                menuItemWrapper.deny_retrieve(workCommandId);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -180,6 +184,12 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         return true;
     }
 
+    private void _initView() {
+        mWorkCommand = getIntent().getParcelableExtra("work_command");
+        _setIdTextView();
+        _setPic();
+    }
+
     private void _put2server(final boolean isFinished, final int weight, final int cnt) {
         XProgressableRunnable.Builder builder = new XProgressableRunnable.Builder(WorkCommandActivity.this);
         builder.msg(getString(R.string.add_work_command_weight));
@@ -200,10 +210,12 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
         builder.create().start();
     }
 
-    private void _initView() {
-        mWorkCommand = getIntent().getParcelableExtra("work_command");
-        _setIdTextView();
-        _setPic();
+    private void _setDepartmentLeaderMenu(Menu menu) {
+        if (mWorkCommand.getStatus() != Constants.STATUS_LOCKED) {
+            getMenuInflater().inflate(R.menu.department_leader_dispatch, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.department_leader_locked, menu);
+        }
     }
 
     private void _setIdTextView() {
@@ -223,6 +235,8 @@ public class WorkCommandActivity extends FragmentActivity implements DialogFragm
     }
 
     private void _setTeamLeaderMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
+        if (mWorkCommand.getStatus() != Constants.STATUS_LOCKED) {
+            getMenuInflater().inflate(R.menu.team_leader_work_command_menu, menu);
+        }
     }
 }

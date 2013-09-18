@@ -50,8 +50,8 @@ public class Department implements Parcelable {
         }
     }
 
-    public static Department getDepartmentById(int i) {
-        return DEPARTMENT_COLLECTION.get(i);
+    public static Department getDepartmentById(int id) {
+        return DEPARTMENT_COLLECTION.get(id);
     }
 
     public int getId() {
@@ -91,6 +91,15 @@ public class Department implements Parcelable {
 
     public List<Team> getTeamList() {
         return team_list;
+    }
+
+    public String[] getTeamNames() {
+        int size = team_list.size();
+        String[] names = new String[size];
+        for (int i = 0; i < size; i++) {
+            names[i] = team_list.get(i).getName();
+        }
+        return names;
     }
 
     public void setTeamList(int[] teamIds) {

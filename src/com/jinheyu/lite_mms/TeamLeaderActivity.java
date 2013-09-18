@@ -97,7 +97,7 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
         return new ActionMode.Callback() {
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                TeamLeaderMenuItemWrapper wrapper = new TeamLeaderMenuItemWrapper(getActivity(), mode);
+                MenuItemWrapper wrapper = new MenuItemWrapper(getActivity(), mode);
                 switch (item.getItemId()) {
                     case R.id.carry_forward:
                         wrapper.carryForward(getCheckedWorkCommandIds());
@@ -114,6 +114,10 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                int[] symbols = getSymbols();
+                if (symbols[1] == Constants.STATUS_LOCKED) {
+                    return false;
+                }
                 MenuInflater mInflater = mode.getMenuInflater();
                 mInflater.inflate(R.menu.team_leader_work_command_list_menu, menu);
                 mode.setTitle(getString(R.string.please_select));

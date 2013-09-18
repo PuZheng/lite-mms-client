@@ -5,18 +5,26 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.ActionMode;
 import com.jinheyu.lite_mms.data_structures.Constants;
+import com.jinheyu.lite_mms.data_structures.Department;
+import com.jinheyu.lite_mms.data_structures.Team;
+import com.jinheyu.lite_mms.data_structures.WorkCommand;
+import com.jinheyu.lite_mms.netutils.BadRequest;
+import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 
-public class TeamLeaderMenuItemWrapper {
+public class MenuItemWrapper {
     private Activity mActivity;
     private ActionMode mActionMode;
+    private int checkedItemIndex;
 
-    public TeamLeaderMenuItemWrapper(Activity activity) {
+    public MenuItemWrapper(Activity activity) {
         this.mActivity = activity;
     }
 
-    public TeamLeaderMenuItemWrapper(Activity activity, ActionMode mode) {
+    public MenuItemWrapper(Activity activity, ActionMode mode) {
         this.mActivity = activity;
         this.mActionMode = mode;
     }
@@ -84,6 +92,74 @@ public class TeamLeaderMenuItemWrapper {
                 },
                 mActivity.getString(R.string.quick_carryForward_success, workCommandIds_str)
         ).show();
+    }
+
+    public void confirm_retrieve(final int workCommandId) {
+        newBuilder(mActivity.getString(R.string.confirm_retrieve_work_command, workCommandId), String.format("工单%d确认回收中", workCommandId), new XProgressableRunnable.XRunnable() {
+            @Override
+            public Void run() throws Exception {
+                //TODO
+//                MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_AFFIRM_RETRIEVAL, null);
+                return null;
+            }
+        }, mActivity.getString(R.string.confirm_retrieve_sucess, workCommandId)).show();
+    }
+
+    public void deny_retrieve(final int workCommandId) {
+        newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandId),
+                String.format("工单%s拒绝回收中", workCommandId),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_REFUSE_RETRIEVAL, null);
+                        return null;
+                    }
+                }, mActivity.getString(R.string.refuse_retrieval_success, workCommandId)).show();
+    }
+
+    public void deny_retrieve(final int[] workCommandIds) {
+        final String workCommandIdsStr = Arrays.toString(workCommandIds);
+        newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandIdsStr),
+                String.format("工单%s拒绝回收中", workCommandIdsStr),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        for (int workCommandId : workCommandIds) {
+                            MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_REFUSE_RETRIEVAL, null);
+                        }
+                        return null;
+                    }
+                }, mActivity.getString(R.string.refuse_retrieval_success, workCommandIdsStr)).show();
+    }
+
+    public void dispatch(WorkCommand workCommand) {
+        final int workCommandId = workCommand.getId();
+        final Department department = Department.getDepartmentById(workCommand.getDepartmentId());
+
+        newBuilder(mActivity.getString(R.string.confirm_assign, workCommandId),
+                String.format("工单%s分配中", workCommandId),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        final Team team = department.getTeamList().get(checkedItemIndex);
+                        MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_ASSIGN, new HashMap<String, String>() {{
+                            put("team_id", String.valueOf(team.getId()));
+                        }});
+                        return null;
+                    }
+                },
+                mActivity.getString(R.string.confirm_assign_success, workCommandId)
+        ).setSingleChoiceItems(department.getTeamNames(), 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                checkedItemIndex = which;
+            }
+        }
+        ).show();
+    }
+
+    public void dispatch(final int[] workCommandIds) {
+
     }
 
     public void endWorkCommand(final int workCommandId) {

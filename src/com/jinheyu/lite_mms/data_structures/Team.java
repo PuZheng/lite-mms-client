@@ -37,20 +37,13 @@ public class Team implements Parcelable {
         parcel.readTypedList(leader_list, User.CREATOR);
     }
 
-
     public Team(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public static void initTeamCollection(List<Team> teamList) {
-        for (Team team : teamList) {
-            TEAM_COLLECTION.put(team.getId(), team);
-        }
-    }
-
-    public int getId() {
-        return id;
+    public static Team getTeamById(int teamId) {
+        return TEAM_COLLECTION.get(teamId);
     }
 
     public static List<Team> getTeamListByIdList(int[] teamIdList) {
@@ -61,8 +54,10 @@ public class Team implements Parcelable {
         return result;
     }
 
-    public static Team getTeamById(int teamId) {
-        return TEAM_COLLECTION.get(teamId);
+    public static void initTeamCollection(List<Team> teamList) {
+        for (Team team : teamList) {
+            TEAM_COLLECTION.put(team.getId(), team);
+        }
     }
 
     /**
@@ -77,6 +72,19 @@ public class Team implements Parcelable {
         return 0;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "班组 " + name;
+    }
+
     /**
      * Flatten this object in to a Parcel.
      *
@@ -89,14 +97,5 @@ public class Team implements Parcelable {
         dest.writeInt(id);
         dest.writeString(name);
         dest.writeTypedList(leader_list);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return "班组 " + name;
     }
 }
