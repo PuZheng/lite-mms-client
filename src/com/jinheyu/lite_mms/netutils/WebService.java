@@ -267,25 +267,26 @@ public class WebService {
         return ret;
     }
 
-    public void createDeliveryTask(DeliverySession deliverySession, boolean finished, int actorId,
-                                   List<Pair<StoreBill, Boolean>> storeBillPairList, int remainWeight) throws JSONException, IOException, BadRequest {
+    public void createDeliveryTask(DeliverySession deliverySession, boolean finished, User user,
+                                   List<Pair<StoreBill, Boolean>> storeBillPairList, int remainWeight) throws JSONException, IOException, BadRequest, TaskFlowDelayed {
         Map<String, String> params = new HashMap<String, String>();
         params.put("sid", String.valueOf(deliverySession.getId()));
         params.put("is_finished", finished? "1": "0");
-        params.put("actor_id", String.valueOf(actorId));
-        if (!finished) {
-            params.put("remain", String.valueOf(remainWeight));
-        }
+        params.put("auth_token", user.getToken());
+        params.put("remain", String.valueOf(remainWeight));
         String url = composeUrl("delivery_ws", "delivery-task", params);
         JSONArray jsonArray = new JSONArray();
         for (Pair<StoreBill, Boolean> pair: storeBillPairList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("store_bill_id", pair.first.getId());
-            jsonObject.put("is_finished", pair.second? "1": "0");
+            jsonObject.put("is_finished", pair.second? true: false);
             jsonArray.put(jsonObject);
         }
         HttpResponse httpResponse = sendRequest(url, "POST", jsonArray.toString());
         int stateCode = httpResponse.getStatusLine().getStatusCode();
+        if (stateCode == 201) {
+            throw new TaskFlowDelayed("您提交的剩余重量异常，已经生成一个工作流，请催促收发员处理！");
+        }
         if (stateCode != 200) {
             throw new BadRequest(EntityUtils.toString(httpResponse.getEntity()));
         }

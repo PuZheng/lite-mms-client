@@ -114,7 +114,7 @@ public class LogInActivity extends Activity {
             pd.cancel();
             if (user != null) {
                 // we save the username password
-                Utils.storeUserToken(user, LogInActivity.this);
+                Utils.storeUserPrefs(user, LogInActivity.this);
                 MyApp.setCurrentUser(user);
                 // go to the work activity
                 Intent detailIntent = new Intent(LogInActivity.this, user.getDefaultActivity());

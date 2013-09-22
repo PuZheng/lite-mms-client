@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.jinheyu.lite_mms.data_structures.DeliverySession;
 import com.jinheyu.lite_mms.data_structures.StoreBill;
 import com.jinheyu.lite_mms.data_structures.SubOrder;
+import com.jinheyu.lite_mms.netutils.TaskFlowDelayed;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -272,17 +273,26 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
             builder.run(new XProgressableRunnable.XRunnable() {
                 @Override
                 public void run() throws Exception {
-                    MyApp.getWebServieHandler().createDeliveryTask(deliverySession, finished, MyApp.getCurrentUser().getId(),
+                    MyApp.getWebServieHandler().createDeliveryTask(deliverySession, finished, MyApp.getCurrentUser(),
                             storeBillPairList, remainingWeight);
                 }
             });
             builder.okMsg("创建成功");
-            builder.after(new Runnable() {
+            final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = new Intent(CreateDeliveryTaskActivity.this, LoaderMainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     CreateDeliveryTaskActivity.this.startActivity(intent);
+                }
+            };
+            builder.after(runnable);
+            builder.exceptionHandler(new XProgressableRunnable.ExceptionHandler() {
+                @Override
+                public void run(Exception e) {
+                    if (e instanceof TaskFlowDelayed) {
+                        runnable.run();
+                    }
                 }
             });
             builder.create().start();
