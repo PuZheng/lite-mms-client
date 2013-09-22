@@ -289,6 +289,16 @@ public class WebService {
         return ret;
     }
 
+    public WorkCommand getWorkCommand(final int workCommandId) throws BadRequest, IOException, JSONException {
+        String url = composeUrl("manufacture_ws", String.format("work-command/%d", workCommandId));
+        HttpResponse response = sendRequest(url);
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(result);
+        }
+        return parse2WorkCommand(new JSONObject(result));
+    }
+
     public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int status) throws IOException, JSONException, BadRequest {
         List<WorkCommand> list;
         Map<String, String> params = new LinkedHashMap<String, String>();
@@ -360,7 +370,7 @@ public class WebService {
         return result;
     }
 
-    public String updateWorkCommand(int workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
+    public WorkCommand updateWorkCommand(int workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
         if (params == null) {
             params = new HashMap<String, String>();
         }
@@ -373,7 +383,7 @@ public class WebService {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             throw new BadRequest(result);
         } else {
-            return result;
+            return parse2WorkCommand(new JSONObject(result));
         }
     }
 
@@ -475,6 +485,9 @@ public class WebService {
         wc.setProcessedWeight(processedWeight);
         wc.setProcessedCnt(processedCount);
         wc.setOrderType(orderType);
+        wc.setUnit(unit);
+        wc.setOrderNumber(orderNum);
+        wc.setCustomerName(customerName);
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             wc.setTeamId(team.getInt("id"));

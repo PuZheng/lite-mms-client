@@ -2,7 +2,6 @@ package com.jinheyu.lite_mms;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.method.ScrollingMovementMethod;
@@ -17,6 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 
 public abstract class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
+    /**
+     * just used in array from getSymbol()
+     */
+    public static final int DEPARTMENT_ID_INDEX = 0, TEAM_ID_INDEX = 0, STATUS_INDEX = 1;
     public static final String ARG_SECTION_NUMBER = "section_number";
     protected ActionMode mActionMode;
     private ActionMode.Callback mActionModeListener = getActionModeCallback();
@@ -60,10 +63,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                     CheckBox checkBox = (CheckBox) v.findViewById(R.id.check);
                     checkBox.toggle();
                 } else {
-                    Intent intent = new Intent(getActivity(), WorkCommandActivity.class);
-                    intent.putExtra("work_command", getWorkCommandAtPosition(position));
-                    startActivity(intent);
-
+                    new GetWorkCommandTask(getActivity()).execute(getWorkCommandIdAtPosition(position));
                 }
             }
         });
@@ -96,13 +96,18 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         noDataView.setMovementMethod(new ScrollingMovementMethod());
 
         listView.setEmptyView(noDataView);
-        mProgressDialog = newProgressDialog();
-        loadWorkCommandList();
         return rootView;
     }
 
     @Override
     public void onRefreshStarted(View view) {
+        loadWorkCommandList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mProgressDialog = newProgressDialog();
         loadWorkCommandList();
     }
 
@@ -127,6 +132,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return result;
     }
 
+
     protected int[] getSymbols() {
         return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
     }
@@ -137,7 +143,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return mSelectedPositions.remove(position);
     }
 
-    private List<WorkCommand> getCheckedWorkCommands() {
+    protected List<WorkCommand> getCheckedWorkCommands() {
         List<WorkCommand> result = new ArrayList<WorkCommand>();
         for (Integer position : mSelectedPositions) {
             result.add(getWorkCommandAtPosition(position));
@@ -151,6 +157,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         } catch (ClassCastException e) {
             throw new ClassCastException(getListAdapter().toString() + "无WorkCommand");
         }
+    }
+
+    private int getWorkCommandIdAtPosition(int position) {
+        return getWorkCommandAtPosition(position).getId();
     }
 
     private boolean isCheckedAtPosition(int position) {

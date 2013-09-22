@@ -44,10 +44,11 @@
     <string name="part_weight">部分称重</string>
     <string name="add_count">增加数量</string>
     <string name="processed_weight">已加工的重量</string>
+    <string name="processed_cnt">已加工的数量</string>
     <string name="max_times">最大倍数</string>
     <string name="max_times_description">添加数量的时候，输入的数量不能大于黑件数辆的倍数</string>
-    <string name="invalid_weight_data">输入的重量不能为0</string>
-    <string name="invalid_cnt_data">输入的数量不能为0</string>
+    <string name="invalid_weight_data">工单%d加工后的重量不能低于0</string>
+    <string name="invalid_cnt_data">工单%d加工后的数量不能低于0</string>
     <string name="too_large_data">输入的数量超过可接受范围</string>
     <string name="add_work_command_weight">正在添加重量</string>
     <string name="add_work_command_weight_success">添加重量成功</string>
@@ -81,4 +82,8 @@
     <string name="refuse">打回</string>
     <string name="confirm_refuse">确认打回工单%s？</string>
     <string name="confirm_refuse_success">打回工单%s成功</string>
+    <string name="confirm_processed_weight">请确认工序后重量（千克）</string>
+    <string name="confirm_processed_quantity">请确认工序后数量（%s）</string>
+    <string name="org_weight">工序前重量</string>
+    <string name="org_cnt">工序前数量</string>
 </resources>

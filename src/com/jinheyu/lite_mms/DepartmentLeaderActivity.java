@@ -99,7 +99,7 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
                 MenuItemWrapper wrapper = new MenuItemWrapper(getActivity(), mode);
                 switch (item.getItemId()) {
                     case R.id.action_dispatch:
-                        wrapper.dispatch(getCheckedWorkCommandIds());
+                        wrapper.dispatch(getCheckedWorkCommandIds(), getSymbols()[WorkCommandListFragment.DEPARTMENT_ID_INDEX]);
                         break;
                     case R.id.action_refuse:
                         wrapper.refuse(getCheckedWorkCommandIds());
@@ -113,7 +113,7 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(getSymbols()[1] == Constants.STATUS_LOCKED ?
+                mode.getMenuInflater().inflate(getSymbols()[WorkCommandListFragment.STATUS_INDEX] == Constants.STATUS_LOCKED ?
                         R.menu.department_leader_deny_only : R.menu.department_leader_dispatch, menu);
                 mode.setTitle(getString(R.string.please_select));
                 return true;
@@ -135,7 +135,7 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
 
     protected void loadWorkCommandList() {
         int[] symbols = getSymbols();
-        new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();
+        new GetWorkCommandListTask(symbols[WorkCommandListFragment.DEPARTMENT_ID_INDEX], symbols[WorkCommandListFragment.STATUS_INDEX], this).execute();
     }
 
     class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {

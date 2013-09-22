@@ -1,10 +1,6 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.*;
@@ -100,13 +96,14 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
                 MenuItemWrapper wrapper = new MenuItemWrapper(getActivity(), mode);
                 switch (item.getItemId()) {
                     case R.id.carry_forward:
-                        wrapper.carryForward(getCheckedWorkCommandIds());
+                        wrapper.carryForward(getCheckedWorkCommands());
                         return true;
                     case R.id.quick_carryForward:
                         wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
                         return true;
                     case R.id.end_work_command:
-                        wrapper.endWorkCommand(getCheckedWorkCommandIds());
+                        wrapper.endWorkCommand(getCheckedWorkCommands());
+                        return true;
                     default:
                         return false;
                 }
@@ -115,7 +112,7 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 int[] symbols = getSymbols();
-                if (symbols[1] == Constants.STATUS_LOCKED) {
+                if (symbols[WorkCommandListFragment.STATUS_INDEX] == Constants.STATUS_LOCKED) {
                     return false;
                 }
                 MenuInflater mInflater = mode.getMenuInflater();
@@ -140,7 +137,7 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
     @Override
     protected void loadWorkCommandList() {
         int[] symbols = getSymbols();
-        new GetWorkCommandListTask(symbols[0], symbols[1], this).execute();
+        new GetWorkCommandListTask(symbols[WorkCommandListFragment.TEAM_ID_INDEX], symbols[WorkCommandListFragment.STATUS_INDEX], this).execute();
     }
 
     class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
