@@ -132,12 +132,24 @@ public class MenuItemWrapper {
     }
 
     public void confirmRetrieve(final WorkCommand workCommand) {
-        newBuilder(mActivity.getString(R.string.confirm_retrieve), String.format("工单%d确认回收中", workCommand.getId()), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                _affirm_retrieval(workCommand);
-            }
-        }).setView(getConfirmRetrieveView(workCommand)).show();
+        newBuilder(mActivity.getString(R.string.confirm_retrieve),
+                String.format("工单%d确认回收中", workCommand.getId()),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        int weight = Integer.parseInt(weightEditText.getText().toString());
+                        int cnt = Integer.parseInt(cntEditText.getText().toString());
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put("weight", String.valueOf(weight));
+                        if (!workCommand.measured_by_weight()) {
+                            params.put("quantity", String.valueOf(cnt));
+                        }
+                        MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_AFFIRM_RETRIEVAL, params);
+                        return null;
+                    }
+                },
+                mActivity.getString(R.string.confirm_retrieve_sucess, workCommand.getId())
+        ).setView(getConfirmRetrieveView(workCommand)).show();
     }
 
     public void denyRetrieve(final int workCommandId) {
@@ -360,10 +372,6 @@ public class MenuItemWrapper {
         }
     }
 
-    private void _affirm_retrieval(WorkCommand workCommand) {
-        //TODO
-    }
-
     private boolean _checkWeightAndCntValue(WorkCommand workCommand, int weight, int cnt) {
         int currentWeight = weight + workCommand.getProcessedWeight();
         int currentCnt = cnt + workCommand.getProcessedCnt();
@@ -440,7 +448,7 @@ public class MenuItemWrapper {
         return rootView;
     }
 
-    private AlertDialog.Builder newBuilder(final String titleString, final String startString, final DialogInterface.OnClickListener listener) {
+    private AlertDialog.Builder newBuilder(final String titleString, final DialogInterface.OnClickListener listener) {
         return new AlertDialog.Builder(mActivity)
                 .setTitle(titleString)
                 .setNegativeButton(android.R.string.cancel, null)

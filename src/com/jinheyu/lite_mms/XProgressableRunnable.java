@@ -39,7 +39,7 @@ public class XProgressableRunnable<Result> {
         pd.setOnShowListener(new DialogInterface.OnShowListener() {
             public void onShow(DialogInterface dialog) {
                 new Thread() {
-
+                    @Override
                     public void run() {
                         try {
                             xRunnableResult = mRunnable.run();
@@ -51,8 +51,9 @@ public class XProgressableRunnable<Result> {
                 }.start();
             }
         });
+        pd.setCancelable(false);
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
+            @Override
             public void onCancel(DialogInterface dialog) {
                 final AlertDialog ad = new AlertDialog.Builder(mContext).create();
                 if (mException == null) { // success
