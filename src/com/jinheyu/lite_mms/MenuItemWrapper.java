@@ -131,7 +131,7 @@ public class MenuItemWrapper {
         ).show();
     }
 
-    public void confirm_retrieve(final WorkCommand workCommand) {
+    public void confirmRetrieve(final WorkCommand workCommand) {
         newBuilder(mActivity.getString(R.string.confirm_retrieve), String.format("工单%d确认回收中", workCommand.getId()), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -140,7 +140,7 @@ public class MenuItemWrapper {
         }).setView(getConfirmRetrieveView(workCommand)).show();
     }
 
-    public void deny_retrieve(final int workCommandId) {
+    public void denyRetrieve(final int workCommandId) {
         newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandId),
                 String.format("工单%s拒绝回收中", workCommandId),
                 new XProgressableRunnable.XRunnable() {

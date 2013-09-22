@@ -78,10 +78,10 @@ public class WorkCommandActivity extends FragmentActivity implements ImageFragme
                 menuItemWrapper.refuse(workCommandId);
                 break;
             case R.id.action_confirm_retrieve:
-                menuItemWrapper.confirm_retrieve(mWorkCommand);
+                menuItemWrapper.confirmRetrieve(mWorkCommand);
                 break;
             case R.id.action_deny_retrieve:
-                menuItemWrapper.deny_retrieve(workCommandId);
+                menuItemWrapper.denyRetrieve(workCommandId);
                 break;
         }
         return super.onOptionsItemSelected(item);
