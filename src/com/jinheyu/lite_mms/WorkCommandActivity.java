@@ -57,10 +57,9 @@ public class WorkCommandActivity extends FragmentActivity implements ImageFragme
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         MenuItemWrapper menuItemWrapper = new MenuItemWrapper(this);
-        int workCommandId = mWorkCommand.getId();
         switch (item.getItemId()) {
             case R.id.quick_carryForward:
-                menuItemWrapper.carryForwardQuickly(workCommandId);
+                menuItemWrapper.carryForwardQuickly(mWorkCommand);
                 break;
             case R.id.carry_forward:
                 menuItemWrapper.carryForward(mWorkCommand);
@@ -72,16 +71,16 @@ public class WorkCommandActivity extends FragmentActivity implements ImageFragme
                 menuItemWrapper.addWeight(mWorkCommand);
                 break;
             case R.id.action_dispatch:
-                menuItemWrapper.dispatch(workCommandId, mWorkCommand.getDepartmentId());
+                menuItemWrapper.dispatch(mWorkCommand);
                 break;
             case R.id.action_refuse:
-                menuItemWrapper.refuse(workCommandId);
+                menuItemWrapper.refuse(mWorkCommand);
                 break;
             case R.id.action_confirm_retrieve:
                 menuItemWrapper.confirmRetrieve(mWorkCommand);
                 break;
             case R.id.action_deny_retrieve:
-                menuItemWrapper.denyRetrieve(workCommandId);
+                menuItemWrapper.denyRetrieve(mWorkCommand);
                 break;
         }
         return super.onOptionsItemSelected(item);

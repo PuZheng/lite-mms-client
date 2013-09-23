@@ -52,7 +52,7 @@ public class WebService {
                                    List<Pair<StoreBill, Boolean>> storeBillPairList, int remainWeight) throws JSONException, IOException, BadRequest {
         Map<String, String> params = new HashMap<String, String>();
         params.put("sid", String.valueOf(deliverySession.getId()));
-        params.put("is_finished", finished ? "1" : "0");
+        params.put("is_finished", String.valueOf(finished ? Constants.TRUE : Constants.FALSE));
         params.put("actor_id", String.valueOf(actorId));
         if (!finished) {
             params.put("remain", String.valueOf(remainWeight));
@@ -62,7 +62,7 @@ public class WebService {
         for (Pair<StoreBill, Boolean> pair : storeBillPairList) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("store_bill_id", pair.first.getId());
-            jsonObject.put("is_finished", pair.second ? "1" : "0");
+            jsonObject.put("is_finished", String.valueOf(pair.second ? Constants.TRUE : Constants.FALSE));
             jsonArray.put(jsonObject);
         }
         HttpResponse httpResponse = sendRequest(url, "POST", jsonArray.toString());
@@ -77,7 +77,7 @@ public class WebService {
         Map<String, String> params = new HashMap<String, String>();
         params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
         params.put("customer_id", String.valueOf(customer.getId()));
-        params.put("is_finished", done ? "1" : "0");
+        params.put("is_finished", String.valueOf(done ? Constants.TRUE : Constants.FALSE));
         params.put("harbour", URLEncoder.encode(harbor.getName(), "UTF-8"));
         params.put("session_id", String.valueOf(unloadSession.getId()));
 
@@ -202,7 +202,7 @@ public class WebService {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 int id = jsonObject.getInt("sessionID");
                 String plate = jsonObject.getString("plateNumber");
-                boolean locked = (jsonObject.getInt("isLocked") == 1);
+                boolean locked = jsonObject.getInt("isLocked") == Constants.TRUE;
                 deliverySessionList.add(new DeliverySession(id, plate, locked));
             }
         } else {
@@ -279,7 +279,7 @@ public class WebService {
                 JSONObject jo = data.getJSONObject(i);
                 int id = jo.getInt("sessionID");
                 String plate = jo.getString("plateNumber");
-                boolean locked = jo.getInt("isLocked") == 1;
+                boolean locked = jo.getInt("isLocked") == Constants.TRUE;
                 ret.add(new UnloadSession(id, plate, locked));
             }
         } else {
@@ -457,7 +457,7 @@ public class WebService {
     private WorkCommand parse2WorkCommand(JSONObject o) throws JSONException {
         int id = o.getInt("id");
         String customerName = o.getString("customerName");
-        boolean urgent = o.getInt("isUrgent") == 1;
+        boolean urgent = o.getInt("isUrgent") == Constants.TRUE;
         String spec = o.getString("spec");
         String type = o.getString("type");
         String lastMod = o.getString("lastMod");
@@ -476,11 +476,12 @@ public class WebService {
         int status = o.getInt("status");
         String tech_req = o.getString("technicalRequirements");
         int deduction = o.getInt("deduction");
-        boolean rejected = o.getInt("rejected") == 1;
+        boolean rejected = o.getInt("rejected") == Constants.TRUE;
         String unit = o.getString("unit");
         String procedure = o.getString("procedure");
         String previousProcedure = o.getString("previousProcedure");
-        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight, status);
+        int handleType = o.getInt("handleType");
+        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight, status, urgent, rejected);
         wc.setPicPath(picPath);
         wc.setProcessedWeight(processedWeight);
         wc.setProcessedCnt(processedCount);
@@ -488,6 +489,7 @@ public class WebService {
         wc.setUnit(unit);
         wc.setOrderNumber(orderNum);
         wc.setCustomerName(customerName);
+        wc.setHandleType(handleType);
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             wc.setTeamId(team.getInt("id"));

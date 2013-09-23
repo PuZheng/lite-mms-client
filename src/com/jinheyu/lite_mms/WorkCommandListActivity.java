@@ -3,6 +3,7 @@ package com.jinheyu.lite_mms;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 
@@ -60,9 +62,28 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
     protected FragmentPagerAdapter mFragmentPagerAdapter;
     protected ViewPager mViewPager;
     private PullToRefreshAttacher mPullToRefreshAttacher;
+    private boolean doubleBackToExitPressedOnce;
 
     public PullToRefreshAttacher getPullToRefreshAttacher() {
         return mPullToRefreshAttacher;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, R.string.exit_press_back_twice_message, Toast.LENGTH_SHORT).show();
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+
+            }
+        }, 2000);
     }
 
     public void onCreate(Bundle savedInstanceState) {

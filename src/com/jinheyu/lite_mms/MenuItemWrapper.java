@@ -56,6 +56,7 @@ public class MenuItemWrapper {
 
     public void carryForward(final WorkCommand workCommand) {
         final int workCommandId = workCommand.getId();
+
         newBuilder(mActivity.getString(R.string.confirm_carry_forward, workCommandId),
                 String.format("工单%d结转中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
@@ -73,13 +74,9 @@ public class MenuItemWrapper {
         StringBuilder stringBuilder = new StringBuilder();
         boolean first = true;
         for (WorkCommand workCommand : workCommandList) {
-            if (!_checkWeightAndCntValue(workCommand, 0, 0)) {
-                return;
-            } else {
-                stringBuilder.append(first ? "" : " ,");
-                stringBuilder.append(workCommand.getId());
-                first = false;
-            }
+            stringBuilder.append(first ? "" : " ,");
+            stringBuilder.append(workCommand.getId());
+            first = false;
         }
         final String workCommandsStr = stringBuilder.toString();
 
@@ -99,30 +96,45 @@ public class MenuItemWrapper {
 
     }
 
-    public void carryForwardQuickly(final int workCommandId) {
-        newBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandId),
-                String.format("工单%d快速结转中", workCommandId),
-                new XProgressableRunnable.XRunnable() {
-                    @Override
-                    public Void run() throws Exception {
-                        MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_QUICK_CARRY_FORWARD, null);
-                        return null;
-                    }
-                },
-                mActivity.getString(R.string.quick_carryForward_success, workCommandId)
-        ).show();
+    public void carryForwardQuickly(final WorkCommand workCommand) {
+        if (_checkWeightAndCntValue(workCommand, 0, 0)) {
+            final int workCommandId = workCommand.getId();
+            newBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandId),
+                    String.format("工单%d快速结转中", workCommandId),
+                    new XProgressableRunnable.XRunnable() {
+                        @Override
+                        public Void run() throws Exception {
+                            MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_QUICK_CARRY_FORWARD, null);
+                            return null;
+                        }
+                    },
+                    mActivity.getString(R.string.quick_carryForward_success, workCommandId)
+            ).show();
+        }
     }
 
-    public void carryForwardQuickly(final int[] workCommandIds) {
-        final String workCommandIds_str = Arrays.toString(workCommandIds);
+    public void carryForwardQuickly(final List<WorkCommand> workCommandList) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean first = true;
+        for (WorkCommand workCommand : workCommandList) {
+            if (_checkWeightAndCntValue(workCommand, 0, 0)) {
+                stringBuilder.append(first ? "" : " ,");
+                stringBuilder.append(workCommand.getId());
+                first = false;
+            } else {
+                return;
+            }
+        }
+        final String workCommandIds_str = stringBuilder.toString();
 
         newBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandIds_str),
                 String.format("工单%s批量快速结转中", workCommandIds_str),
                 new XProgressableRunnable.XRunnable() {
                     @Override
                     public Void run() throws Exception {
-                        for (int workCommandId : workCommandIds) {
-                            MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_QUICK_CARRY_FORWARD, null);
+                        for (WorkCommand workCommand : workCommandList) {
+                            MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_QUICK_CARRY_FORWARD, null);
                         }
                         return null;
                     }
@@ -152,7 +164,8 @@ public class MenuItemWrapper {
         ).setView(getConfirmRetrieveView(workCommand)).show();
     }
 
-    public void denyRetrieve(final int workCommandId) {
+    public void denyRetrieve(final WorkCommand workCommand) {
+        final int workCommandId = workCommand.getId();
         newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandId),
                 String.format("工单%s拒绝回收中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
@@ -179,8 +192,9 @@ public class MenuItemWrapper {
                 }, mActivity.getString(R.string.refuse_retrieval_success, workCommandIdsStr)).show();
     }
 
-    public void dispatch(final int workCommandId, final int departmentId) {
-        final Department department = Department.getDepartmentById(departmentId);
+    public void dispatch(final WorkCommand workCommand) {
+        final int workCommandId = workCommand.getId();
+        final Department department = Department.getDepartmentById(workCommand.getDepartmentId());
 
         newBuilder(mActivity.getString(R.string.confirm_assign, workCommandId),
                 String.format("工单%s分配中", workCommandId),
@@ -295,7 +309,8 @@ public class MenuItemWrapper {
         ).show();
     }
 
-    public void refuse(final int workCommandId) {
+    public void refuse(final WorkCommand workCommand) {
+        final int workCommandId = workCommand.getId();
         newBuilder(mActivity.getString(R.string.confirm_refuse, workCommandId),
                 String.format("工单%s打回中", workCommandId),
                 new XProgressableRunnable.XRunnable() {

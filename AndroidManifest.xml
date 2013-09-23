@@ -105,6 +105,7 @@
         <activity
             android:name=".SelectSubOrderActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".ImageActivity" />
     </application>
 
 </manifest>

@@ -2,10 +2,16 @@ package com.jinheyu.lite_mms.data_structures;
 
 public interface Constants {
     /**
+     * 一般常量
+     */
+    int TRUE = 1;
+    int FALSE = 0;
+
+    /**
      * 订单类型
      */
-    int EXTRA_ORDER_TYPE = 2;
-    int STANDARD_ORDER_TYPE = 1;
+    int EXTRA_ORDER_TYPE = 2;// 计件类型
+    int STANDARD_ORDER_TYPE = 1;// 计重类型
     /**
      * 工单状态
      */
@@ -30,6 +36,14 @@ public interface Constants {
     int ACT_AFFIRM_RETRIEVAL = 211;// (车间主任)确认回收
     int ACT_QI = 212;// (质检员)质检
     int ACT_REFUSE_RETRIEVAL = 213;// (车间主任)拒绝回收
-    int ACT_RETRIVE_QI = 214;//(质检员)取消质检报告
-    int ACT_QUICK_CARRY_FORWARD = 215;//(班组长)快速结转
+    int ACT_RETRIVE_QI = 214;// (质检员)取消质检报告
+    int ACT_QUICK_CARRY_FORWARD = 215;// (班组长)快速结转
+
+    /**
+     * 处理类型
+     */
+    int HT_NORMAL = 1;// 正常加工
+    int HT_REPLATE = 2;// 返镀
+    int HT_REPAIRE = 3;// 返修
 }
+

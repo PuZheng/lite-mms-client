@@ -99,7 +99,7 @@ class TeamLeaderWorkCommandListFragment extends WorkCommandListFragment {
                         wrapper.carryForward(getCheckedWorkCommands());
                         return true;
                     case R.id.quick_carryForward:
-                        wrapper.carryForwardQuickly(getCheckedWorkCommandIds());
+                        wrapper.carryForwardQuickly(getCheckedWorkCommands());
                         return true;
                     case R.id.end_work_command:
                         wrapper.endWorkCommand(getCheckedWorkCommands());

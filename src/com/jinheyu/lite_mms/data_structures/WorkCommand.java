@@ -23,7 +23,7 @@ public class WorkCommand implements Parcelable {
             return new WorkCommand[0];
         }
     };
-    private final static SparseArray<String> mStatusMap = new SparseArray<String>() {{
+    private final static SparseArray<String> mSatuses = new SparseArray<String>() {{
         put(Constants.STATUS_DISPATCHING, "待排产");
         put(Constants.STATUS_ASSIGNING, "待分配");
         put(Constants.STATUS_LOCKED, "已锁定");
@@ -31,6 +31,11 @@ public class WorkCommand implements Parcelable {
         put(Constants.STATUS_QUALITY_INSPECTING, "待质检");
         put(Constants.STATUS_REFUSED, "车间主任打回");
         put(Constants.STATUS_FINISHED, "已结束");
+    }};
+    private final static SparseArray<String> mHandleTypes = new SparseArray<String>() {{
+        put(Constants.HT_NORMAL, "正常加工");
+        put(Constants.HT_REPAIRE, "返修");
+        put(Constants.HT_REPLATE, "返镀");
     }};
     private int id;
     private String createTime;
@@ -57,6 +62,7 @@ public class WorkCommand implements Parcelable {
     private String unit;
     private int orderNumber;
     private String customerName;
+    private boolean reject;
 
     public WorkCommand(Parcel parcel) {
         this.id = parcel.readInt();
@@ -72,17 +78,22 @@ public class WorkCommand implements Parcelable {
         this.unit = parcel.readString();
         this.customerName = parcel.readString();
         this.orderNumber = parcel.readInt();
+        this.urgent = parcel.readInt() == Constants.TRUE;
+        this.handleType = parcel.readInt();
+        this.reject = parcel.readInt() == Constants.TRUE;
     }
 
-    public WorkCommand(int id, int org_cnt, int org_weight, int status) {
+    public WorkCommand(int id, int org_cnt, int org_weight, int status, boolean isUrgent, boolean isRejected) {
         this.org_cnt = org_cnt;
         this.org_weight = org_weight;
         this.id = id;
         this.status = status;
+        this.urgent = isUrgent;
+        this.reject = isRejected;
     }
 
     public static String getStatusString(int status) {
-        return mStatusMap.get(status);
+        return mSatuses.get(status);
     }
 
     /**
@@ -101,24 +112,40 @@ public class WorkCommand implements Parcelable {
         return customerName;
     }
 
-    public int getDepartmentId() {
-        return departmentId;
-    }
-
-    public int getOrderNumber() {
-        return orderNumber;
-    }
-
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public int getDepartmentId() {
+        return departmentId;
     }
 
     public void setDepartmentId(int departmentId) {
         this.departmentId = departmentId;
     }
 
+    public int getHandleType() {
+        return handleType;
+    }
+
+    public void setHandleType(int handleType) {
+        this.handleType = handleType;
+    }
+
+    public String getHandleTypeString() {
+        return mHandleTypes.get(handleType);
+    }
+
     public int getId() {
         return id;
+    }
+
+    public int getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(int orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     public int getOrgCnt() {
@@ -131,10 +158,6 @@ public class WorkCommand implements Parcelable {
 
     public String getPicPath() {
         return picPath;
-    }
-
-    public void setOrderNumber(int orderNumber) {
-        this.orderNumber = orderNumber;
     }
 
     public void setPicPath(String picPath) {
@@ -161,6 +184,10 @@ public class WorkCommand implements Parcelable {
         return status;
     }
 
+    public String getStatusString() {
+        return mSatuses.get(status);
+    }
+
     public int getTeamId() {
         return teamId;
     }
@@ -175,6 +202,14 @@ public class WorkCommand implements Parcelable {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public boolean isRejected() {
+        return reject;
+    }
+
+    public boolean isUrgent() {
+        return urgent;
     }
 
     public boolean measured_by_weight() {
@@ -207,5 +242,8 @@ public class WorkCommand implements Parcelable {
         dest.writeString(unit);
         dest.writeString(customerName);
         dest.writeInt(orderNumber);
+        dest.writeInt(urgent ? Constants.TRUE : Constants.FALSE);
+        dest.writeInt(handleType);
+        dest.writeInt(reject ? Constants.TRUE : Constants.FALSE);
     }
 }

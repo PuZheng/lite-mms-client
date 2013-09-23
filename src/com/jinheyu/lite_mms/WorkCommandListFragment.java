@@ -26,6 +26,8 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ProgressDialog mProgressDialog;
+    private boolean isLoadingWorkCommandList;
+
 
     public void dismissProcessDialog() {
         if (mProgressDialog != null) {
@@ -37,13 +39,27 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         final WorkCommand workCommand = getWorkCommandAtPosition(position);
         ViewHolder viewHolder;
         if (convertView.getTag() == null) {
-            viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView), (CheckBox) convertView.findViewById(R.id.check));
+            viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView), (CheckBox) convertView.findViewById(R.id.check), (TextView) convertView.findViewById(R.id.extra));
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.checkBox.setVisibility(isInActionMode() ? View.VISIBLE : View.GONE);
         viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
+        List<String> extraMessages = new ArrayList<String>();
+        if (workCommand.isUrgent()) {
+            extraMessages.add("加急");
+        }
+        if (workCommand.isRejected()) {
+            extraMessages.add("退镀");
+        }
+        if (extraMessages.isEmpty()) {
+            viewHolder.extraTextView.setVisibility(View.GONE);
+        } else {
+            viewHolder.extraTextView.setVisibility(View.VISIBLE);
+            viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
+        }
+
         viewHolder.checkBox.setChecked(isCheckedAtPosition(position));
         viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -63,7 +79,9 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                     CheckBox checkBox = (CheckBox) v.findViewById(R.id.check);
                     checkBox.toggle();
                 } else {
-                    new GetWorkCommandTask(getActivity()).execute(getWorkCommandIdAtPosition(position));
+                    if (!isLoadingWorkCommandList) {
+                        new GetWorkCommandTask(getActivity()).execute(getWorkCommandIdAtPosition(position));
+                    }
                 }
             }
         });
@@ -102,6 +120,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     @Override
     public void onRefreshStarted(View view) {
         loadWorkCommandList();
+        isLoadingWorkCommandList = true;
     }
 
     @Override
@@ -113,6 +132,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     public void setRefreshComplete() {
         mPullToRefreshAttacher.setRefreshComplete();
+        isLoadingWorkCommandList = false;
     }
 
     protected void clearAllCheckedItems() {
@@ -201,12 +221,15 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 class ViewHolder {
     public TextView idTextView;
     public CheckBox checkBox;
+    public TextView extraTextView;
 
-    public ViewHolder(TextView idTextView, CheckBox checkBox) {
+    public ViewHolder(TextView idTextView, CheckBox checkBox, TextView extraTextView) {
         this.idTextView = idTextView;
         this.checkBox = checkBox;
+        this.extraTextView = extraTextView;
     }
 }
+
 
 class WorkCommandListAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;

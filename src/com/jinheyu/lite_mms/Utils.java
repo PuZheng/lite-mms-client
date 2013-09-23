@@ -24,7 +24,6 @@ public class Utils {
 
     private static final String TAG = "Utils";
     private static final String UNLOAD_TASK_PIC_FILE_NAME = "unload-task-pic.jpeg";
-    private static Uri unloadTaskPicUri;
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static boolean isEmptyString(String s) {

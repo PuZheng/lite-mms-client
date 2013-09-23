@@ -86,4 +86,6 @@
     <string name="confirm_processed_quantity">请确认工序后数量（%s）</string>
     <string name="org_weight">工序前重量</string>
     <string name="org_cnt">工序前数量</string>
+    <string name="exit_press_back_twice_message">再按一次返回，退出程序</string>
+    <string name="load_failure">加载图片失败</string>
 </resources>
