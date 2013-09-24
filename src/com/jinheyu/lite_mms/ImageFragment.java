@@ -30,17 +30,6 @@ public class ImageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_image, container, false);
         mImageButton = (ImageButton) rootView.findViewById(R.id.image);
-        mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mImageFragmentListener.getFragmentPicUrl() == null) {
-                    return;
-                }
-                Intent intent = new Intent(getActivity(), ImageActivity.class);
-                intent.putExtra("imageUrl", mImageFragmentListener.getFragmentPicUrl());
-                startActivity(intent);
-            }
-        });
         new GetImageTask(mImageButton, mImageFragmentListener.getFragmentPicUrl()).execute();
         return rootView;
     }

@@ -105,7 +105,9 @@
         <activity
             android:name=".SelectSubOrderActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".ImageActivity" />
+        <activity
+            android:name=".ImageActivity"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
     </application>
 
 </manifest>

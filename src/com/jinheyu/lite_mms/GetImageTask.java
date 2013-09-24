@@ -1,15 +1,17 @@
 package com.jinheyu.lite_mms;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v4.util.LruCache;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 /**
  * Created by <a href='https://github.com/abc549825'>abc549825@163.com</a> at 09-23.
  */
-// TODO cache image
 public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
     private static final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private static final int cacheSize = maxMemory / 8;
@@ -60,6 +62,19 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         if (ex == null) {
             addBitmapToMemCache(mKey, bitmap);
             mImageView.setImageBitmap(bitmap);
+            if (mImageView instanceof ImageButton) {
+                mImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mKey == null) {
+                            return;
+                        }
+                        Intent intent = new Intent(mImageView.getContext(), ImageActivity.class);
+                        intent.putExtra("imageUrl", mKey);
+                        mImageView.getContext().startActivity(intent);
+                    }
+                });
+            }
         } else {
             Toast.makeText(mImageView.getContext(), R.string.load_failure, Toast.LENGTH_SHORT).show();
             mImageView.setImageResource(R.drawable.broken_image);
