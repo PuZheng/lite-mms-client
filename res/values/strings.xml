@@ -10,7 +10,7 @@
     <string name="username_empty_error">用户名不能为空</string>
     <string name="password_empty_error">密码不能为空</string>
     <string name="close">关闭</string>
-    <string name="vehicle_weighing">该车正在称重</string>
+    <string name="vehicle_weighing_or_work_flow_processing">该车正在称重或有工作流正在处理</string>
     <string name="refresh">刷新</string>
     <string name="choose_vehicle">第一步: 请选择车辆</string>
     <string name="choose_harbor">第二步: 请选择装卸点</string>

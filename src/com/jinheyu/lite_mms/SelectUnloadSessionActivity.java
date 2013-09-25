@@ -173,7 +173,7 @@ public class SelectUnloadSessionActivity extends ListActivity {
                 @Override
                 public void onClick(View view) {
                     if (unloadSession.isLocked()) {
-                        Toast.makeText(context, getString(R.string.vehicle_weighing), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getString(R.string.vehicle_weighing_or_work_flow_processing), Toast.LENGTH_SHORT).show();
                     } else {
                         Intent intent = new Intent(SelectUnloadSessionActivity.this,
                                 SelectHarborActivity.class);
