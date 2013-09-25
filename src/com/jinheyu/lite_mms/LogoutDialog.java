@@ -21,7 +21,7 @@ public class LogoutDialog {
     }
 
     public void doLogout(Activity activity) {
-        Utils.clearUserToken(activity);
+        Utils.clearUserPrefs(activity);
         activity.finish();
         Intent intent = new Intent(activity, LogInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

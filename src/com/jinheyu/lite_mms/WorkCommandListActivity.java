@@ -59,7 +59,6 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
         }
 
     };
-    protected FragmentPagerAdapter mFragmentPagerAdapter;
     protected ViewPager mViewPager;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private boolean doubleBackToExitPressedOnce;
@@ -91,6 +90,8 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
         setContentView(R.layout.activity_work_command_list_main);
 
         mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
         final ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -112,9 +113,8 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mViewPager = (ViewPager) findViewById(R.id.pager);
-                mFragmentPagerAdapter = getFragmentPagerAdapter(position);
-                mViewPager.setAdapter(mFragmentPagerAdapter);
+                FragmentPagerAdapter fragmentPagerAdapter = getFragmentPagerAdapter(position);
+                mViewPager.setAdapter(fragmentPagerAdapter);
                 mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
@@ -125,13 +125,13 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
                     }
                 });
                 actionBar.removeAllTabs();
-                for (int i = 0; i < mFragmentPagerAdapter.getCount(); i++) {
+                for (int i = 0; i < fragmentPagerAdapter.getCount(); i++) {
                     // Create a tab with text corresponding to the page title defined by the adapter.
                     // Also specify this Activity object, which implements the TabListener interface, as the
                     // listener for when this tab is selected.
                     actionBar.addTab(
                             actionBar.newTab()
-                                    .setText(mFragmentPagerAdapter.getPageTitle(i))
+                                    .setText(fragmentPagerAdapter.getPageTitle(i))
                                     .setTabListener(mTabListener));
                 }
             }

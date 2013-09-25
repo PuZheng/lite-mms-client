@@ -44,7 +44,6 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... params) {
-        mImageView.setImageResource(android.R.drawable.progress_horizontal);
         try {
             Bitmap bitmap = getBitmapFromMemCache(mKey);
             if (bitmap == null) {
@@ -79,5 +78,10 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
             Toast.makeText(mImageView.getContext(), R.string.load_failure, Toast.LENGTH_SHORT).show();
             mImageView.setImageResource(R.drawable.broken_image);
         }
+    }
+
+    @Override
+    protected void onPreExecute() {
+        mImageView.setImageResource(android.R.drawable.progress_horizontal);
     }
 }

@@ -274,7 +274,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
             builder.run(new XProgressableRunnable.XRunnable() {
                 @Override
                 public Void run() throws Exception {
-                    MyApp.getWebServieHandler().createDeliveryTask(deliverySession, finished, MyApp.getCurrentUser().getId(),
+                    MyApp.getWebServieHandler().createDeliveryTask(deliverySession, finished, MyApp.getCurrentUser(),
                             storeBillPairList, remainingWeight);
                     return null;
                 }

@@ -3,6 +3,8 @@ package com.jinheyu.lite_mms;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -346,7 +348,10 @@ public class MenuItemWrapper {
                 if (isFinished) {
                     mActivity.onNavigateUp();
                 } else {
-                    new GetWorkCommandTask(mActivity, true).execute(workCommand.getId());
+                    Intent intent = new Intent(mActivity, WorkCommandActivity.class);
+                    intent.putExtra("workCommandId", workCommand.getId());
+                    mActivity.finish();
+                    mActivity.startActivity(intent);
                 }
             }
         });
@@ -463,13 +468,6 @@ public class MenuItemWrapper {
         return rootView;
     }
 
-    private AlertDialog.Builder newBuilder(final String titleString, final DialogInterface.OnClickListener listener) {
-        return new AlertDialog.Builder(mActivity)
-                .setTitle(titleString)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, listener);
-    }
-
     private AlertDialog.Builder newBuilder(final String titleString, final String startString, final XProgressableRunnable.XRunnable runnable, final String okString) {
         return new AlertDialog.Builder(mActivity)
                 .setTitle(titleString)
@@ -482,6 +480,7 @@ public class MenuItemWrapper {
                             @Override
                             public void run() {
                                 if (mActionMode == null) {
+
                                     mActivity.onNavigateUp();
                                 } else {
                                     mActionMode.finish();

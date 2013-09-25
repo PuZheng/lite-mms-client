@@ -2,6 +2,7 @@ package com.jinheyu.lite_mms;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.method.ScrollingMovementMethod;
@@ -27,7 +28,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ProgressDialog mProgressDialog;
     private boolean isLoadingWorkCommandList;
-
 
     public void dismissProcessDialog() {
         if (mProgressDialog != null) {
@@ -80,7 +80,9 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                     checkBox.toggle();
                 } else {
                     if (!isLoadingWorkCommandList) {
-                        new GetWorkCommandTask(getActivity()).execute(getWorkCommandIdAtPosition(position));
+                        Intent intent = new Intent(getActivity(), WorkCommandActivity.class);
+                        intent.putExtra("workCommandId", getWorkCommandIdAtPosition(position));
+                        getActivity().startActivity(intent);
                     }
                 }
             }
@@ -152,6 +154,13 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return result;
     }
 
+    protected List<WorkCommand> getCheckedWorkCommands() {
+        List<WorkCommand> result = new ArrayList<WorkCommand>();
+        for (Integer position : mSelectedPositions) {
+            result.add(getWorkCommandAtPosition(position));
+        }
+        return result;
+    }
 
     protected int[] getSymbols() {
         return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
@@ -161,14 +170,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     private boolean deselectAtPosition(int position) {
         return mSelectedPositions.remove(position);
-    }
-
-    protected List<WorkCommand> getCheckedWorkCommands() {
-        List<WorkCommand> result = new ArrayList<WorkCommand>();
-        for (Integer position : mSelectedPositions) {
-            result.add(getWorkCommandAtPosition(position));
-        }
-        return result;
     }
 
     private WorkCommand getWorkCommandAtPosition(int position) {
@@ -230,7 +231,6 @@ class ViewHolder {
     }
 }
 
-
 class WorkCommandListAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;
     private WorkCommandListFragment mFragment;
@@ -266,6 +266,7 @@ class WorkCommandListAdapter extends BaseAdapter {
         }
         return mFragment.getItemView(position, convertView);
     }
+
 
 }
 
