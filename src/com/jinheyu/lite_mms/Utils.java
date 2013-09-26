@@ -25,9 +25,97 @@ public class Utils {
     private static final String TAG = "Utils";
     private static final String UNLOAD_TASK_PIC_FILE_NAME = "unload-task-pic.jpeg";
 
+    public static void assertDirExists(String dir) {
+        File file = new File(dir);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                Log.e(TAG, "can't create directory: " + dir);
+            }
+        }
+    }
+
+    public static void clearUserPrefs(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("user", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.commit();
+    }
+
+    public static void displayError(Context c, Exception ex) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        builder.setTitle(c.getString(R.string.error));
+        builder.setMessage(ex.getMessage());
+        builder.setNegativeButton(c.getString(R.string.close), null);
+        builder.show();
+    }
+
+    public static File getExternalCacheDir(Context context) {
+        if (hasExternalCacheDir()) {
+            return context.getExternalCacheDir();
+        }
+        return new File(getStorageDir() + " cache/");
+    }
+
+    public static int getMaxTimes(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return Integer.parseInt(sharedPreferences.getString("max_times", String.valueOf(MyApp.MAX_TIMES_PROCESSED_TO_ORG)));
+    }
+
+    public static Pair<String, Integer> getServerAddress(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String ip = sharedPreferences.getString("server_ip", MyApp.DEFAULT_SERVER_IP);
+        int port = Integer.valueOf(sharedPreferences.getString("server_port",
+                String.valueOf(MyApp.DEFAULT_SERVER_PORT)));
+        return new Pair<String, Integer>(ip, port);
+    }
+
+    public static String getStorageDir() {
+        return Environment.getExternalStorageDirectory() + "/lite-mms/";
+    }
+
+    public static Uri getUnloadTaskPicUri() {
+        return Uri.fromFile(new File(getStorageDir() + UNLOAD_TASK_PIC_FILE_NAME));
+    }
+
+    public static CharSequence getVersion(Context context) throws IOException {
+        InputStream inputStream = null;
+        try {
+            inputStream = context.getAssets().open("version.txt");
+            byte[] buf = new byte[inputStream.available()];
+            inputStream.read(buf);
+            return new String(buf);
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
+    }
+
+    public static boolean hasExternalCacheDir() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+    }
+
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static boolean isEmptyString(String s) {
         return s == null || s.isEmpty();
+    }
+
+    public static boolean isExternalStorageRemovable() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD || Environment.isExternalStorageRemovable();
+    }
+
+    public static String join(List<String> stringList, String delimiter) {
+        boolean first = true;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s : stringList) {
+            stringBuilder.append(first ? "" : delimiter).append(s);
+            first = false;
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String join(String[] strings, String delimiter) {
+        return join(Arrays.asList(strings), delimiter);
     }
 
     public static int[] parse2IntegerArray(String s) throws NumberFormatException {
@@ -41,6 +129,14 @@ public class Utils {
             result[i] = Integer.parseInt(strings[i]);
         }
         return result;
+    }
+
+    public static int parseInt(String string, int defaultValue) {
+        try {
+            return Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     public static User readUserPrefs(Context c) {
@@ -77,86 +173,5 @@ public class Utils {
         String departmentIds = Arrays.toString(user.getDepartmentIds());
         editor.putString("departmentIds", departmentIds.substring(1, departmentIds.length() - 1));
         editor.commit();
-    }
-
-    public static void clearUserPrefs(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("user", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.commit();
-    }
-
-    public static void displayError(Context c, Exception ex) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(c);
-        builder.setTitle(c.getString(R.string.error));
-        builder.setMessage(ex.getMessage());
-        builder.setNegativeButton(c.getString(R.string.close), null);
-        builder.show();
-    }
-
-    public static Uri getUnloadTaskPicUri() {
-        return Uri.fromFile(new File(getStorageDir() + UNLOAD_TASK_PIC_FILE_NAME));
-    }
-
-    public static String getStorageDir() {
-        return Environment.getExternalStorageDirectory() + "/lite-mms/";
-    }
-
-    public static void assertDirExists(String dir) {
-        File file = new File(dir);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                Log.e(TAG, "can't create directory: " + dir);
-            }
-        }
-    }
-
-    public static Pair<String, Integer> getServerAddress(Context context) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String ip = sharedPreferences.getString("server_ip", MyApp.DEFAULT_SERVER_IP);
-        int port = Integer.valueOf(sharedPreferences.getString("server_port",
-                String.valueOf(MyApp.DEFAULT_SERVER_PORT)));
-        return new Pair<String, Integer>(ip, port);
-    }
-
-    public static int getMaxTimes(Context context) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return Integer.parseInt(sharedPreferences.getString("max_times", String.valueOf(MyApp.MAX_TIMES_PROCESSED_TO_ORG)));
-    }
-
-    public static int parseInt(String string, int defaultValue) {
-        try {
-            return Integer.parseInt(string);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    public static String join(List<String> stringList, String delimiter) {
-        boolean first = true;
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String s : stringList) {
-            stringBuilder.append(first ? "" : delimiter).append(s);
-            first = false;
-        }
-        return stringBuilder.toString();
-    }
-
-    public static String join(String[] strings, String delimiter) {
-        return join(Arrays.asList(strings), delimiter);
-    }
-
-    public static CharSequence getVersion(Context context) throws IOException {
-        InputStream inputStream = null;
-        try {
-            inputStream = context.getAssets().open("version.txt");
-            byte[] buf = new byte[inputStream.available()];
-            inputStream.read(buf);
-            return new String(buf);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
     }
 }

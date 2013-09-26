@@ -39,39 +39,16 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         final WorkCommand workCommand = getWorkCommandAtPosition(position);
         ViewHolder viewHolder;
         if (convertView.getTag() == null) {
-            viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView), (CheckBox) convertView.findViewById(R.id.check), (TextView) convertView.findViewById(R.id.extra));
+            viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView),
+                    (CheckBox) convertView.findViewById(R.id.check),
+                    (ImageButton) convertView.findViewById(R.id.image),
+                    (TextView) convertView.findViewById(R.id.extra));
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.checkBox.setVisibility(isInActionMode() ? View.VISIBLE : View.GONE);
-        viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
-        List<String> extraMessages = new ArrayList<String>();
-        if (workCommand.isUrgent()) {
-            extraMessages.add("加急");
-        }
-        if (workCommand.isRejected()) {
-            extraMessages.add("退镀");
-        }
-        if (extraMessages.isEmpty()) {
-            viewHolder.extraTextView.setVisibility(View.GONE);
-        } else {
-            viewHolder.extraTextView.setVisibility(View.VISIBLE);
-            viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
-        }
+        setViewHold(position, workCommand, viewHolder);
 
-        viewHolder.checkBox.setChecked(isCheckedAtPosition(position));
-        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    selectAtPosition(position);
-                } else {
-                    deselectAtPosition(position);
-                }
-                setActionModeSubTitle();
-            }
-        });
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +78,39 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
             }
         });
         return convertView;
+    }
+
+    private void setViewHold(final int position, WorkCommand workCommand, ViewHolder viewHolder) {
+        viewHolder.checkBox.setVisibility(isInActionMode() ? View.VISIBLE : View.GONE);
+        viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
+        List<String> extraMessages = new ArrayList<String>();
+        if (workCommand.isUrgent()) {
+            extraMessages.add("加急");
+        }
+        if (workCommand.isRejected()) {
+            extraMessages.add("退镀");
+        }
+        if (extraMessages.isEmpty()) {
+            viewHolder.extraTextView.setVisibility(View.GONE);
+        } else {
+            viewHolder.extraTextView.setVisibility(View.VISIBLE);
+            viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
+        }
+
+        viewHolder.checkBox.setChecked(isCheckedAtPosition(position));
+        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    selectAtPosition(position);
+                } else {
+                    deselectAtPosition(position);
+                }
+                setActionModeSubTitle();
+            }
+        });
+
+        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
     }
 
     @Override
@@ -220,13 +230,15 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 }
 
 class ViewHolder {
+    public ImageButton imageButton;
     public TextView idTextView;
     public CheckBox checkBox;
     public TextView extraTextView;
 
-    public ViewHolder(TextView idTextView, CheckBox checkBox, TextView extraTextView) {
+    public ViewHolder(TextView idTextView, CheckBox checkBox, ImageButton imageButton, TextView extraTextView) {
         this.idTextView = idTextView;
         this.checkBox = checkBox;
+        this.imageButton = imageButton;
         this.extraTextView = extraTextView;
     }
 }

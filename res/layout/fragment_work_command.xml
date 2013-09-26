@@ -4,21 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="10dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
     android:paddingBottom="10dp">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-
-        </RelativeLayout>
+    <ImageButton
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        android:background="@android:color/transparent"
+        android:id="@+id/image"
+        android:layout_width="45dp"
+        android:layout_height="80dp" />
 
     <TextView
         android:id="@+id/idTextView"
+        android:layout_toRightOf="@id/image"
         android:textSize="20sp"
-        android:text="test"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:padding="5dp"
@@ -28,7 +27,6 @@
         android:layout_toRightOf="@id/idTextView"
         android:id="@+id/extra"
         android:textColor="@color/red"
-        android:text="123"
         android:padding="5dp"
         android:layout_marginTop="5dp"
         android:layout_width="wrap_content"

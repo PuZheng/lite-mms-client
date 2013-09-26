@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import com.jinheyu.lite_mms.data_structures.Department;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.netutils.BadRequest;
+import com.jinheyu.lite_mms.netutils.ImageCache;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -54,6 +55,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
+        if (!ImageCache.isInitialized()) {
+            ImageCache.initialize(this);
+        }
     }
 
     /**

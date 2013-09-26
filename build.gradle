@@ -16,6 +16,7 @@ repositories {
 }
 
 dependencies {
+    compile 'com.jakewharton:disklrucache:2.0+'
     compile 'com.android.support:appcompat-v7:18.0.+'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.7.+'
 }
