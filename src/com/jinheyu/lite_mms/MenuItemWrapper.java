@@ -348,10 +348,9 @@ public class MenuItemWrapper {
                 if (isFinished) {
                     mActivity.onNavigateUp();
                 } else {
-                    Intent intent = new Intent(mActivity, WorkCommandActivity.class);
-                    intent.putExtra("workCommandId", workCommand.getId());
-                    mActivity.finish();
-                    mActivity.startActivity(intent);
+                    if (mActivity instanceof WorkCommandActivity) {
+                        new GetWorkCommandTask((WorkCommandActivity) mActivity).execute();
+                    }
                 }
             }
         });

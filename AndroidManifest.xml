@@ -71,6 +71,7 @@
         <activity
             android:name=".WorkCommandActivity"
             android:uiOptions="splitActionBarWhenNarrow"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_work_command">
             <meta-data
                 android:name="android.support.UI_OPTIONS"

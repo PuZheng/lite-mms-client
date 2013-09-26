@@ -17,6 +17,44 @@ import org.json.JSONException;
 import java.io.IOException;
 
 
+class GetWorkCommandTask extends AsyncTask<Void, Void, Void> {
+    private WorkCommandActivity mActivity;
+    private Exception ex;
+
+    public GetWorkCommandTask(WorkCommandActivity activity) {
+        this.mActivity = activity;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+        try {
+            int workCommandId = mActivity.getIntent().getIntExtra("workCommandId", 0);
+            WorkCommand workCommand = MyApp.getWebServieHandler().getWorkCommand(workCommandId);
+            mActivity.setWorkCommand(workCommand);
+        } catch (BadRequest badRequest) {
+            badRequest.printStackTrace();
+            ex = badRequest;
+        } catch (IOException e) {
+            e.printStackTrace();
+            ex = e;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            ex = e;
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void param) {
+        if (ex == null) {
+            mActivity.updateView();
+        } else {
+            Toast.makeText(mActivity, "加载工单失败", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+}
+
 public class WorkCommandActivity extends FragmentActivity {
     private WorkCommand mWorkCommand;
 
@@ -25,41 +63,23 @@ public class WorkCommandActivity extends FragmentActivity {
         return new Intent(this, MyApp.getCurrentUser().getDefaultActivity());
     }
 
+    public void setWorkCommand(WorkCommand workCommand) {
+        this.mWorkCommand = workCommand;
+    }
+
+    public void updateView() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment, new WorkCommandFragment());
+        transaction.commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_command_detail);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        new GetWorkCommandTask().execute(getIntent().getIntExtra("workCommandId", 0));
-    }
-
-    class GetWorkCommandTask extends AsyncTask<Integer, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Integer... params) {
-            try {
-                mWorkCommand = MyApp.getWebServieHandler().getWorkCommand(params[0]);
-            } catch (BadRequest badRequest) {
-                badRequest.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void param) {
-            if (mWorkCommand != null) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.add(R.id.layout, new WorkCommandFragment());
-                transaction.commit();
-            } else {
-                Toast.makeText(WorkCommandActivity.this, "加载工单失败", Toast.LENGTH_SHORT).show();
-            }
-        }
+        new GetWorkCommandTask(this).execute();
     }
 
     class WorkCommandFragment extends Fragment {
@@ -125,7 +145,24 @@ public class WorkCommandActivity extends FragmentActivity {
             _setCustomer();
             _setOrgWeight();
             _setOrgCnt();
+            _setProcessedWeight();
+            _setProcessedCnt();
             _setPic();
+            _setCntVisibility();
+        }
+
+        private void _setCntVisibility() {
+            for (int i : new int[]{R.id.processed_cnt_row, R.id.org_cnt_row}) {
+                View view = rootView.findViewById(i);
+                if (view != null) {
+                    if (mWorkCommand.measured_by_weight()) {
+                        view.setVisibility(View.GONE);
+                    } else {
+                        view.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            }
         }
 
         private void _setCustomer() {
@@ -154,17 +191,27 @@ public class WorkCommandActivity extends FragmentActivity {
 
         private void _setOrgCnt() {
             TextView textView = (TextView) rootView.findViewById(R.id.org_cnt);
-            textView.setText(mWorkCommand.getOrgCnt() + " " + mWorkCommand.getUnit());
+            textView.setText(String.format("%d %s", mWorkCommand.getOrgCnt(), mWorkCommand.getUnit()));
         }
 
         private void _setOrgWeight() {
             TextView textView = (TextView) rootView.findViewById(R.id.org_weight);
-            textView.setText(mWorkCommand.getOrgWeight() + " 千克");
+            textView.setText(String.format("%d 千克", mWorkCommand.getOrgWeight()));
         }
 
         private void _setPic() {
             ImageButton imageButton = (ImageButton) rootView.findViewById(R.id.image);
             new GetImageTask(imageButton, mWorkCommand.getPicPath()).execute();
+        }
+
+        private void _setProcessedCnt() {
+            TextView textView = (TextView) rootView.findViewById(R.id.processed_cnt);
+            textView.setText(String.format("%d %s", mWorkCommand.getProcessedCnt(), mWorkCommand.getUnit()));
+        }
+
+        private void _setProcessedWeight() {
+            TextView textView = (TextView) rootView.findViewById(R.id.processed_weight);
+            textView.setText(String.format("%d 千克", mWorkCommand.getProcessedWeight()));
         }
 
         private void _setTeamLeaderMenu(Menu menu, MenuInflater inflater) {

@@ -86,6 +86,7 @@
         </TableRow>
 
         <TableRow
+            android:id="@+id/org_cnt_row"
             android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -99,6 +100,45 @@
 
             <TextView
                 android:id="@+id/org_cnt"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </TableRow>
+
+        <TableRow
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/processed_weight"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/processed_weight"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/processed_cnt_row"
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/processed_cnt"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/processed_cnt"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

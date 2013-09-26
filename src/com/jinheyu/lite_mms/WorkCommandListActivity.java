@@ -80,7 +80,6 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
             @Override
             public void run() {
                 doubleBackToExitPressedOnce = false;
-
             }
         }, 2000);
     }
