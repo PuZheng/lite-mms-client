@@ -2,33 +2,68 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <ImageButton
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
         android:background="@android:color/transparent"
         android:id="@+id/image"
-        android:layout_width="45dp"
+        android:layout_width="60dp"
         android:layout_height="80dp" />
 
     <TextView
         android:id="@+id/idTextView"
         android:layout_toRightOf="@id/image"
+        android:layout_marginLeft="8dp"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:padding="5dp"
         android:layout_height="wrap_content" />
 
     <TextView
         android:layout_toRightOf="@id/idTextView"
         android:id="@+id/extra"
         android:textColor="@color/red"
-        android:padding="5dp"
-        android:layout_marginTop="5dp"
+        android:textSize="20sp"
+        android:layout_marginLeft="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/customer_name"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toRightOf="@id/extra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:id="@+id/product_name"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/image"
+        android:layout_below="@id/idTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:id="@+id/spec_and_type"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/product_name"
+        android:layout_below="@id/idTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:id="@+id/org_weight"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/image"
+        android:layout_below="@id/product_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

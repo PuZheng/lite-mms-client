@@ -482,7 +482,7 @@ public class WebService {
         String procedure = o.getString("procedure");
         String previousProcedure = o.getString("previousProcedure");
         int handleType = o.getInt("handleType");
-        WorkCommand wc = new WorkCommand(id, orgCount, orgWeight, status, urgent, rejected);
+        WorkCommand wc = new WorkCommand(id, productName, orgCount, orgWeight, status, urgent, rejected);
         wc.setPicPath(picPath);
         wc.setProcessedWeight(processedWeight);
         wc.setProcessedCnt(processedCount);
@@ -491,6 +491,8 @@ public class WebService {
         wc.setOrderNumber(orderNum);
         wc.setCustomerName(customerName);
         wc.setHandleType(handleType);
+        wc.setType(type);
+        wc.setSpec(spec);
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             wc.setTeamId(team.getInt("id"));

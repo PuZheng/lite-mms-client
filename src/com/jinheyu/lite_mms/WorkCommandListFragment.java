@@ -39,10 +39,14 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         final WorkCommand workCommand = getWorkCommandAtPosition(position);
         ViewHolder viewHolder;
         if (convertView.getTag() == null) {
-            viewHolder = new ViewHolder((TextView) convertView.findViewById(R.id.idTextView),
+            viewHolder = new ViewHolder((ImageButton) convertView.findViewById(R.id.image),
+                    (TextView) convertView.findViewById(R.id.idTextView),
                     (CheckBox) convertView.findViewById(R.id.check),
-                    (ImageButton) convertView.findViewById(R.id.image),
-                    (TextView) convertView.findViewById(R.id.extra));
+                    (TextView) convertView.findViewById(R.id.extra),
+                    (TextView) convertView.findViewById(R.id.customer_name),
+                    (TextView) convertView.findViewById(R.id.product_name),
+                    (TextView) convertView.findViewById(R.id.org_weight),
+                    (TextView) convertView.findViewById(R.id.spec_and_type));
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -78,39 +82,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
             }
         });
         return convertView;
-    }
-
-    private void setViewHold(final int position, WorkCommand workCommand, ViewHolder viewHolder) {
-        viewHolder.checkBox.setVisibility(isInActionMode() ? View.VISIBLE : View.GONE);
-        viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
-        List<String> extraMessages = new ArrayList<String>();
-        if (workCommand.isUrgent()) {
-            extraMessages.add("加急");
-        }
-        if (workCommand.isRejected()) {
-            extraMessages.add("退镀");
-        }
-        if (extraMessages.isEmpty()) {
-            viewHolder.extraTextView.setVisibility(View.GONE);
-        } else {
-            viewHolder.extraTextView.setVisibility(View.VISIBLE);
-            viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
-        }
-
-        viewHolder.checkBox.setChecked(isCheckedAtPosition(position));
-        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    selectAtPosition(position);
-                } else {
-                    deselectAtPosition(position);
-                }
-                setActionModeSubTitle();
-            }
-        });
-
-        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
     }
 
     @Override
@@ -224,6 +195,44 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         }
     }
 
+    private void setViewHold(final int position, WorkCommand workCommand, ViewHolder viewHolder) {
+        viewHolder.checkBox.setVisibility(isInActionMode() ? View.VISIBLE : View.GONE);
+        viewHolder.idTextView.setText(String.valueOf(workCommand.getId()));
+        List<String> extraMessages = new ArrayList<String>();
+        if (workCommand.isUrgent()) {
+            extraMessages.add("加急");
+        }
+        if (workCommand.isRejected()) {
+            extraMessages.add("退镀");
+        }
+        if (extraMessages.isEmpty()) {
+            viewHolder.extraTextView.setVisibility(View.GONE);
+        }else{
+            viewHolder.extraTextView.setVisibility(View.VISIBLE);
+            viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
+        }
+
+        viewHolder.checkBox.setChecked(isCheckedAtPosition(position));
+        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    selectAtPosition(position);
+                } else {
+                    deselectAtPosition(position);
+                }
+                setActionModeSubTitle();
+            }
+        });
+
+        viewHolder.customerTextView.setText(workCommand.getCustomerName());
+        viewHolder.productTextView.setText(workCommand.getProductName());
+
+        viewHolder.orgWeightTextView.setText(workCommand.measured_by_weight() ? String.format("%d 千克", workCommand.getOrgWeight()) : String.format("%d 千克 - %d %s", workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand.getUnit()));
+        viewHolder.specTypeTextView.setText(String.format("%s - %s", workCommand.getSpec(), workCommand.getType()));
+        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
+    }
+
     private void startActionMode() {
         mActionMode = getActivity().startActionMode(mActionModeListener);
     }
@@ -234,13 +243,22 @@ class ViewHolder {
     public TextView idTextView;
     public CheckBox checkBox;
     public TextView extraTextView;
+    public TextView productTextView;
+    public TextView customerTextView;
+    public TextView orgWeightTextView;
+    public TextView specTypeTextView;
 
-    public ViewHolder(TextView idTextView, CheckBox checkBox, ImageButton imageButton, TextView extraTextView) {
+    public ViewHolder(ImageButton imageButton, TextView idTextView, CheckBox checkBox, TextView extraTextView, TextView customerTextView, TextView productTextView, TextView orgWeightTextView, TextView specTypeTextView) {
+        this.imageButton = imageButton;
         this.idTextView = idTextView;
         this.checkBox = checkBox;
-        this.imageButton = imageButton;
         this.extraTextView = extraTextView;
+        this.customerTextView = customerTextView;
+        this.productTextView = productTextView;
+        this.orgWeightTextView = orgWeightTextView;
+        this.specTypeTextView = specTypeTextView;
     }
+
 }
 
 class WorkCommandListAdapter extends BaseAdapter {

@@ -63,6 +63,7 @@ public class WorkCommand implements Parcelable {
     private int orderNumber;
     private String customerName;
     private boolean reject;
+    private String productName;
 
     public WorkCommand(Parcel parcel) {
         this.id = parcel.readInt();
@@ -81,9 +82,11 @@ public class WorkCommand implements Parcelable {
         this.urgent = parcel.readInt() == Constants.TRUE;
         this.handleType = parcel.readInt();
         this.reject = parcel.readInt() == Constants.TRUE;
+        this.productName = parcel.readString();
     }
 
-    public WorkCommand(int id, int org_cnt, int org_weight, int status, boolean isUrgent, boolean isRejected) {
+    public WorkCommand(int id, String productName, int org_cnt, int org_weight, int status, boolean isUrgent, boolean isRejected) {
+        this.productName = productName;
         this.org_cnt = org_cnt;
         this.org_weight = org_weight;
         this.id = id;
@@ -180,6 +183,14 @@ public class WorkCommand implements Parcelable {
         this.processed_weight = processed_weight;
     }
 
+    public String getProductName() {
+        return productName;
+    }
+
+    public String getSpec() {
+        return spec;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -192,12 +203,24 @@ public class WorkCommand implements Parcelable {
         return teamId;
     }
 
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
+
     public void setTeamId(int teamId) {
         this.teamId = teamId;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public String getUnit() {
         return unit;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setUnit(String unit) {
@@ -245,5 +268,6 @@ public class WorkCommand implements Parcelable {
         dest.writeInt(urgent ? Constants.TRUE : Constants.FALSE);
         dest.writeInt(handleType);
         dest.writeInt(reject ? Constants.TRUE : Constants.FALSE);
+        dest.writeString(productName);
     }
 }
