@@ -481,6 +481,10 @@ public class WebService {
         wc.setHandleType(handleType);
         wc.setType(type);
         wc.setSpec(spec);
+        wc.setPreviousProcedure(previousProcedure);
+        wc.setProcedure(procedure);
+        wc.setTechReq(tech_req);
+        wc.setSubOrderId(subOrderId);
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             wc.setTeamId(team.getInt("id"));

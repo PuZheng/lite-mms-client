@@ -43,12 +43,12 @@ public class WorkCommand implements Parcelable {
     private int org_cnt;
     private int org_weight;
     private boolean urgent;
-    private int previous_procedure_id;
-    private int procedure_id;
+    private String previous_procedure;
+    private String procedure;
     private int processed_cnt;
     private int processed_weight;
     private int status;
-    private int sub_order_id;
+    private int subOrderId;
     private String tag;
     private int teamId;
     private String tech_req;
@@ -83,6 +83,10 @@ public class WorkCommand implements Parcelable {
         this.handleType = parcel.readInt();
         this.reject = parcel.readInt() == Constants.TRUE;
         this.productName = parcel.readString();
+        this.procedure = parcel.readString();
+        this.tech_req = parcel.readString();
+        this.previous_procedure = parcel.readString();
+        this.subOrderId = parcel.readInt();
     }
 
     public WorkCommand(int id, String productName, int org_cnt, int org_weight, int status, boolean isUrgent, boolean isRejected) {
@@ -167,6 +171,22 @@ public class WorkCommand implements Parcelable {
         this.picPath = picPath;
     }
 
+    public String getPreviousProcedure() {
+        return previous_procedure;
+    }
+
+    public void setPreviousProcedure(String previous_procedure) {
+        this.previous_procedure = previous_procedure;
+    }
+
+    public String getProcedure() {
+        return procedure;
+    }
+
+    public void setProcedure(String procedure) {
+        this.procedure = procedure;
+    }
+
     public int getProcessedCnt() {
         return processed_cnt;
     }
@@ -191,6 +211,10 @@ public class WorkCommand implements Parcelable {
         return spec;
     }
 
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -199,28 +223,40 @@ public class WorkCommand implements Parcelable {
         return mSatuses.get(status);
     }
 
-    public int getTeamId() {
-        return teamId;
+    public int getSubOrderId() {
+        return subOrderId;
     }
 
-    public void setSpec(String spec) {
-        this.spec = spec;
+    public void setSubOrderId(int subOrderId) {
+        this.subOrderId = subOrderId;
+    }
+
+    public int getTeamId() {
+        return teamId;
     }
 
     public void setTeamId(int teamId) {
         this.teamId = teamId;
     }
 
+    public String getTechReq() {
+        return tech_req;
+    }
+
+    public void setTechReq(String tech_req) {
+        this.tech_req = tech_req;
+    }
+
     public String getType() {
         return type;
     }
 
-    public String getUnit() {
-        return unit;
-    }
-
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
     public void setUnit(String unit) {
@@ -269,5 +305,9 @@ public class WorkCommand implements Parcelable {
         dest.writeInt(handleType);
         dest.writeInt(reject ? Constants.TRUE : Constants.FALSE);
         dest.writeString(productName);
+        dest.writeString(procedure);
+        dest.writeString(tech_req);
+        dest.writeString(previous_procedure);
+        dest.writeInt(subOrderId);
     }
 }

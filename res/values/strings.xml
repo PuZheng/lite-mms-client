@@ -88,4 +88,12 @@
     <string name="org_cnt">工序前数量</string>
     <string name="exit_press_back_twice_message">再按一次返回，退出程序</string>
     <string name="load_failure">加载图片失败</string>
+    <string name="product_name">产品名称</string>
+    <string name="spec">规格</string>
+    <string name="type">型号</string>
+    <string name="handleType">处理类型</string>
+    <string name="procedure">工序</string>
+    <string name="tech_req">技术要求</string>
+    <string name="status">工单状态</string>
+    <string name="previous_procedure">上道工序</string>
 </resources>

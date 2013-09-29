@@ -1,13 +1,12 @@
 package com.jinheyu.lite_mms;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.view.*;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.User;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
@@ -15,6 +14,8 @@ import com.jinheyu.lite_mms.netutils.BadRequest;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class GetWorkCommandTask extends AsyncTask<Void, Void, Void> {
@@ -141,14 +142,36 @@ public class WorkCommandActivity extends FragmentActivity {
 
         private void _initView() {
             _setIdTextView();
+            _setExtra();
+            _setStatus();
+            _setHandleType();
             _setOrderNumber();
             _setCustomer();
+            _setProduct();
+            _setTechReq();
+            _setType();
+            _setSpec();
+            _setProcedure();
+            _setPreviousProcedure();
             _setOrgWeight();
             _setOrgCnt();
             _setProcessedWeight();
             _setProcessedCnt();
             _setPic();
             _setCntVisibility();
+            _setBackgroundColor();
+        }
+
+        private void _setBackgroundColor() {
+            TableLayout layout = (TableLayout) rootView.findViewById(R.id.layout);
+            boolean odd = true;
+            for (int i = 0; i < layout.getChildCount(); i++) {
+                View row = layout.getChildAt(i);
+                if (row instanceof TableRow && row.getVisibility() == View.VISIBLE) {
+                    row.setBackgroundColor(Color.parseColor(odd ? "#F9F9F9" : "#FFFFFF"));
+                    odd = !odd;
+                }
+            }
         }
 
         private void _setCntVisibility() {
@@ -179,9 +202,33 @@ public class WorkCommandActivity extends FragmentActivity {
             }
         }
 
+        private void _setExtra() {
+            List<String> extraMessages = new ArrayList<String>();
+            if (mWorkCommand.isUrgent()) {
+                extraMessages.add("加急");
+            }
+            if (mWorkCommand.isRejected()) {
+                extraMessages.add("退镀");
+            }
+            TextView textView = (TextView) rootView.findViewById(R.id.extra);
+            View extraView = rootView.findViewById(R.id.extra_row);
+            if (extraMessages.isEmpty()) {
+                extraView.setVisibility(View.GONE);
+            } else {
+                extraView.setVisibility(View.VISIBLE);
+                textView.setText(Utils.join(extraMessages, " ,"));
+            }
+        }
+
+        private void _setHandleType() {
+            TextView textView = (TextView) rootView.findViewById(R.id.handleType);
+            textView.setText(mWorkCommand.getHandleTypeString());
+        }
+
         private void _setIdTextView() {
             TextView idTextView = (TextView) rootView.findViewById(R.id.work_command_id);
             idTextView.setText(String.valueOf(mWorkCommand.getId()));
+
         }
 
         private void _setOrderNumber() {
@@ -204,6 +251,16 @@ public class WorkCommandActivity extends FragmentActivity {
             new GetImageTask(imageButton, mWorkCommand.getPicPath()).execute();
         }
 
+        private void _setPreviousProcedure() {
+            TextView textView = (TextView) rootView.findViewById(R.id.previous_procedure);
+            textView.setText(mWorkCommand.getPreviousProcedure());
+        }
+
+        private void _setProcedure() {
+            TextView textView = (TextView) rootView.findViewById(R.id.procedure);
+            textView.setText(mWorkCommand.getProcedure());
+        }
+
         private void _setProcessedCnt() {
             TextView textView = (TextView) rootView.findViewById(R.id.processed_cnt);
             textView.setText(String.format("%d %s", mWorkCommand.getProcessedCnt(), mWorkCommand.getUnit()));
@@ -214,10 +271,35 @@ public class WorkCommandActivity extends FragmentActivity {
             textView.setText(String.format("%d 千克", mWorkCommand.getProcessedWeight()));
         }
 
+        private void _setProduct() {
+            TextView textView = (TextView) rootView.findViewById(R.id.product_name);
+            textView.setText(mWorkCommand.getProductName());
+        }
+
+        private void _setSpec() {
+            TextView textView = (TextView) rootView.findViewById(R.id.spec);
+            textView.setText(mWorkCommand.getSpec());
+        }
+
+        private void _setStatus() {
+            TextView textView = (TextView) rootView.findViewById(R.id.status);
+            textView.setText(mWorkCommand.getStatusString());
+        }
+
         private void _setTeamLeaderMenu(Menu menu, MenuInflater inflater) {
             if (mWorkCommand.getStatus() == Constants.STATUS_ENDING) {
                 inflater.inflate(R.menu.team_leader_work_command_menu, menu);
             }
+        }
+
+        private void _setTechReq() {
+            TextView textView = (TextView) rootView.findViewById(R.id.tech_req);
+            textView.setText(mWorkCommand.getTechReq());
+        }
+
+        private void _setType() {
+            TextView textView = (TextView) rootView.findViewById(R.id.type);
+            textView.setText(mWorkCommand.getType());
         }
 
     }

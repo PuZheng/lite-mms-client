@@ -70,6 +70,9 @@ public class ImageCache {
                     if (editor != null) {
                         editor.abort();
                     }
+                    if (steam != null) {
+                        steam.close();
+                    }
                 } catch (IOException ignored) {
                 }
             }
@@ -98,7 +101,7 @@ public class ImageCache {
             while (mDiskCacheStarting) {
                 try {
                     mDiskCacheLock.wait();
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignore) {
                 }
             }
             if (mDiskLruCache != null) {
