@@ -5,8 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.jinheyu.lite_mms.Utils;
+import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
 
@@ -14,7 +16,7 @@ import java.io.*;
  * Created by abc549825@163.com(https://github.com/abc549825) at 09-26.
  */
 public class ImageCache {
-    public static final int IO_BUFFER_SIZE = 8 * 1024;
+    public static final int IO_BUFFER_SIZE = 1024;
     private static final int DISK_CACHE_SIZE = 1024 * 1024 * 100; // 100MB
     private static final String DISK_CACHE_SUBDIR = "thumbnails";
     private static final int VALUE_COUNT = 1;
@@ -25,8 +27,6 @@ public class ImageCache {
     private static ImageCache instance;
     private static DiskLruCache mDiskLruCache;
     private static boolean mDiskCacheStarting = true;
-    private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
-    private int mCompressQuality = 100;
 
     private ImageCache(Context context) {
         File diskCacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
@@ -48,7 +48,7 @@ public class ImageCache {
         return instance != null;
     }
 
-    public void addBitmapToCache(String key, Bitmap bitmap) {
+    public void addBitmapToCache(String key, InputStream steam) {
         synchronized (mDiskCacheLock) {
             if (containsKey(key)) {
                 return;
@@ -59,7 +59,7 @@ public class ImageCache {
                 if (editor == null) {
                     return;
                 }
-                if (writeBitmapToFile(bitmap, editor)) {
+                if (writeToFile(steam, editor)) {
                     mDiskLruCache.flush();
                     editor.commit();
                 } else {
@@ -92,7 +92,7 @@ public class ImageCache {
         return contained;
     }
 
-    public Bitmap getBitmapFromDiskCache(String key) throws IOException {
+    public Bitmap getBitmapFromDiskCache(String key, int sampleSize) throws IOException {
         synchronized (mDiskCacheLock) {
             // Wait while disk cache is started from background thread
             while (mDiskCacheStarting) {
@@ -102,7 +102,7 @@ public class ImageCache {
                 }
             }
             if (mDiskLruCache != null) {
-                return getBitmap(key);
+                return getBitmap(key, sampleSize);
             }
         }
         return null;
@@ -112,7 +112,39 @@ public class ImageCache {
         return mDiskLruCache.getDirectory();
     }
 
-    private Bitmap getBitmap(String key) {
+    private int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
+        double w = options.outWidth;
+        double h = options.outHeight;
+        int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math.sqrt(w * h / maxNumOfPixels));
+        int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(Math.floor(w / minSideLength), Math.floor(h / minSideLength));
+        if (upperBound < lowerBound) {
+            // return the larger one when there is no overlapping zone.
+            return lowerBound;
+        }
+        if ((maxNumOfPixels == -1) && (minSideLength == -1)) {
+            return 1;
+        } else if (minSideLength == -1) {
+            return lowerBound;
+        } else {
+            return upperBound;
+        }
+    }
+
+    private int computeSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
+        int initialSize = computeInitialSampleSize(options, minSideLength, maxNumOfPixels);
+        int roundedSize;
+        if (initialSize <= 8) {
+            roundedSize = 1;
+            while (roundedSize < initialSize) {
+                roundedSize <<= 1;
+            }
+        } else {
+            roundedSize = (initialSize + 7) / 8 * 8;
+        }
+        return roundedSize;
+    }
+
+    private Bitmap getBitmap(String key, int sampleSize) {
         Bitmap bitmap = null;
         DiskLruCache.Snapshot snapshot = null;
         try {
@@ -124,7 +156,13 @@ public class ImageCache {
             final InputStream in = snapshot.getInputStream(DISK_CACHE_INDEX);
             if (in != null) {
                 final BufferedInputStream buffIn = new BufferedInputStream(in, IO_BUFFER_SIZE);
-                bitmap = BitmapFactory.decodeStream(buffIn);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = false;
+                options.inPreferredConfig = Bitmap.Config.RGB_565;
+                options.inPurgeable = true;
+                options.inInputShareable = true;
+                options.inSampleSize = sampleSize;
+                bitmap = BitmapFactory.decodeStream(buffIn, null, options);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -133,9 +171,7 @@ public class ImageCache {
                 snapshot.close();
             }
         }
-
         return bitmap;
-
     }
 
     private File getDiskCacheDir(Context context, String uniqueName) {
@@ -151,14 +187,24 @@ public class ImageCache {
         return new File(cachePath + File.separator + uniqueName);
     }
 
-    private boolean writeBitmapToFile(Bitmap bitmap, DiskLruCache.Editor editor) throws IOException {
+    private boolean writeToFile(InputStream inputStream, DiskLruCache.Editor editor) throws IOException {
         OutputStream out = null;
         try {
             out = new BufferedOutputStream(editor.newOutputStream(DISK_CACHE_INDEX), IO_BUFFER_SIZE);
-            return bitmap.compress(mCompressFormat, mCompressQuality, out);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+            ByteArrayBuffer buffer = new ByteArrayBuffer(IO_BUFFER_SIZE);
+            int current;
+            while ((current = bufferedInputStream.read()) != -1) {
+                buffer.append(current);
+            }
+            out.write(buffer.toByteArray());
+            return true;
         } finally {
             if (out != null) {
                 out.close();
+            }
+            if (inputStream != null) {
+                inputStream.close();
             }
         }
     }

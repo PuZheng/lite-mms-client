@@ -1,8 +1,6 @@
 package com.jinheyu.lite_mms.netutils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Pair;
 import com.jinheyu.lite_mms.MyApp;
 import com.jinheyu.lite_mms.Utils;
@@ -19,10 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -247,17 +242,11 @@ public class WebService {
         return ret;
     }
 
-    public Bitmap getImageFromUrl(String pirUrl) throws IOException {
+    public InputStream getSteamFromUrl(String pirUrl) throws IOException {
         Pair<String, Integer> pair = Utils.getServerAddress(context);
         URL url = new URL(String.format("http://%s:%d%s", pair.first, pair.second, pirUrl));
         InputStream is = url.openStream();
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = false;
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        options.inPurgeable = true;
-        options.inInputShareable = true;
-        return BitmapFactory.decodeStream(is, null, options);
+        return is;
     }
 
     public List<Team> getTeamList() throws JSONException, IOException, BadRequest {

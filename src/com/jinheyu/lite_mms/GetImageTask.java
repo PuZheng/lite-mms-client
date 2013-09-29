@@ -21,7 +21,6 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
     private ImageView mImageView;
     private ImageCache mImageCache;
 
-
     public GetImageTask(ImageView imageView, String url) {
         this(imageView, url, true);
     }
@@ -34,15 +33,28 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         mImageCache = ImageCache.getInstance(mImageView.getContext());
     }
 
+    private int calculateSampleSize(ImageView mImageView) {
+        // 按500w（2560×1920）像素， 720×1280屏幕计算
+        if (mImageView.getScaleType() == ImageView.ScaleType.MATRIX) {
+            return 1;
+        }
+        if (mImageView.getHeight() == 0 && mImageView.getWidth() == 0) {
+            return 2;
+        }
+        return 32;
+    }
+
     @Override
     protected Bitmap doInBackground(Void... params) {
         if (Utils.isEmptyString(mUrl)) {
             return null;
         }
+        final int sampleSize = calculateSampleSize(mImageView);
         try {
-            Bitmap bitmap = mImageCache.getBitmapFromDiskCache(mKey);
+            Bitmap bitmap = mImageCache.getBitmapFromDiskCache(mKey, sampleSize);
             if (bitmap == null) {
-                bitmap = MyApp.getWebServieHandler().getImageFromUrl(mUrl);
+                mImageCache.addBitmapToCache(mKey, MyApp.getWebServieHandler().getSteamFromUrl(mUrl));
+                return mImageCache.getBitmapFromDiskCache(mKey, sampleSize);
             }
             return bitmap;
         } catch (Exception e) {
@@ -54,7 +66,6 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         if (ex == null && bitmap != null) {
-            mImageCache.addBitmapToCache(mKey, bitmap);
             mImageView.setImageBitmap(bitmap);
             if (mImageView instanceof ImageButton) {
                 mImageView.setOnClickListener(new View.OnClickListener() {
