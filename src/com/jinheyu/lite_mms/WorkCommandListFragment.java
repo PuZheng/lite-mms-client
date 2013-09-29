@@ -207,7 +207,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         }
         if (extraMessages.isEmpty()) {
             viewHolder.extraTextView.setVisibility(View.GONE);
-        }else{
+        } else {
             viewHolder.extraTextView.setVisibility(View.VISIBLE);
             viewHolder.extraTextView.setText(Utils.join(extraMessages, ", "));
         }
@@ -228,8 +228,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         viewHolder.customerTextView.setText(workCommand.getCustomerName());
         viewHolder.productTextView.setText(workCommand.getProductName());
 
-        viewHolder.orgWeightTextView.setText(workCommand.measured_by_weight() ? String.format("%d 千克", workCommand.getOrgWeight()) : String.format("%d 千克 - %d %s", workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand.getUnit()));
-        viewHolder.specTypeTextView.setText(String.format("%s - %s", workCommand.getSpec(), workCommand.getType()));
+        viewHolder.orgWeightTextView.setText(workCommand.measured_by_weight() ? String.format("%d千克", workCommand.getOrgWeight()) : String.format("%d千克/%d%s", workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand.getUnit()));
+        viewHolder.specTypeTextView.setText(String.format("(%s-%s)",
+                Utils.isEmptyString(workCommand.getSpec()) ? "\"\"" : workCommand.getSpec(),
+                Utils.isEmptyString(workCommand.getType()) ? "\"\"" : workCommand.getType()));
         new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
     }
 

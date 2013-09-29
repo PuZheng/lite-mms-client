@@ -3,8 +3,6 @@ package com.jinheyu.lite_mms;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -458,7 +456,7 @@ public class MenuItemWrapper {
         TextView orgCntView = (TextView) rootView.findViewById(R.id.org_cnt);
         orgCntView.setText(String.format("%d %s", workCommand.getOrgCnt(), workCommand.getUnit()));
 
-        TextView processedWeightView = (TextView) rootView.findViewById(R.id.processed_weight);
+        TextView processedWeightView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt);
         processedWeightView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
 
         TextView processedCntView = (TextView) rootView.findViewById(R.id.processed_cnt);

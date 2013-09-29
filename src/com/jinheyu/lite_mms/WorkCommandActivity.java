@@ -141,24 +141,17 @@ public class WorkCommandActivity extends FragmentActivity {
         }
 
         private void _initView() {
-            _setIdTextView();
+            _setIdTextViewAndStatus();
             _setExtra();
-            _setStatus();
             _setHandleType();
             _setOrderNumber();
             _setCustomer();
-            _setProduct();
+            _setProductAndSpecType();
             _setTechReq();
-            _setType();
-            _setSpec();
-            _setProcedure();
-            _setPreviousProcedure();
-            _setOrgWeight();
-            _setOrgCnt();
-            _setProcessedWeight();
-            _setProcessedCnt();
+            _setProcedureAndPreviousProcedure();
+            _setOrgWeightAndCnt();
+            _setProcessedWeightAndCnt();
             _setPic();
-            _setCntVisibility();
             _setBackgroundColor();
         }
 
@@ -170,20 +163,6 @@ public class WorkCommandActivity extends FragmentActivity {
                 if (row instanceof TableRow && row.getVisibility() == View.VISIBLE) {
                     row.setBackgroundColor(Color.parseColor(odd ? "#F9F9F9" : "#FFFFFF"));
                     odd = !odd;
-                }
-            }
-        }
-
-        private void _setCntVisibility() {
-            for (int i : new int[]{R.id.processed_cnt_row, R.id.org_cnt_row}) {
-                View view = rootView.findViewById(i);
-                if (view != null) {
-                    if (mWorkCommand.measured_by_weight()) {
-                        view.setVisibility(View.GONE);
-                    } else {
-                        view.setVisibility(View.VISIBLE);
-                    }
-
                 }
             }
         }
@@ -225,10 +204,9 @@ public class WorkCommandActivity extends FragmentActivity {
             textView.setText(mWorkCommand.getHandleTypeString());
         }
 
-        private void _setIdTextView() {
+        private void _setIdTextViewAndStatus() {
             TextView idTextView = (TextView) rootView.findViewById(R.id.work_command_id);
-            idTextView.setText(String.valueOf(mWorkCommand.getId()));
-
+            idTextView.setText(String.format("%d(%s)", mWorkCommand.getId(), mWorkCommand.getStatusString()));
         }
 
         private void _setOrderNumber() {
@@ -236,14 +214,16 @@ public class WorkCommandActivity extends FragmentActivity {
             textView.setText(String.valueOf(mWorkCommand.getOrderNumber()));
         }
 
-        private void _setOrgCnt() {
-            TextView textView = (TextView) rootView.findViewById(R.id.org_cnt);
-            textView.setText(String.format("%d %s", mWorkCommand.getOrgCnt(), mWorkCommand.getUnit()));
-        }
-
-        private void _setOrgWeight() {
-            TextView textView = (TextView) rootView.findViewById(R.id.org_weight);
-            textView.setText(String.format("%d 千克", mWorkCommand.getOrgWeight()));
+        private void _setOrgWeightAndCnt() {
+            TextView textView = (TextView) rootView.findViewById(R.id.org_weight_and_cnt);
+            TextView weightAndCntView = (TextView) rootView.findViewById(R.id.org_weight_and_cnt_view);
+            if (mWorkCommand.measured_by_weight()) {
+                weightAndCntView.setText(R.string.org_weight);
+                textView.setText(String.format("%d 千克", mWorkCommand.getOrgWeight()));
+            } else {
+                weightAndCntView.setText(R.string.org_weight_and_cnt);
+                textView.setText(String.format("%d千克/%d%s", mWorkCommand.getOrgWeight(), mWorkCommand.getOrgCnt(), mWorkCommand.getUnit()));
+            }
         }
 
         private void _setPic() {
@@ -251,39 +231,29 @@ public class WorkCommandActivity extends FragmentActivity {
             new GetImageTask(imageButton, mWorkCommand.getPicPath()).execute();
         }
 
-        private void _setPreviousProcedure() {
-            TextView textView = (TextView) rootView.findViewById(R.id.previous_procedure);
-            textView.setText(mWorkCommand.getPreviousProcedure());
+        private void _setProcedureAndPreviousProcedure() {
+            TextView textView = (TextView) rootView.findViewById(R.id.procedure_and_previous);
+            textView.setText(String.format("%s(%s)", mWorkCommand.getProcedure(),
+                    Utils.isEmptyString(mWorkCommand.getPreviousProcedure()) ? "\"\"" : mWorkCommand.getPreviousProcedure()));
         }
 
-        private void _setProcedure() {
-            TextView textView = (TextView) rootView.findViewById(R.id.procedure);
-            textView.setText(mWorkCommand.getProcedure());
+        private void _setProcessedWeightAndCnt() {
+            TextView textView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt);
+            TextView weightAndCntView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt_row);
+            if (mWorkCommand.measured_by_weight()) {
+                weightAndCntView.setText(R.string.processed_weight);
+                textView.setText(String.format("%d千克", mWorkCommand.getProcessedWeight()));
+            } else {
+                weightAndCntView.setText(R.string.processed_weight_and_cnt);
+                textView.setText(String.format("%d千克/%d%s", mWorkCommand.getProcessedWeight(), mWorkCommand.getProcessedCnt(), mWorkCommand.getUnit()));
+            }
         }
 
-        private void _setProcessedCnt() {
-            TextView textView = (TextView) rootView.findViewById(R.id.processed_cnt);
-            textView.setText(String.format("%d %s", mWorkCommand.getProcessedCnt(), mWorkCommand.getUnit()));
-        }
-
-        private void _setProcessedWeight() {
-            TextView textView = (TextView) rootView.findViewById(R.id.processed_weight);
-            textView.setText(String.format("%d 千克", mWorkCommand.getProcessedWeight()));
-        }
-
-        private void _setProduct() {
-            TextView textView = (TextView) rootView.findViewById(R.id.product_name);
-            textView.setText(mWorkCommand.getProductName());
-        }
-
-        private void _setSpec() {
-            TextView textView = (TextView) rootView.findViewById(R.id.spec);
-            textView.setText(mWorkCommand.getSpec());
-        }
-
-        private void _setStatus() {
-            TextView textView = (TextView) rootView.findViewById(R.id.status);
-            textView.setText(mWorkCommand.getStatusString());
+        private void _setProductAndSpecType() {
+            TextView textView = (TextView) rootView.findViewById(R.id.product_name_and_spec_type);
+            textView.setText(String.format("%s(%s-%s)", mWorkCommand.getProductName(),
+                    Utils.isEmptyString(mWorkCommand.getSpec()) ? "\"\"" : mWorkCommand.getSpec(),
+                    Utils.isEmptyString(mWorkCommand.getType()) ? "\"\"" : mWorkCommand.getType()));
         }
 
         private void _setTeamLeaderMenu(Menu menu, MenuInflater inflater) {
@@ -295,11 +265,6 @@ public class WorkCommandActivity extends FragmentActivity {
         private void _setTechReq() {
             TextView textView = (TextView) rootView.findViewById(R.id.tech_req);
             textView.setText(mWorkCommand.getTechReq());
-        }
-
-        private void _setType() {
-            TextView textView = (TextView) rootView.findViewById(R.id.type);
-            textView.setText(mWorkCommand.getType());
         }
 
     }
