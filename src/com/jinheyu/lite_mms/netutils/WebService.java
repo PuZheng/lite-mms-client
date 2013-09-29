@@ -245,8 +245,7 @@ public class WebService {
     public InputStream getSteamFromUrl(String pirUrl) throws IOException {
         Pair<String, Integer> pair = Utils.getServerAddress(context);
         URL url = new URL(String.format("http://%s:%d%s", pair.first, pair.second, pirUrl));
-        InputStream is = url.openStream();
-        return is;
+        return url.openStream();
     }
 
     public List<Team> getTeamList() throws JSONException, IOException, BadRequest {
