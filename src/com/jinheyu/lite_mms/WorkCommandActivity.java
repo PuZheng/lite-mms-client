@@ -234,7 +234,7 @@ public class WorkCommandActivity extends FragmentActivity {
         private void _setProcedureAndPreviousProcedure() {
             TextView textView = (TextView) rootView.findViewById(R.id.procedure_and_previous);
             textView.setText(String.format("%s(%s)", mWorkCommand.getProcedure(),
-                    Utils.isEmptyString(mWorkCommand.getPreviousProcedure()) ? " " : mWorkCommand.getPreviousProcedure()));
+                    Utils.isEmptyString(mWorkCommand.getPreviousProcedure()) ? "  " : mWorkCommand.getPreviousProcedure()));
         }
 
         private void _setProcessedWeightAndCnt() {
@@ -252,8 +252,8 @@ public class WorkCommandActivity extends FragmentActivity {
         private void _setProductAndSpecType() {
             TextView textView = (TextView) rootView.findViewById(R.id.product_name_and_spec_type);
             textView.setText(String.format("%s(%s-%s)", mWorkCommand.getProductName(),
-                    Utils.isEmptyString(mWorkCommand.getSpec()) ? " " : mWorkCommand.getSpec(),
-                    Utils.isEmptyString(mWorkCommand.getType()) ? " " : mWorkCommand.getType()));
+                    Utils.isEmptyString(mWorkCommand.getSpec()) ? "  " : mWorkCommand.getSpec(),
+                    Utils.isEmptyString(mWorkCommand.getType()) ? "  " : mWorkCommand.getType()));
         }
 
         private void _setTeamLeaderMenu(Menu menu, MenuInflater inflater) {

@@ -17,7 +17,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -48,7 +51,6 @@ public class WebService {
         Map<String, String> params = new HashMap<String, String>();
         params.put("sid", String.valueOf(deliverySession.getId()));
         params.put("is_finished", String.valueOf(finished ? Constants.TRUE : Constants.FALSE));
-        params.put("auth_token", user.getToken());
         params.put("remain", String.valueOf(remainWeight));
         String url = composeUrl("delivery_ws", "delivery-task", params);
         JSONArray jsonArray = new JSONArray();
@@ -71,7 +73,6 @@ public class WebService {
     public void createUnloadTask(UnloadSession unloadSession, Harbor harbor, Customer customer,
                                  boolean done, String picPath) throws BadRequest, IOException {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
         params.put("customer_id", String.valueOf(customer.getId()));
         params.put("is_finished", String.valueOf(done ? Constants.TRUE : Constants.FALSE));
         params.put("harbour", URLEncoder.encode(harbor.getName(), "UTF-8"));
@@ -115,7 +116,7 @@ public class WebService {
         HttpResponse response = sendRequest(url);
 
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
 
         if (stateCode == HttpStatus.SC_OK) {
             ret = new ArrayList<Customer>();
@@ -143,7 +144,7 @@ public class WebService {
         HttpResponse response = sendRequest(url);
 
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (stateCode == HttpStatus.SC_OK) {
             JSONObject root = new JSONObject(result);
             String plate = root.getString("plate");
@@ -190,7 +191,7 @@ public class WebService {
         String url = composeUrl("delivery_ws", "delivery-session-list");
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (stateCode == HttpStatus.SC_OK) {
             deliverySessionList = new ArrayList<DeliverySession>();
             JSONArray jsonArray = new JSONArray(result);
@@ -211,7 +212,7 @@ public class WebService {
     public List<Department> getDepartmentList() throws IOException, JSONException, BadRequest {
         String url = composeUrl("manufacture_ws", "department-list");
         HttpResponse response = sendRequest(url);
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             throw new BadRequest(result);
         } else {
@@ -227,7 +228,7 @@ public class WebService {
         HttpResponse response = sendRequest(url);
 
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
 
         if (stateCode == HttpStatus.SC_OK) {
             ret = new ArrayList<Harbor>();
@@ -258,7 +259,7 @@ public class WebService {
         String url = composeUrl("cargo_ws", "unload-session-list");
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         JSONObject root = new JSONObject(result);
         if (stateCode == HttpStatus.SC_OK) {
             int cnt = root.getInt("total_cnt");
@@ -334,7 +335,7 @@ public class WebService {
         String url = composeUrl("auth_ws", "login", params);
         HttpResponse response = sendRequest(url, "POST", "");
         int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         JSONObject root = new JSONObject(result);
         if (stateCode == HttpStatus.SC_OK) {
             int[] teamIdList = Utils.parse2IntegerArray(root.getString("teamID"));
@@ -348,9 +349,7 @@ public class WebService {
     }
 
     public String off_duty() throws IOException, BadRequest, JSONException {
-        String url = composeUrl("manufacture_ws", "off-duty", new HashMap<String, String>() {{
-            put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
-        }});
+        String url = composeUrl("manufacture_ws", "off-duty");
         HttpResponse response = postRequest(url);
         String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -363,7 +362,6 @@ public class WebService {
         if (params == null) {
             params = new HashMap<String, String>();
         }
-        params.put("actor_id", String.valueOf(MyApp.getCurrentUser().getId()));
         params.put("work_command_id", String.valueOf(workCommandId));
         params.put("action", String.valueOf(action_code));
         String url = composeUrl("manufacture_ws", "work-command", params);
@@ -379,7 +377,7 @@ public class WebService {
     private List<Team> _getTeamList(Map<String, String> params) throws IOException, JSONException, BadRequest {
         String url = composeUrl("manufacture_ws", "team-list", params);
         HttpResponse response = sendRequest(url);
-        String result = EntityUtils.toString(response.getEntity());
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             throw new BadRequest(result);
         } else {
@@ -423,10 +421,17 @@ public class WebService {
         StringBuilder ret = new StringBuilder();
         ret.append(String.format("http://%s:%d/%s/%s", pair.first, pair.second, blueprint, path));
         if (params != null) {
+            if (MyApp.getCurrentUser() != null) {
+                params.put("auth_token", MyApp.getCurrentUser().getToken());
+            }
             boolean first = true;
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 ret.append(first ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
                 first = false;
+            }
+        } else {
+            if (MyApp.getCurrentUser() != null) {
+                ret.append("?auth_token=").append(MyApp.getCurrentUser().getToken());
             }
         }
         return ret.toString();
