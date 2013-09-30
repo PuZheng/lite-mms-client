@@ -1,15 +1,10 @@
 package com.jinheyu.lite_mms;
 
-import android.annotation.TargetApi;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -31,12 +26,12 @@ import java.util.Map;
 /**
  * Created by xc on 13-8-14.
  */
-public class SelectCustomerActivity extends ListActivity {
+public class SelectCustomerActivity extends PtrListActivity {
 
     private EditText editTextAbbr;
-    private GetCustomerListTask getCustomerListTask;
     private ProgressBar progressBar;
-
+    private List<Map<String, Object>> appearedCustomerList = null;
+    private List<Customer> customerList = null;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,55 +53,35 @@ public class SelectCustomerActivity extends ListActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 String needle = editable.toString();
-                getCustomerListTask.appearedCustomerList.clear();
-                for (Customer customer: getCustomerListTask.customerList) {
+                appearedCustomerList.clear();
+                for (Customer customer: customerList) {
                     if (customer.getAbbr().startsWith(needle)) {
                         Map<String, Object> row = new HashMap<String, Object>();
                         row.put("name", customer.getName());
                         row.put("id", customer.getId());
-                        getCustomerListTask.appearedCustomerList.add(row);
+                        appearedCustomerList.add(row);
                     }
                 }
                 ((SimpleAdapter)getListAdapter()).notifyDataSetChanged();
             }
         });
 
-        getCustomerListTask = new GetCustomerListTask();
-        getCustomerListTask.execute();
-    }
+        appearedCustomerList = new ArrayList<Map<String, Object>>();
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem menuItem;
-        menuItem = menu.add(getString(R.string.refresh));
-        menuItem.setIcon(R.drawable.navigation_refresh);
-        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        return super.onCreateOptionsMenu(menu);
-    }
+        pullToRefreshInit();
 
+        new GetCustomerListTask().execute();
+    }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getTitle().equals(getString(R.string.refresh))) {
-            editTextAbbr.setText("");
-            getCustomerListTask = new GetCustomerListTask();
-            getCustomerListTask.execute();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onRefreshStarted(View view) {
+        new GetCustomerListTask().execute();
     }
-
 
     class GetCustomerListTask extends AsyncTask<Void, Void, Boolean> {
 
         private Exception ex = null;
-        private List<Customer> customerList = null;
-        private List<Map<String, Object>> appearedCustomerList = null;
 
-        public GetCustomerListTask() {
-            customerList = new ArrayList<Customer>();
-            appearedCustomerList = new ArrayList<Map<String, Object>>();
-        }
 
         @Override
         protected void onPreExecute () {
@@ -152,6 +127,7 @@ public class SelectCustomerActivity extends ListActivity {
             } else {
                 ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
             }
+            editTextAbbr.setText("");
             getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -164,6 +140,7 @@ public class SelectCustomerActivity extends ListActivity {
             });
             getListView().setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
+            getPullToRefreshAttacher().setRefreshComplete();
         }
     }
 }
