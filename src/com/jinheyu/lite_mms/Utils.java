@@ -127,7 +127,7 @@ public class Utils {
         String[] strings = s.split(regularExpression);
         int[] result = new int[isEmptyString(s) ? 0 : strings.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = Integer.parseInt(strings[i]);
+            result[i] = Integer.parseInt(strings[i].trim());
         }
         return result;
     }
