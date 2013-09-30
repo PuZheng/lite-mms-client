@@ -107,6 +107,7 @@ public class WebService {
 
     public List<DeliverySession> getDeliverySessionList() throws IOException, JSONException, BadRequest {
         List<DeliverySession> deliverySessionList = null;
+
         String url = composeUrl("delivery_ws", "delivery-session-list");
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
