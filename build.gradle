@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
+}
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+}
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.jakewharton:disklrucache:2.0+'
+    compile 'com.android.support:appcompat-v7:18.0.+'
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.7.+'
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 18
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+
+            resources.srcDirs = ['gen']
+            aidl.srcDirs = ['src']
+
+            renderscript.srcDirs = ['src']
+
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+
+        instrumentTest.setRoot('tests')
+    }
+}
+

@@ -107,7 +107,7 @@ public class SelectSubOrderActivity extends FragmentActivity {
                     textViewNoData.setVisibility(View.GONE);
                     linearLayoutOrders.removeAllViews();
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    for (Order order: deliverySessionDetail.getOrderList()) {
+                    for (Order order : deliverySessionDetail.getOrderList()) {
                         ft.add(R.id.linearLayoutOrders, new OrderFragment(order), "ORDER");
                     }
                     ft.commit();
@@ -188,7 +188,9 @@ public class SelectSubOrderActivity extends FragmentActivity {
                 this.textView1 = textView1;
                 this.textView2 = textView2;
             }
-        };
+        }
+
+        ;
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
@@ -203,7 +205,7 @@ public class SelectSubOrderActivity extends FragmentActivity {
             }
             final SubOrder subOrder = (SubOrder) getItem(i);
             List<String> storeBillIdList = new ArrayList<String>();
-            for (StoreBill storeBill: subOrder.getStoreBillList()) {
+            for (StoreBill storeBill : subOrder.getStoreBillList()) {
                 storeBillIdList.add(String.valueOf(storeBill.getId()));
             }
             viewHolder.textView1.setText("仓单号: " + Utils.join(storeBillIdList, ", "));

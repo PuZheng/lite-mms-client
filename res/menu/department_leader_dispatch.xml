@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_refuse"
+        android:showAsAction="always"
+        android:title="@string/refuse" />
+    <item
+        android:id="@+id/action_dispatch"
+        android:showAsAction="always"
+        android:title="@string/assign" />
+</menu>
