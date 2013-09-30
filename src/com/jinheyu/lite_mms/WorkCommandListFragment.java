@@ -230,8 +230,8 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
         viewHolder.orgWeightTextView.setText(workCommand.measured_by_weight() ? String.format("%d千克", workCommand.getOrgWeight()) : String.format("%d千克/%d%s", workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand.getUnit()));
         viewHolder.specTypeTextView.setText(String.format("(%s-%s)",
-                Utils.isEmptyString(workCommand.getSpec()) ? "\"\"" : workCommand.getSpec(),
-                Utils.isEmptyString(workCommand.getType()) ? "\"\"" : workCommand.getType()));
+                Utils.isEmptyString(workCommand.getSpec()) ? " " : workCommand.getSpec(),
+                Utils.isEmptyString(workCommand.getType()) ? " " : workCommand.getType()));
         new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
     }
 
