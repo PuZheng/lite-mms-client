@@ -17,8 +17,8 @@ repositories {
 
 dependencies {
     compile 'com.jakewharton:disklrucache:2.0+'
-    compile 'com.android.support:appcompat-v7:18.0.+'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.7.+'
+    compile files('libs/android-support-v4.jar')
 }
 
 android {

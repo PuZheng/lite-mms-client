@@ -1,17 +1,13 @@
 package com.jinheyu.lite_mms;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -32,16 +28,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+
 /**
  * Created by xc on 13-8-18.
  */
-public class SelectSubOrderActivity extends FragmentActivity {
+public class SelectSubOrderActivity extends FragmentActivity implements PullToRefreshAttacher.OnRefreshListener {
 
-    private static final boolean BYPASS_ONE_SUB_ORDER = true;
+    private static final boolean BYPASS_ONE_SUB_ORDER = false;
 
     private DeliverySession deliverySession;
     private TextView textViewNoData;
     private LinearLayout linearLayoutOrders;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,25 +53,19 @@ public class SelectSubOrderActivity extends FragmentActivity {
         TextView textViewStepName = (TextView) findViewById(R.id.textViewStepName);
         textViewStepName.setText(getString(R.string.step_n, "二") + ": " + getString(R.string.choose_order));
 
+        PullToRefreshAttacher.Options options = new PullToRefreshAttacher.Options();
+        options.refreshScrollDistance = 0.2f;
+        mPullToRefreshAttacher = PullToRefreshAttacher.get(this, options);
+        PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+        pullToRefreshLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
+
         new GetDeliverySessionTask(this).execute(deliverySession);
 
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.add(getString(R.string.refresh));
-        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menuItem.setIcon(R.drawable.navigation_refresh);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getTitle().equals(getString(R.string.refresh))) {
-            new GetDeliverySessionTask(this).execute(deliverySession);
-        }
-        return super.onOptionsItemSelected(item);
+    public void onRefreshStarted(View view) {
+        new GetDeliverySessionTask(this).execute(deliverySession);
     }
 
     private class GetDeliverySessionTask extends AsyncTask<DeliverySession, Void, Void> {
@@ -112,7 +106,7 @@ public class SelectSubOrderActivity extends FragmentActivity {
                     }
                     ft.commit();
                 }
-
+                mPullToRefreshAttacher.setRefreshComplete();
             }
 
         }

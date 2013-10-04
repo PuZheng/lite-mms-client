@@ -1,15 +1,10 @@
 package com.jinheyu.lite_mms;
 
-import android.annotation.TargetApi;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -28,7 +23,7 @@ import java.util.List;
 /**
  * Created by xc on 13-8-17.
  */
-public class SelectDeliverySessionActivity extends ListActivity {
+public class SelectDeliverySessionActivity extends PtrListActivity {
 
     private TextView textViewNoData;
     private Toast backToast;
@@ -37,6 +32,7 @@ public class SelectDeliverySessionActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_delivery_session);
         textViewNoData = (TextView) findViewById(R.id.textViewNoData);
+        pullToRefreshInit();
         new GetDeliverySessionTask().execute();
     }
 
@@ -51,21 +47,9 @@ public class SelectDeliverySessionActivity extends ListActivity {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.add(getString(R.string.refresh));
-        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menuItem.setIcon(R.drawable.navigation_refresh);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getTitle().equals(getString(R.string.refresh))) {
-            new GetDeliverySessionTask().execute();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onRefreshStarted(View view) {
+        new GetDeliverySessionTask().execute();
     }
 
     private class GetDeliverySessionTask extends AsyncTask<Void, Void, List<DeliverySession>> {
@@ -103,7 +87,7 @@ public class SelectDeliverySessionActivity extends ListActivity {
                 getListView().setVisibility(View.VISIBLE);
                 setListAdapter(new MyListAdapter(SelectDeliverySessionActivity.this, deliverySessionList));
             }
-
+            getPullToRefreshAttacher().setRefreshComplete();
             super.onPostExecute(deliverySessionList);
         }
     }
