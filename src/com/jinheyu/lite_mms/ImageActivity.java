@@ -10,8 +10,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.util.Log;
 
 public class ImageActivity extends Activity {
+
+    private static final String TAG = "IMAGE_ACTIVITY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +24,7 @@ public class ImageActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         String url = getIntent().getStringExtra("imageUrl");
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        Log.d(TAG, "get url " + url);
         new GetImageTask(imageView, url).execute();
         imageView.setOnTouchListener(new MulitPointTouchListener());
     }

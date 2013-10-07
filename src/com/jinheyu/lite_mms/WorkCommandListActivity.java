@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.view.Window;
+import android.view.WindowManager;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 
@@ -94,45 +96,62 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
         final ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setCustomView(getSpinner());
-        actionBar.setDisplayShowCustomEnabled(true);
+        Spinner spinner = getSpinner();
+        if (spinner != null) {
+            actionBar.setCustomView(getSpinner());
+            actionBar.setDisplayShowCustomEnabled(true);
+        } else {
+            initTabs(actionBar, 0); 
+            // make action bar hide title
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowHomeEnabled(false);
+        }
     }
 
-    protected abstract ArrayAdapter getArrayAdapter(int resource);
+    private void initTabs(final ActionBar actionBar, int position) {
+        FragmentPagerAdapter fragmentPagerAdapter = getFragmentPagerAdapter(position);
+        mViewPager.setAdapter(fragmentPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // When swiping between different app sections, select the corresponding tab.
+                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
+                // Tab.
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
+        actionBar.removeAllTabs();
+        for (int i = 0; i < fragmentPagerAdapter.getCount(); i++) {
+            // Create a tab with text corresponding to the page title defined by the adapter.
+            // Also specify this Activity object, which implements the TabListener interface, as the
+            // listener for when this tab is selected.
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(fragmentPagerAdapter.getPageTitle(i))
+                            .setTabListener(mTabListener));
+        }
+    }
+
+    protected ArrayAdapter getArrayAdapter(int resource) {
+        return null;
+    }
 
     protected abstract FragmentPagerAdapter getFragmentPagerAdapter(int position);
 
     private Spinner getSpinner() {
         Spinner spinner = new Spinner(this);
         ArrayAdapter adapter = getArrayAdapter(android.R.layout.simple_spinner_item);
+        final ActionBar actionBar = getActionBar();
+        if (adapter == null) {
+            return null; 
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        final ActionBar actionBar = getActionBar();
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                FragmentPagerAdapter fragmentPagerAdapter = getFragmentPagerAdapter(position);
-                mViewPager.setAdapter(fragmentPagerAdapter);
-                mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between different app sections, select the corresponding tab.
-                        // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                        // Tab.
-                        actionBar.setSelectedNavigationItem(position);
-                    }
-                });
-                actionBar.removeAllTabs();
-                for (int i = 0; i < fragmentPagerAdapter.getCount(); i++) {
-                    // Create a tab with text corresponding to the page title defined by the adapter.
-                    // Also specify this Activity object, which implements the TabListener interface, as the
-                    // listener for when this tab is selected.
-                    actionBar.addTab(
-                            actionBar.newTab()
-                                    .setText(fragmentPagerAdapter.getPageTitle(i))
-                                    .setTabListener(mTabListener));
-                }
+                initTabs(actionBar, position);
             }
 
             @Override

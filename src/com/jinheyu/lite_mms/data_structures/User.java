@@ -3,6 +3,7 @@ package com.jinheyu.lite_mms.data_structures;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.jinheyu.lite_mms.DepartmentLeaderActivity;
+import com.jinheyu.lite_mms.QualityInspectorActivity;
 import com.jinheyu.lite_mms.TeamLeaderActivity;
 import com.jinheyu.lite_mms.LoaderMainActivity;
 import com.jinheyu.lite_mms.LogInActivity;
@@ -28,6 +29,7 @@ public class User implements Parcelable {
     public static final int DEPARTMENT_LEADER = 1;
     public static final int TEAM_LEADER = 2;
     public static final int LOADER = 3;
+    public static final int QUALITY_INSPECTOR = 4;
     private String userName;
     private String token;
     private int groupId;
@@ -90,6 +92,8 @@ public class User implements Parcelable {
                 return TeamLeaderActivity.class;
             case DEPARTMENT_LEADER:
                 return DepartmentLeaderActivity.class;
+            case QUALITY_INSPECTOR:
+                return QualityInspectorActivity.class;
             default:
                 return LogInActivity.class;
         }

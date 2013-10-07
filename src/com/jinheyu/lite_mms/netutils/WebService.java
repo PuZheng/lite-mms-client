@@ -2,9 +2,11 @@ package com.jinheyu.lite_mms.netutils;
 
 import android.content.Context;
 import android.util.Pair;
+
 import com.jinheyu.lite_mms.MyApp;
 import com.jinheyu.lite_mms.Utils;
 import com.jinheyu.lite_mms.data_structures.*;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -243,6 +245,34 @@ public class WebService {
         return ret;
     }
 
+    public List<QualityInspectionReport> getQualityInspectionReportList(int workCommandId) throws IOException, JSONException, BadRequest {
+        List<QualityInspectionReport> ret;
+
+        String url = composeUrl("manufacture_ws", "quality-inspection-report-list/" + String.valueOf(workCommandId));
+        HttpResponse response = sendRequest(url);
+        int stateCode = response.getStatusLine().getStatusCode();
+        String result = EntityUtils.toString(response.getEntity(), "utf-8");
+        JSONArray data = new JSONArray(result);
+        if (stateCode == HttpStatus.SC_OK) {
+            ret = new ArrayList<QualityInspectionReport>();
+            for (int i = 0; i < data.length(); ++i) {
+                JSONObject jo = data.getJSONObject(i);
+                int _id = jo.getInt("id");
+                int _quantity = jo.getInt("quantity");
+                int _weight = jo.getInt("weight");
+                int _result = jo.getInt("result");
+                int _workCommandId = jo.getInt("work_command_id");
+                int _actorId = jo.getInt("actor_id");
+                String _picUrl = jo.getString("pic_url");
+                ret.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _workCommandId, _actorId));
+            }
+        } else {
+            throw new BadRequest(result);
+        }
+
+        return ret;
+    }
+
     public InputStream getSteamFromUrl(String pirUrl) throws IOException {
         Pair<String, Integer> pair = Utils.getServerAddress(context);
         URL url = new URL(String.format("http://%s:%d%s", pair.first, pair.second, pirUrl));
@@ -287,6 +317,10 @@ public class WebService {
             throw new BadRequest(result);
         }
         return parse2WorkCommand(new JSONObject(result));
+    }
+
+    public List<WorkCommand> getWorkCommandList(int status) throws JSONException, IOException, BadRequest {
+        return getWorkCommandList(Integer.MIN_VALUE, Integer.MIN_VALUE, status);
     }
 
     public List<WorkCommand> getWorkCommandList(int department_id, int team_id, int status) throws IOException, JSONException, BadRequest {
@@ -569,4 +603,5 @@ public class WebService {
         }
         return response;
     }
+
 }

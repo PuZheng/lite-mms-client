@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.util.Log;
 import com.jinheyu.lite_mms.netutils.ImageCache;
 
 /**
@@ -20,7 +21,8 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
     private boolean mShowToast;
     private ImageView mImageView;
     private ImageCache mImageCache;
-
+    private static final String TAG = "GET_IMAGE_TASK";
+    
     public GetImageTask(ImageView imageView, String url) {
         this(imageView, url, true);
     }
@@ -41,6 +43,7 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         if (mImageView.getHeight() == 0 && mImageView.getWidth() == 0) {
             return 2;
         }
+        Log.d(TAG, "sample size: " + 32);
         return 32;
     }
 
@@ -51,8 +54,10 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         }
         final int sampleSize = calculateSampleSize(mImageView);
         try {
+            Log.d(TAG, "try to get bitmap from cache " + mKey);
             Bitmap bitmap = mImageCache.getBitmapFromDiskCache(mKey, sampleSize);
             if (bitmap == null) {
+                Log.d(TAG, "try to get bitmap from network " + mUrl);
                 mImageCache.addBitmapToCache(mKey, MyApp.getWebServieHandler().getSteamFromUrl(mUrl));
                 return mImageCache.getBitmapFromDiskCache(mKey, sampleSize);
             }

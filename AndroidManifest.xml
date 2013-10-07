@@ -78,6 +78,14 @@
                 android:value="splitActionBarWhenNarrow" />
         </activity>
         <activity
+            android:name=".QualityInspectorWorkCommandActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
             android:name=".SelectUnloadSessionActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -98,6 +106,12 @@
         <activity android:name=".SelectDeliverySessionActivity" />
         <activity
             android:name=".CreateDeliveryTaskActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".QualityInspectorActivity"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"

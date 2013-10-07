@@ -22,6 +22,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
      */
     public static final int DEPARTMENT_ID_INDEX = 0, TEAM_ID_INDEX = 0, STATUS_INDEX = 1;
     public static final String ARG_SECTION_NUMBER = "section_number";
+    public static final String TAG = "WORK_COMMAND_LIST_FRAGMENT";
     protected ActionMode mActionMode;
     private ActionMode.Callback mActionModeListener = getActionModeCallback();
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
@@ -61,7 +62,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                     checkBox.toggle();
                 } else {
                     if (!isLoadingWorkCommandList) {
-                        Intent intent = new Intent(getActivity(), WorkCommandActivity.class);
+                        Intent intent = new Intent(getActivity(), getWorkCommandAcitityClass());
                         intent.putExtra("workCommandId", getWorkCommandIdAtPosition(position));
                         getActivity().startActivity(intent);
                     }
@@ -74,14 +75,22 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                 if (isInActionMode()) {
                     return false;
                 } else {
-                    startActionMode();
-                    CheckBox checkBox = (CheckBox) v.findViewById(R.id.check);
-                    checkBox.setChecked(true);
+                    if (startActionMode()) {
+                        CheckBox checkBox = (CheckBox) v.findViewById(R.id.check);
+                        checkBox.setChecked(true);
+                    }
                     return true;
                 }
             }
         });
         return convertView;
+    }
+
+    /**
+     * you should override this method to provide your own work command detail activity
+     * */
+    protected Class<?> getWorkCommandAcitityClass() {
+        return WorkCommandActivity.class;
     }
 
     @Override
@@ -235,8 +244,11 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
     }
 
-    private void startActionMode() {
-        mActionMode = getActivity().startActionMode(mActionModeListener);
+    private boolean startActionMode() {
+        if (mActionModeListener != null) {
+            mActionMode = getActivity().startActionMode(mActionModeListener);
+        }
+        return mActionModeListener != null;
     }
 }
 
@@ -272,7 +284,7 @@ class WorkCommandListAdapter extends BaseAdapter {
     public WorkCommandListAdapter(WorkCommandListFragment fragment, List<WorkCommand> workCommandList) {
         this.mFragment = fragment;
         mWorkCommandList = workCommandList;
-        this.mResource = R.layout.fragment_work_command;
+        this.mResource = R.layout.work_command_list_item;
         mInflater = (LayoutInflater) fragment.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

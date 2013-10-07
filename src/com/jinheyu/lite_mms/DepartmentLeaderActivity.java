@@ -17,7 +17,6 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.List;
 
-
 public class DepartmentLeaderActivity extends WorkCommandListActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override

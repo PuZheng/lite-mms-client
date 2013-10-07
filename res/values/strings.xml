@@ -95,4 +95,12 @@
     <string name="procedure_and_previous">工序(上道工序)</string>
     <string name="tech_req">技术要求</string>
     <string name="status">工单状态</string>
+    <string name="quality_inspecting">待质检</string>
+    <string name="quality_inspected">已质检</string>
+    <string name="quality_inspection_report_list">质检报告列表</string>
+    <string name="work_command_detail">工单详情</string>
+    <string name="new_quality_inspection_report">新建报告</string>
+    <string name="complete_quality_inspection">完成质检</string>
+    <string name="loading">加载中</string>
+    <string name="loading_error">加载错误!请尝试刷新</string>
 </resources>
