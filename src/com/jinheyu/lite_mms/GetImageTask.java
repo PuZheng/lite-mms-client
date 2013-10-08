@@ -40,15 +40,16 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         if (mImageView.getScaleType() == ImageView.ScaleType.MATRIX) {
             return 1;
         }
-        if (mImageView.getHeight() == 0 && mImageView.getWidth() == 0) {
+        if (mImageView.getMeasuredHeight() == 0 && mImageView.getMeasuredWidth() == 0) {
             return 2;
         }
-        Log.d(TAG, "sample size: " + 32);
-        return 32;
+        Log.d(TAG, "sample size: " + 16);
+        return 16;
     }
 
     @Override
     protected Bitmap doInBackground(Void... params) {
+        mImageView.setTag(mUrl);
         if (Utils.isEmptyString(mUrl)) {
             return null;
         }
@@ -70,6 +71,9 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
+        if (mImageView.getTag() != mUrl) {
+            return;
+        }
         if (ex == null && bitmap != null) {
             mImageView.setImageBitmap(bitmap);
             if (mImageView instanceof ImageButton) {
@@ -88,6 +92,8 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
                 if (mShowToast) {
                     Toast.makeText(mImageView.getContext(), R.string.load_failure, Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                mImageView.setImageBitmap(null);
             }
         }
     }
