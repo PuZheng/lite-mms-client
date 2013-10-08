@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -53,7 +52,7 @@ public class WorkCommandFragment extends Fragment implements PullToRefreshAttach
     }
 
     public void mask() {
-        View mask = rootView.findViewById(R.id.linearyLayoutMask);
+        View mask = rootView.findViewById(R.id.linearLayoutMask);
         mask.setVisibility(View.VISIBLE);
         View main = rootView.findViewById(R.id.scrollViewWorkCommand);
         main.setVisibility(View.GONE);
@@ -63,7 +62,6 @@ public class WorkCommandFragment extends Fragment implements PullToRefreshAttach
 
     @Override
     public void updateWorkCommand(WorkCommand workCommand) {
-        mask();
         this.mWorkCommand = workCommand;
         _initView();
         unmask();
@@ -72,7 +70,7 @@ public class WorkCommandFragment extends Fragment implements PullToRefreshAttach
 
     @Override
     public void updateWorkCommandFailed(Exception ex) {
-        View mask = rootView.findViewById(R.id.linearyLayoutMask);
+        View mask = rootView.findViewById(R.id.linearLayoutMask);
         mask.setVisibility(View.GONE);
         View main = rootView.findViewById(R.id.scrollViewWorkCommand);
         main.setVisibility(View.GONE);
@@ -81,8 +79,13 @@ public class WorkCommandFragment extends Fragment implements PullToRefreshAttach
         mPullToRefreshAttacher.setRefreshComplete();
     }
 
+    @Override
+    public void beforeUpdateWorkCommand() {
+        mask();
+    }
+
     public void unmask() {
-        View mask = rootView.findViewById(R.id.linearyLayoutMask);
+        View mask = rootView.findViewById(R.id.linearLayoutMask);
         mask.setVisibility(View.GONE);
         View main = rootView.findViewById(R.id.scrollViewWorkCommand);
         main.setVisibility(View.VISIBLE);

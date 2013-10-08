@@ -248,7 +248,9 @@ public class WebService {
     public List<QualityInspectionReport> getQualityInspectionReportList(int workCommandId) throws IOException, JSONException, BadRequest {
         List<QualityInspectionReport> ret;
 
-        String url = composeUrl("manufacture_ws", "quality-inspection-report-list/" + String.valueOf(workCommandId));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("workCommandId", String.valueOf(workCommandId));
+        String url = composeUrl("manufacture_ws", "quality-inspection-report-list/", params);
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity(), "utf-8");

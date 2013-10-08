@@ -9,4 +9,5 @@ public interface UpdateWorkCommand {
 
     public void updateWorkCommand(WorkCommand workCommand);
     public void updateWorkCommandFailed(Exception ex);
+    public void beforeUpdateWorkCommand();
 }
