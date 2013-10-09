@@ -103,4 +103,7 @@
     <string name="complete_quality_inspection">完成质检</string>
     <string name="loading">加载中</string>
     <string name="loading_error">加载错误!请尝试刷新</string>
+    <string name="warning">警告</string>
+    <string name="cancel">取消</string>
+    <string name="OK">确认</string>
 </resources>

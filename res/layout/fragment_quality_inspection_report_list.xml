@@ -59,7 +59,7 @@
             </TableRow>
         </TableLayout>
         <ListView
-            android:id="@+id/list"
+            android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:drawSelectorOnTop="true"
@@ -97,12 +97,13 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+    <ScrollView
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/linearyLayoutNoItems"
-        android:gravity="center"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:id="@+id/scrollViewNoItems">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,5 +111,7 @@
             android:text="@string/noItems"
             android:id="@+id/textView"
             android:layout_gravity="center" />
-    </LinearLayout>
+
+    </ScrollView>
+
 </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>

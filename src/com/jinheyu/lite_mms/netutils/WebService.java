@@ -245,18 +245,21 @@ public class WebService {
         return ret;
     }
 
-    public List<QualityInspectionReport> getQualityInspectionReportList(int workCommandId) throws IOException, JSONException, BadRequest {
-        List<QualityInspectionReport> ret;
+    public Pair<Integer, List<QualityInspectionReport>> getQualityInspectionReportList(int workCommandId) throws IOException, JSONException, BadRequest {
+        List<QualityInspectionReport> qualityInspectionReports;
 
         Map<String, String> params = new HashMap<String, String>();
-        params.put("workCommandId", String.valueOf(workCommandId));
-        String url = composeUrl("manufacture_ws", "quality-inspection-report-list/", params);
+        params.put("work_command_id", String.valueOf(workCommandId));
+        String url = composeUrl("manufacture_ws", "quality-inspection-report-list", params);
         HttpResponse response = sendRequest(url);
         int stateCode = response.getStatusLine().getStatusCode();
         String result = EntityUtils.toString(response.getEntity(), "utf-8");
-        JSONArray data = new JSONArray(result);
+        JSONObject root = new JSONObject(result);
+        int orderType;
         if (stateCode == HttpStatus.SC_OK) {
-            ret = new ArrayList<QualityInspectionReport>();
+            orderType = root.getInt("order_type");
+            JSONArray data = root.getJSONArray("data");
+            qualityInspectionReports = new ArrayList<QualityInspectionReport>();
             for (int i = 0; i < data.length(); ++i) {
                 JSONObject jo = data.getJSONObject(i);
                 int _id = jo.getInt("id");
@@ -266,13 +269,13 @@ public class WebService {
                 int _workCommandId = jo.getInt("work_command_id");
                 int _actorId = jo.getInt("actor_id");
                 String _picUrl = jo.getString("pic_url");
-                ret.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _workCommandId, _actorId));
+                qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _workCommandId, _actorId));
             }
         } else {
             throw new BadRequest(result);
         }
 
-        return ret;
+        return new Pair(orderType, qualityInspectionReports);
     }
 
     public InputStream getSteamFromUrl(String pirUrl) throws IOException {

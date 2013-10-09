@@ -22,9 +22,13 @@ public class GetWorkCommandAsyncTask extends AsyncTask<Integer, Void, WorkComman
     }
 
     @Override
+    protected void onPreExecute() {
+        updateWorkcommand.beforeUpdateWorkCommand();
+    }
+
+    @Override
     protected WorkCommand doInBackground(Integer... params) {
         try {
-            updateWorkcommand.beforeUpdateWorkCommand();
             return MyApp.getWebServieHandler().getWorkCommand(params[0]);
         } catch (BadRequest badRequest) {
             badRequest.printStackTrace();
