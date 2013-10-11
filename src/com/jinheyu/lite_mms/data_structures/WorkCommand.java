@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: yangminghua
@@ -64,6 +67,7 @@ public class WorkCommand implements Parcelable {
     private String customerName;
     private boolean reject;
     private String productName;
+    private List<QualityInspectionReport> qualityInspectionReportList;
 
     public WorkCommand(Parcel parcel) {
         this.id = parcel.readInt();
@@ -87,6 +91,8 @@ public class WorkCommand implements Parcelable {
         this.tech_req = parcel.readString();
         this.previous_procedure = parcel.readString();
         this.subOrderId = parcel.readInt();
+        this.qualityInspectionReportList = new ArrayList<QualityInspectionReport>();
+        parcel.readTypedList(this.qualityInspectionReportList, QualityInspectionReport.CREATOR);
     }
 
     public WorkCommand(int id, String productName, int org_cnt, int org_weight, int status, boolean isUrgent, boolean isRejected) {
@@ -97,6 +103,7 @@ public class WorkCommand implements Parcelable {
         this.status = status;
         this.urgent = isUrgent;
         this.reject = isRejected;
+        this.qualityInspectionReportList = new ArrayList<QualityInspectionReport>();
     }
 
     public static String getStatusString(int status) {
@@ -275,8 +282,20 @@ public class WorkCommand implements Parcelable {
         return orderType == Constants.STANDARD_ORDER_TYPE;
     }
 
+    public int getOrderType() {
+        return this.orderType;
+    }
+
     public void setOrderType(int orderType) {
         this.orderType = orderType;
+    }
+
+    public List<QualityInspectionReport> getQualityInspectionReportList() {
+        return this.qualityInspectionReportList;
+    }
+
+    public void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
+        this.qualityInspectionReportList.add(qualityInspectionReport);
     }
 
     /**
@@ -309,5 +328,6 @@ public class WorkCommand implements Parcelable {
         dest.writeString(tech_req);
         dest.writeString(previous_procedure);
         dest.writeInt(subOrderId);
+        dest.writeTypedList(qualityInspectionReportList);
     }
 }

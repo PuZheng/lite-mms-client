@@ -1,9 +1,7 @@
 package com.jinheyu.lite_mms;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,29 +11,12 @@ import android.widget.TextView;
 
 import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
-import com.jinheyu.lite_mms.netutils.BadRequest;
+import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.List;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+class QualityInspectionReportListFragment extends ListFragment implements UpdateWorkCommand {
 
-interface UpdateQualityInspectionReportList {
-
-    void updateQualityInspectionReportListFailed(Exception ex);
-
-    void updateQualityInspectionReportList(Pair<Integer, List<QualityInspectionReport>> qualityInspectionReports);
-
-    void beforeUpdateQualityInspectionReportList();
-}
-
-class QualityInspectionReportListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener, UpdateQualityInspectionReportList {
-
-    private final int workCommandId;
-    private PullToRefreshAttacher mPullToRefreshAttacher;
     private View rootView;
     private View mask;
     private View main;
@@ -43,9 +24,10 @@ class QualityInspectionReportListFragment extends ListFragment implements PullTo
     private View noItems;
     private boolean loading;
     private List<QualityInspectionReport> qualityInspectionReports;
+    private TextView textViewWorkCommandProcessed;
+    private TextView textViewQualityInspected;
 
-    public QualityInspectionReportListFragment(int workCommandId) {
-        this.workCommandId = workCommandId;
+    public QualityInspectionReportListFragment() {
     }
 
     @Override
@@ -57,43 +39,50 @@ class QualityInspectionReportListFragment extends ListFragment implements PullTo
         error = rootView.findViewById(R.id.linearyLayoutError);
         noItems = rootView.findViewById(R.id.scrollViewNoItems);
 
-        mPullToRefreshAttacher = ((GetPullToRefreshAttacher) getActivity()).getPullToRefreshAttacher();
-        final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
-        ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
+        textViewWorkCommandProcessed = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeight);
+        textViewQualityInspected = (TextView) rootView.findViewById(R.id.textViewQualityInspectedWeight);
 
-        new GetInspectionReportListAsyncTask(this).execute(workCommandId);
         return rootView;
     }
 
     @Override
-    public void onRefreshStarted(View view) {
-        new GetInspectionReportListAsyncTask(this).execute(workCommandId);
-    }
-
-    @Override
-    public void updateQualityInspectionReportListFailed(Exception ex) {
+    public void updateWorkCommandFailed(Exception ex) {
         mask.setVisibility(View.GONE);
         error.setVisibility(View.VISIBLE);
-        mPullToRefreshAttacher.setRefreshComplete();
     }
 
     @Override
-    public void updateQualityInspectionReportList(Pair<Integer, List<QualityInspectionReport>> pair) {
+    public void updateWorkCommand(WorkCommand workCommand) {
         mask.setVisibility(View.GONE);
-        int orderType = pair.first;
-        qualityInspectionReports = pair.second;
+        int orderType = workCommand.getOrderType();
+        qualityInspectionReports = workCommand.getQualityInspectionReportList();
         if (qualityInspectionReports.isEmpty()) {
             noItems.setVisibility(View.VISIBLE);
         } else {
             setListAdapter(new MyAdapter(orderType, qualityInspectionReports));
             main.setVisibility(View.VISIBLE);
+            int qualityInspectedCnt = 0;
+            int qualityInspectedweight = 0;
+            for (QualityInspectionReport qir: workCommand.getQualityInspectionReportList()) {
+                qualityInspectedCnt += qir.getQuantity();
+                qualityInspectedweight += qir.getWeight();
+            }
+            String processed = "";
+            String qualityInspected = "";
+            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                processed += workCommand.getProcessedCnt() + "件";
+                qualityInspected += qualityInspectedCnt + "件";
+            }
+            processed += workCommand.getProcessedWeight() + "公斤";
+            qualityInspected += qualityInspectedweight + "公斤";
+            textViewWorkCommandProcessed.setText(processed);
+            textViewQualityInspected.setText(qualityInspected);
         }
-        mPullToRefreshAttacher.setRefreshComplete();
         loading = false;
     }
 
     @Override
-    public void beforeUpdateQualityInspectionReportList() {
+    public void beforeUpdateWorkCommand() {
         mask();
         this.loading = true;
     }
@@ -112,50 +101,6 @@ class QualityInspectionReportListFragment extends ListFragment implements PullTo
     public List<QualityInspectionReport> getQualityInspectionReports() {
         return qualityInspectionReports;
     }
-
-    private class GetInspectionReportListAsyncTask extends
-            AsyncTask<Integer, Void, Pair<Integer, List<QualityInspectionReport>>> {
-        private final UpdateQualityInspectionReportList updateQualityInspectionReportList;
-        Exception ex;
-
-        public GetInspectionReportListAsyncTask(UpdateQualityInspectionReportList updateQualityInspectionReportList) {
-            this.updateQualityInspectionReportList = updateQualityInspectionReportList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            this.updateQualityInspectionReportList.beforeUpdateQualityInspectionReportList();
-        }
-
-        @Override
-        protected Pair<Integer, List<QualityInspectionReport>> doInBackground(Integer... params) {
-            try {
-                return MyApp.getWebServieHandler().getQualityInspectionReportList(workCommandId);
-            } catch (IOException e) {
-                e.printStackTrace();
-                ex = e;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                ex = e;
-            } catch (BadRequest badRequest) {
-                badRequest.printStackTrace();
-                ex = badRequest;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Pair<Integer, List<QualityInspectionReport>> pair) {
-
-            if (ex != null) {
-                this.updateQualityInspectionReportList.updateQualityInspectionReportListFailed(ex);
-            } else {
-                this.updateQualityInspectionReportList.updateQualityInspectionReportList(pair);
-            }
-        }
-
-    }
-
 
     private class MyAdapter extends BaseAdapter {
 
@@ -206,8 +151,8 @@ class QualityInspectionReportListFragment extends ListFragment implements PullTo
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            // TODO image view
             QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
+            new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
             String weight = "";
             if (this.orderType == Order.EXTRA_ORDER_TYPE) {

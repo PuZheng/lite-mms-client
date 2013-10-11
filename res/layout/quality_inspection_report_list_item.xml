@@ -1,32 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:gravity="center_vertical">
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="80dp"
         android:id="@+id/imageButton"
         android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_gravity="left" />
 
 
-    <LinearLayout
+    <TextView android:id="@+id/textViewResult"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView android:id="@+id/textViewResult"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_weight="0.3"
+        android:layout_height="wrap_content"/>
 
 
-        <TextView android:id="@+id/textViewWeight"
-            android:textSize="16sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/textViewWeight"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_weight="0.3"
+        android:layout_height="wrap_content"/>
 
-    </LinearLayout>
+    <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:id="@+id/imageButtonDelete"
+            android:background="@null"
+            android:padding="5dp"
+            android:src="@drawable/content_discard"/>
+
 </LinearLayout>

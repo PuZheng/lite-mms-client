@@ -266,10 +266,9 @@ public class WebService {
                 int _quantity = jo.getInt("quantity");
                 int _weight = jo.getInt("weight");
                 int _result = jo.getInt("result");
-                int _workCommandId = jo.getInt("work_command_id");
-                int _actorId = jo.getInt("actor_id");
-                String _picUrl = jo.getString("pic_url");
-                qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _workCommandId, _actorId));
+                int _actorId = jo.getInt("actorId");
+                String _picUrl = jo.getString("picUrl");
+                qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
             }
         } else {
             throw new BadRequest(result);
@@ -514,6 +513,7 @@ public class WebService {
         String procedure = o.getString("procedure");
         String previousProcedure = o.getString("previousProcedure");
         int handleType = o.getInt("handleType");
+        List<QualityInspectionReport> qualityInspectionReports = _parseQualityInspectionReportList(o.getJSONArray("qirList"));
         WorkCommand wc = new WorkCommand(id, productName, orgCount, orgWeight, status, urgent, rejected);
         wc.setPicPath(picPath);
         wc.setProcessedWeight(processedWeight);
@@ -529,6 +529,9 @@ public class WebService {
         wc.setProcedure(procedure);
         wc.setTechReq(tech_req);
         wc.setSubOrderId(subOrderId);
+        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+            wc.addQualityInspectionReport(qualityInspectionReport);
+        }
         if (!Utils.isEmptyString(o.getString("team"))) {
             JSONObject team = o.getJSONObject("team");
             wc.setTeamId(team.getInt("id"));
@@ -538,6 +541,21 @@ public class WebService {
             wc.setDepartmentId(department.getInt("id"));
         }
         return wc;
+    }
+
+    private List<QualityInspectionReport> _parseQualityInspectionReportList(JSONArray qirList) throws JSONException {
+        List<QualityInspectionReport> qualityInspectionReports = new ArrayList<QualityInspectionReport>();
+        for (int i=0; i < qirList.length(); ++i) {
+            JSONObject jo = qirList.getJSONObject(i);
+            int _id = jo.getInt("id");
+            int _quantity = jo.getInt("quantity");
+            int _weight = jo.getInt("weight");
+            int _result = jo.getInt("result");
+            int _actorId = jo.getInt("actorId");
+            String _picUrl = jo.getString("picUrl");
+            qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
+        }
+        return qualityInspectionReports;
     }
 
     private HttpResponse postRequest(String url) throws IOException {

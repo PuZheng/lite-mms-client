@@ -25,14 +25,12 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 /**
  * Created by xc on 13-10-6.
  */
-public class WorkCommandFragment extends Fragment implements PullToRefreshAttacher.OnRefreshListener, UpdateWorkCommand {
-    private final int workCommandId;
+public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private View rootView;
     private WorkCommand mWorkCommand;
 
-    public WorkCommandFragment(int workCommandId) {
-        this.workCommandId = workCommandId;
+    public WorkCommandFragment() {
     }
 
     @Override
@@ -40,15 +38,7 @@ public class WorkCommandFragment extends Fragment implements PullToRefreshAttach
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_work_command, container, false);
         this.mPullToRefreshAttacher = ((GetPullToRefreshAttacher) getActivity()).getPullToRefreshAttacher();
-        final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
-        ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
-        new GetWorkCommandAsyncTask(this).execute(this.workCommandId);
         return rootView;
-    }
-
-    @Override
-    public void onRefreshStarted(View view) {
-        new GetWorkCommandAsyncTask(this).execute(this.workCommandId);
     }
 
     public void mask() {

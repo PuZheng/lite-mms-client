@@ -2,12 +2,8 @@ package com.jinheyu.lite_mms;
 
 
 import android.app.ActionBar;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -15,14 +11,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -37,6 +27,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ViewPager mViewPager;
     private int workCommandId;
+    private MyFragmentPagerAdapter fragmentPagerAdapter;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +41,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         actionBar.setDisplayShowHomeEnabled(false);
         // add pager
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        FragmentPagerAdapter fragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+        fragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(fragmentPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -114,8 +105,10 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                     if (qualityInspectionReports.isEmpty()) {
                         Toast.makeText(QualityInspectorWorkCommandActivity.this, "请生成质检报告后再提交", Toast.LENGTH_SHORT).show();
                     } else {
+/*
                         showNoticeDialog(qualityInspectionReports, workCommandId, qualityInspectionReportListFragment.getWorkCommandProcessedWeight(),
                                 qualityInspectionReportListFragment.getOrderType());
+*/
                     }
                 }
                 break;
@@ -127,6 +120,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         return super.onOptionsItemSelected(item);
     }
 
+/*
 
     private void showNoticeDialog(List<QualityInspectionReport> qualityInspectionReports, int workCommandId, int workCommandProcessedWeight,
                                   int orderType) {
@@ -138,10 +132,12 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         DialogFragment dialog = new NoticeDialogFragment(qualityInspectionReports, workCommandId, workCommandProcessedWeight, orderType);
         dialog.show(ft, "NOTICE_FRAGMENT");
     }
+*/
 
     @Override
     public void updateWorkCommand(WorkCommand workCommand) {
-
+        ((QualityInspectionReportListFragment)fragmentPagerAdapter.getRegisteredFragment(0)).updateWorkCommand(workCommand);
+        ((WorkCommandFragment)fragmentPagerAdapter.getRegisteredFragment(1)).updateWorkCommand(workCommand);
     }
 
     @Override
@@ -157,15 +153,13 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
-        private final int workCommandId;
         List<Fragment> registeredFragments;
 
-        public MyFragmentPagerAdapter(int workCommandId, FragmentManager fm) {
+        public MyFragmentPagerAdapter(FragmentManager fm) {
             super(fm);
             registeredFragments = new ArrayList<Fragment>();
-            this.workCommandId = workCommandId;
-            registeredFragments.add(new QualityInspectionReportListFragment(workCommandId));
-            registeredFragments.add(new WorkCommandFragment(workCommandId));
+            registeredFragments.add(new QualityInspectionReportListFragment());
+            registeredFragments.add(new WorkCommandFragment());
         }
 
         @Override
@@ -189,7 +183,8 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         }
     }
 
-    private class NoticeDialogFragment extends DialogFragment {
+
+/*    private class NoticeDialogFragment extends DialogFragment {
         private final List<QualityInspectionReport> qualityInspectionReports;
         private final int workCommandProcessedWeight;
         private final int orderType;
@@ -239,7 +234,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(R.string.warning);
                         builder.setMessage(String.format("工单重量为%d, 你提交的质检重量是%d, 是否仍然要提交质检结果?",
-                                workCommandProcessedWeight, finalTotalWeight)));
+                                workCommandProcessedWeight, finalTotalWeight));
                         builder.setNegativeButton(R.string.cancel, null);
                         builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
                             @Override
@@ -276,5 +271,5 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
         }
 
-    }
+    }*/
 }

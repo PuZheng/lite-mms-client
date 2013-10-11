@@ -1,9 +1,12 @@
 package com.jinheyu.lite_mms.data_structures;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by xc on 13-10-7.
  */
-public class QualityInspectionReport {
+public class QualityInspectionReport implements Parcelable {
 
     private static final int FINISHED = 1;
     private static final int NEXT_PROCEDURE = 2;
@@ -15,16 +18,26 @@ public class QualityInspectionReport {
     private final int quantity;
     private final int weight;
     private final int result;
-    private final int workCommandId;
     private final int actorId;
+    private final String picUrl;
 
-    public QualityInspectionReport(int id, int quantity, int weight, int result, int workCommandId, int actorId) {
+    public QualityInspectionReport(int id, int quantity, int weight, int result,
+                                   int actorId, String picUrl) {
         this.id = id;
         this.quantity = quantity;
         this.weight = weight;
         this.result = result;
-        this.workCommandId = workCommandId;
         this.actorId = actorId;
+        this.picUrl = picUrl;
+    }
+
+    public QualityInspectionReport(Parcel in) {
+        id = in.readInt();
+        quantity = in.readInt();
+        weight = in.readInt();
+        result = in.readInt();
+        actorId = in.readInt();
+        picUrl = in.readString();
     }
 
     public int getId() {
@@ -43,12 +56,12 @@ public class QualityInspectionReport {
         return result;
     }
 
-    public int getWorkCommandId() {
-        return workCommandId;
-    }
-
     public int getActorId() {
         return actorId;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
     }
 
     public String getLiterableResult() {
@@ -74,4 +87,29 @@ public class QualityInspectionReport {
         }
         return ret;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeInt(quantity);
+        dest.writeInt(weight);
+        dest.writeInt(result);
+        dest.writeInt(actorId);
+        dest.writeString(picUrl);
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public QualityInspectionReport createFromParcel(Parcel in) {
+            return new QualityInspectionReport(in);
+        }
+
+        public QualityInspectionReport[] newArray(int size) {
+            return new QualityInspectionReport[size];
+        }
+    };
 }
