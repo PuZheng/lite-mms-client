@@ -6,4 +6,6 @@
     <color name="sub_title_background">#D6D6D6</color>
     <color name="undelivered">#D6D6D6</color>
     <color name="red">#FF0000</color>
+    <color name="odd_row">#E2F4FB</color>
+
 </resources>

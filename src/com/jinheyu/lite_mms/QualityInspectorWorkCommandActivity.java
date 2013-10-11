@@ -1,18 +1,31 @@
 package com.jinheyu.lite_mms;
 
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -20,14 +33,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 
-public class QualityInspectorWorkCommandActivity extends FragmentActivity implements GetPullToRefreshAttacher, ActionBar.TabListener, UpdateWorkCommand {
+public class QualityInspectorWorkCommandActivity extends FragmentActivity implements
+        GetPullToRefreshAttacher, ActionBar.TabListener, PullToRefreshAttacher.OnRefreshListener, UpdateWorkCommand {
 
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ViewPager mViewPager;
     private int workCommandId;
     private MyFragmentPagerAdapter fragmentPagerAdapter;
+    private WorkCommand workCommand;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +77,8 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         }
 
         workCommandId = getIntent().getIntExtra("workCommandId", 0);
-
+        PullToRefreshLayout ptrLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+        ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
         /**
          * 之所以要将获取工单信息和质检报告列表的操作统一放在Activity中进行，原因是这两个Fragment的信息要时刻保证一致，
          * 不能一个刷新了一个还没有刷新
@@ -105,10 +122,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                     if (qualityInspectionReports.isEmpty()) {
                         Toast.makeText(QualityInspectorWorkCommandActivity.this, "请生成质检报告后再提交", Toast.LENGTH_SHORT).show();
                     } else {
-/*
-                        showNoticeDialog(qualityInspectionReports, workCommandId, qualityInspectionReportListFragment.getWorkCommandProcessedWeight(),
-                                qualityInspectionReportListFragment.getOrderType());
-*/
+                        showNoticeDialog(qualityInspectionReports, this.workCommand);
                     }
                 }
                 break;
@@ -120,24 +134,22 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         return super.onOptionsItemSelected(item);
     }
 
-/*
-
-    private void showNoticeDialog(List<QualityInspectionReport> qualityInspectionReports, int workCommandId, int workCommandProcessedWeight,
-                                  int orderType) {
+    private void showNoticeDialog(List<QualityInspectionReport> qualityInspectionReports, WorkCommand workCommand) {
         android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("NOTICE_FRAGMENT");
         if (prev != null) {
             ft.remove(prev);
         }
-        DialogFragment dialog = new NoticeDialogFragment(qualityInspectionReports, workCommandId, workCommandProcessedWeight, orderType);
+        DialogFragment dialog = new NoticeDialogFragment(qualityInspectionReports, workCommand);
         dialog.show(ft, "NOTICE_FRAGMENT");
     }
-*/
 
     @Override
     public void updateWorkCommand(WorkCommand workCommand) {
         ((QualityInspectionReportListFragment)fragmentPagerAdapter.getRegisteredFragment(0)).updateWorkCommand(workCommand);
         ((WorkCommandFragment)fragmentPagerAdapter.getRegisteredFragment(1)).updateWorkCommand(workCommand);
+        mPullToRefreshAttacher.setRefreshComplete();
+        this.workCommand = workCommand;
     }
 
     @Override
@@ -148,6 +160,11 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     @Override
     public void beforeUpdateWorkCommand() {
 
+    }
+
+    @Override
+    public void onRefreshStarted(View view) {
+        new GetWorkCommandAsyncTask(this).execute(this.workCommandId);
     }
 
 
@@ -184,57 +201,90 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     }
 
 
-/*    private class NoticeDialogFragment extends DialogFragment {
+    private class NoticeDialogFragment extends DialogFragment {
         private final List<QualityInspectionReport> qualityInspectionReports;
-        private final int workCommandProcessedWeight;
-        private final int orderType;
-        private final int workCommandId;
+        private final WorkCommand workCommand;
 
-        public NoticeDialogFragment(List<QualityInspectionReport> qualityInspectionReports, int workCommandId,
-                                    int workCommandProcessedWeight, int orderType) {
-            this.workCommandId = workCommandId;
+        public NoticeDialogFragment(List<QualityInspectionReport> qualityInspectionReports,
+                                    WorkCommand workCommand) {
             this.qualityInspectionReports = qualityInspectionReports;
-            this.workCommandProcessedWeight = workCommandProcessedWeight;
-            this.orderType = orderType;
+            this.workCommand = workCommand;
         }
 
+        @SuppressLint("ResourceAsColor")
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(String.format("确认提交工单%d质检结果?", workCommandId));
             View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_quality_inspect, null);
-            TableLayout tableLayoutResults = view.findViewById(R.id.tableLayoutResults);
+            TableLayout tableLayoutResults = (TableLayout) view.findViewById(R.id.tableLayoutResults);
 
             builder.setView(view);
             int totalWeight = 0;
+            int totalQuantity = 0;
+            boolean odd = true;
+            float dpSize = (getResources().getDisplayMetrics().densityDpi / 160.0f);
             for (QualityInspectionReport qir: qualityInspectionReports) {
                 TableRow tableRow = new TableRow(getActivity());
+                tableRow.setGravity(Gravity.CENTER_VERTICAL);
+                tableRow.setPadding(0, (int)(3 * dpSize), 0, (int)(3 * dpSize));
+                if (odd) {
+                    tableRow.setBackgroundColor(getResources().getColor(R.color.odd_row));
+                }
+                odd = !odd;
                 TextView textViewResult = new TextView(getActivity());
                 textViewResult.setText(qir.getLiterableResult());
                 textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 TextView textViewWeight = new TextView(getActivity());
                 String weight = "";
-                if (orderType == Order.EXTRA_ORDER_TYPE) {
+                if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
                     weight = qir.getQuantity() + "件; ";
+                    totalQuantity += qir.getQuantity();
                 }
                 weight += qir.getWeight() + "公斤";
+                textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 textViewWeight.setText(weight);
-                tableRow.addView(textViewResult, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                tableRow.addView(textViewWeight, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                textViewWeight.setPadding((int) (5 * dpSize), 0, 0, 0);
+                textViewResult.setPadding((int) (5 * dpSize), 0, 0, 0);
+                tableRow.addView(textViewResult, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                tableRow.addView(textViewWeight, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 tableLayoutResults.addView(tableRow);
                 totalWeight += qir.getWeight();
             }
+
+            TableRow tableRow = new TableRow(getActivity());
+            tableRow.setGravity(Gravity.CENTER_VERTICAL);
+            tableRow.setPadding(0, (int)(3 * dpSize), 0, (int)(3 * dpSize));
+            if (odd) {
+                tableRow.setBackgroundColor(getResources().getColor(R.color.odd_row));
+            }
+            TextView textViewResult = new TextView(getActivity());
+            textViewResult.setText("-总计");
+            textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+            TextView textViewWeight = new TextView(getActivity());
+            String weight = "";
+            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                weight = totalQuantity + "件; ";
+            }
+            weight += totalWeight + "公斤";
+            textViewWeight.setText(weight);
+            textViewWeight.setPadding((int) (5 * dpSize), 0, 0, 0);
+            textViewResult.setPadding((int) (5 * dpSize), 0, 0, 0);
+            textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+            tableRow.addView(textViewResult, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            tableRow.addView(textViewWeight, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            tableLayoutResults.addView(tableRow);
 
             builder.setNegativeButton(android.R.string.cancel, null);
             final int finalTotalWeight = totalWeight;
             builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    if (finalTotalWeight < workCommandProcessedWeight) {
+                    if (finalTotalWeight < workCommand.getProcessedWeight()) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(R.string.warning);
                         builder.setMessage(String.format("工单重量为%d, 你提交的质检重量是%d, 是否仍然要提交质检结果?",
-                                workCommandProcessedWeight, finalTotalWeight));
+                                workCommand.getProcessedWeight(), finalTotalWeight));
                         builder.setNegativeButton(R.string.cancel, null);
                         builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
                             @Override
@@ -271,5 +321,5 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
         }
 
-    }*/
+    }
 }

@@ -627,4 +627,6 @@ public class WebService {
         return response;
     }
 
+    public void submitQualityInspection(int workCommandId, List<QualityInspectionReport> qualityInspectionReports) {
+    }
 }
