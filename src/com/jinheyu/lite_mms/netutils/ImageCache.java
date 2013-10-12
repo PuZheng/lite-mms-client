@@ -5,12 +5,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.DisplayMetrics;
+
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.jinheyu.lite_mms.Utils;
+
 import org.apache.http.util.ByteArrayBuffer;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by abc549825@163.com(https://github.com/abc549825) at 09-26.
@@ -31,6 +37,10 @@ public class ImageCache {
     private ImageCache(Context context) {
         File diskCacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(diskCacheDir);
+    }
+
+    Object getLock() {
+        return mDiskCacheLock;
     }
 
     public static ImageCache getInstance(Context context) {
@@ -210,6 +220,15 @@ public class ImageCache {
                 inputStream.close();
             }
         }
+    }
+
+    public InputStream getInputStream(String url) throws IOException {
+        DiskLruCache.Snapshot snapshot = mDiskLruCache.get(Utils.getMd5Hash(url));
+        if (snapshot == null) {
+            return null;
+        }
+        final InputStream in = snapshot.getInputStream(DISK_CACHE_INDEX);
+        return in;
     }
 
     class InitDiskCacheTask extends AsyncTask<File, Void, Void> {

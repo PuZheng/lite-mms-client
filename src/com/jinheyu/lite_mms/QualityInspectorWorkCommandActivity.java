@@ -8,7 +8,6 @@ import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -200,31 +199,47 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     public void onBackPressed() {
         final QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) this.fragmentPagerAdapter.getRegisteredFragment(0);
         if (qualityInspectionReportListFragment.modified()) {
-            XProgressableRunnable.Builder<Void> builder = new XProgressableRunnable.Builder<Void>(this);
-            builder.msg("您已经修改了质检报告，正在保存质检报告");
-            builder.run(new XProgressableRunnable.XRunnable<Void>() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("您已经修改了质检报告，退出前保存质检报告?");
+            builder.setTitle("警告");
+            String[] items = {getString(R.string.cancel), getString(R.string.save), getString(R.string.unsave)};
+            builder.setItems(items, new OnClickListener() {
                 @Override
-                public Void run() throws Exception {
-                    MyApp.getWebServieHandler().saveQualityInspectionReports(qualityInspectionReportListFragment.getQualityInspectionReports());
-                    return null;
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case 0:
+                            dialog.dismiss();
+                            break;
+                        case 1:
+                            saveQualityInspectionReports(workCommand, qualityInspectionReportListFragment.getQualityInspectionReports());
+                            finish();
+                            break;
+                        case 2:
+                            finish();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
-            builder.okMsg("保存成功");
-            builder.after(new Runnable() {
-                @Override
-                public void run() {
-                    finish();
-                }
-            });
-            builder.exceptionHandler(new XProgressableRunnable.ExceptionHandler() {
-                @Override
-                public void run(Exception e) {
-                    finish();
-                }
-            });
+            builder.show();
         } else {
             finish();
         }
+    }
+
+    private void saveQualityInspectionReports(final WorkCommand workCommand, final List<QualityInspectionReport> qualityInspectionReports) {
+
+        XProgressableRunnable.Builder<Void> builder = new XProgressableRunnable.Builder<Void>(this);
+        builder.msg("正在保存质检报告列表");
+        builder.run(new XProgressableRunnable.XRunnable<Void>() {
+            @Override
+            public Void run() throws Exception {
+                MyApp.getWebServieHandler().saveQualityInspectionReports(workCommand, qualityInspectionReports);
+                return null;
+            }
+        });
+        builder.okMsg("保存成功");
     }
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -294,6 +309,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 TextView textViewResult = new TextView(getActivity());
                 textViewResult.setText(qir.getLiterableResult());
                 textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
+                textViewResult.setPadding((int) (10 * dpSize), 0, 0, 0);
                 TextView textViewWeight = new TextView(getActivity());
                 String weight = "";
                 if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
@@ -304,36 +320,19 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 textViewWeight.setText(weight);
                 textViewWeight.setPadding((int) (5 * dpSize), 0, 0, 0);
-                textViewResult.setPadding((int) (5 * dpSize), 0, 0, 0);
                 tableRow.addView(textViewResult, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 tableRow.addView(textViewWeight, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 tableLayoutResults.addView(tableRow);
                 totalWeight += qir.getWeight();
             }
 
-            TableRow tableRow = new TableRow(getActivity());
-            tableRow.setGravity(Gravity.CENTER_VERTICAL);
-            tableRow.setPadding(0, (int)(3 * dpSize), 0, (int)(3 * dpSize));
-            if (odd) {
-                tableRow.setBackgroundColor(getResources().getColor(R.color.odd_row));
-            }
-            TextView textViewResult = new TextView(getActivity());
-            textViewResult.setText("-总计");
-            textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
-            TextView textViewWeight = new TextView(getActivity());
+            TextView textViewWeight = (TextView) view.findViewById(R.id.textViewTotalWeight);
             String weight = "";
             if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
                 weight = totalQuantity + "件; ";
             }
             weight += totalWeight + "公斤";
             textViewWeight.setText(weight);
-            textViewWeight.setPadding((int) (5 * dpSize), 0, 0, 0);
-            textViewResult.setPadding((int) (5 * dpSize), 0, 0, 0);
-            textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
-            tableRow.addView(textViewResult, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            tableRow.addView(textViewWeight, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            tableLayoutResults.addView(tableRow);
-
             builder.setNegativeButton(android.R.string.cancel, null);
             final int finalTotalWeight = totalWeight;
             builder.setPositiveButton(R.string.submit, new OnClickListener() {
@@ -374,10 +373,10 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             builder.after(new Runnable() {
                 @Override
                 public void run() {
-                    getActivity().finish();
+                    finish();
                 }
             });
-
+            builder.create().start();
         }
 
     }

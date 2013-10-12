@@ -30,7 +30,7 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
     public GetImageTask(ImageView imageView, String url, boolean showToast) {
         this.mImageView = imageView;
         this.mUrl = url;
-        this.mKey = generateKeyFromPicUrl(url);
+        this.mKey = Utils.getMd5Hash(url);
         this.mShowToast = showToast;
         mImageCache = ImageCache.getInstance(mImageView.getContext());
     }
@@ -96,17 +96,5 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
                 mImageView.setImageBitmap(null);
             }
         }
-    }
-
-    private String generateKeyFromPicUrl(String url) {
-        if (Utils.isEmptyString(url)) {
-            return url;
-        }
-        String[] strs = url.split("/");
-        String key = strs[strs.length - 1];
-        if (key.contains(".")) {
-            key = key.replace(".", "_");
-        }
-        return key;
     }
 }

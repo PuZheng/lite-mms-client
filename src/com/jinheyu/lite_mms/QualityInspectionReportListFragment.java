@@ -49,6 +49,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     public void updateWorkCommandFailed(Exception ex) {
         mask.setVisibility(View.GONE);
         error.setVisibility(View.VISIBLE);
+        main.setVisibility(View.GONE);
+        noItems.setVisibility(View.GONE);
     }
 
     @Override
@@ -58,6 +60,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         qualityInspectionReports = workCommand.getQualityInspectionReportList();
         if (qualityInspectionReports.isEmpty()) {
             noItems.setVisibility(View.VISIBLE);
+            main.setVisibility(View.GONE);
         } else {
             setListAdapter(new MyAdapter(orderType, qualityInspectionReports));
             main.setVisibility(View.VISIBLE);
