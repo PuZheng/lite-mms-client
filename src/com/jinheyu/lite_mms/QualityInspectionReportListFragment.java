@@ -102,6 +102,10 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         return qualityInspectionReports;
     }
 
+    public boolean modified() {
+        return false;
+    }
+
     private class MyAdapter extends BaseAdapter {
 
         private final List<QualityInspectionReport> qualityInspectionReports;

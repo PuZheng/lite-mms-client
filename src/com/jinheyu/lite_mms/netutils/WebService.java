@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
@@ -386,7 +387,7 @@ public class WebService {
         }
     }
 
-    public String off_duty() throws IOException, BadRequest, JSONException {
+    public String offDuty() throws IOException, BadRequest, JSONException {
         String url = composeUrl("manufacture_ws", "off-duty");
         HttpResponse response = postRequest(url);
         String result = EntityUtils.toString(response.getEntity(), "utf-8");
@@ -394,6 +395,49 @@ public class WebService {
             throw new BadRequest(result);
         }
         return result;
+    }
+
+    public void submitQualityInspection(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, BadRequest, JSONException {
+        URL url = new URL(composeUrl("manufacture_ws", "work-command/" + workCommand.getId()));
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestMethod("PUT");
+        DataOutputStream ds = new DataOutputStream(httpURLConnection.getOutputStream());
+
+
+        JSONArray qirList = new JSONArray();
+        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("result", qualityInspectionReport.getResult());
+            jsonObject.put("weight", qualityInspectionReport.getWeight());
+            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                jsonObject.put("quantity", qualityInspectionReport.getQuantity());
+            }
+            qirList.put(jsonObject);
+        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("qirList", qirList);
+        ds.writeBytes("\r\n");
+        ds.writeBytes(jsonObject.toString());
+
+        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+            String boundary = "*****";
+            ds.writeBytes("--" + boundary + "\r\n");
+            ds.writeBytes("Content-Disposition: form-data;name=\"foo\";filename=\"foo.jpeg\"\r\n");
+            ds.writeBytes("\r\n");
+            FileInputStream fStream = new FileInputStream(qualityInspectionReport.getPicUrl());
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int length;
+            while ((length = fStream.read(buffer)) != -1) {
+                ds.write(buffer, 0, length);
+            }
+            ds.writeBytes("\r\n");
+            ds.writeBytes("--" + boundary + "--\r\n");
+
+            if (httpURLConnection.getResponseCode() != HttpStatus.SC_OK) {
+                throw new BadRequest(httpURLConnection.getResponseMessage());
+            }
+        }
     }
 
     public WorkCommand updateWorkCommand(int workCommandId, int action_code, HashMap<String, String> params) throws IOException, JSONException, BadRequest {
@@ -627,6 +671,6 @@ public class WebService {
         return response;
     }
 
-    public void submitQualityInspection(int workCommandId, List<QualityInspectionReport> qualityInspectionReports) {
+    public void saveQualityInspectionReports(List<QualityInspectionReport> qualityInspectionReports) {
     }
 }

@@ -35,6 +35,8 @@ import java.util.List;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
+import static android.content.DialogInterface.OnClickListener;
+
 
 public class QualityInspectorWorkCommandActivity extends FragmentActivity implements
         GetPullToRefreshAttacher, ActionBar.TabListener, PullToRefreshAttacher.OnRefreshListener, UpdateWorkCommand {
@@ -164,9 +166,66 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
     @Override
     public void onRefreshStarted(View view) {
-        new GetWorkCommandAsyncTask(this).execute(this.workCommandId);
+        QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) this.fragmentPagerAdapter.getRegisteredFragment(0);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                new GetWorkCommandAsyncTask(QualityInspectorWorkCommandActivity.this).execute(QualityInspectorWorkCommandActivity.this.workCommandId);
+            }
+        };
+
+        if (qualityInspectionReportListFragment.modified()) {
+            displayRefreshWarning(runnable);
+
+        } else {
+            runnable.run();
+        }
+
     }
 
+    private void displayRefreshWarning(final Runnable after) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.warning);
+        builder.setMessage("您已经修改了质检报告， 刷新将丢失修改，你确认要继续刷新吗?");
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.OK, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                after.run();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        final QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) this.fragmentPagerAdapter.getRegisteredFragment(0);
+        if (qualityInspectionReportListFragment.modified()) {
+            XProgressableRunnable.Builder<Void> builder = new XProgressableRunnable.Builder<Void>(this);
+            builder.msg("您已经修改了质检报告，正在保存质检报告");
+            builder.run(new XProgressableRunnable.XRunnable<Void>() {
+                @Override
+                public Void run() throws Exception {
+                    MyApp.getWebServieHandler().saveQualityInspectionReports(qualityInspectionReportListFragment.getQualityInspectionReports());
+                    return null;
+                }
+            });
+            builder.okMsg("保存成功");
+            builder.after(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            });
+            builder.exceptionHandler(new XProgressableRunnable.ExceptionHandler() {
+                @Override
+                public void run(Exception e) {
+                    finish();
+                }
+            });
+        } else {
+            finish();
+        }
+    }
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
@@ -277,7 +336,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
             builder.setNegativeButton(android.R.string.cancel, null);
             final int finalTotalWeight = totalWeight;
-            builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.submit, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (finalTotalWeight < workCommand.getProcessedWeight()) {
@@ -286,7 +345,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                         builder.setMessage(String.format("工单重量为%d, 你提交的质检重量是%d, 是否仍然要提交质检结果?",
                                 workCommand.getProcessedWeight(), finalTotalWeight));
                         builder.setNegativeButton(R.string.cancel, null);
-                        builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        builder.setPositiveButton(R.string.OK, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 submitQualityInspectionReport();
@@ -307,7 +366,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             builder.run(new XProgressableRunnable.XRunnable<Void>() {
                 @Override
                 public Void run() throws Exception {
-                    MyApp.getWebServieHandler().submitQualityInspection(workCommandId, qualityInspectionReports);
+                    MyApp.getWebServieHandler().submitQualityInspection(workCommand, qualityInspectionReports);
                     return null;
                 }
             });

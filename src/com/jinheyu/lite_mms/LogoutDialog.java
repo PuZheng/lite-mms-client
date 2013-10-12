@@ -44,7 +44,7 @@ public class LogoutDialog {
                     @Override
                     public String run() throws Exception {
                         if (isOffDuty) {
-                            return MyApp.getWebServieHandler().off_duty();
+                            return MyApp.getWebServieHandler().offDuty();
                         } else {
                             return null;
                         }
