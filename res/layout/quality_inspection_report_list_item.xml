@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:id="@+id/imageButtonDelete"
+            android:id="@+id/imageButtonDiscard"
             android:background="@null"
             android:padding="5dp"
             android:src="@drawable/content_discard"/>

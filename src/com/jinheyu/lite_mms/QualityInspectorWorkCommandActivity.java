@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -114,10 +115,12 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        QualityInspectionReportListFragment qualityInspectionReportListFragment;
+        qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter)mViewPager.getAdapter()).getRegisteredFragment(0);
+
         switch (item.getItemId()) {
             case R.id.action_complete_quality_inspection:
-                QualityInspectionReportListFragment qualityInspectionReportListFragment;
-                qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter)mViewPager.getAdapter()).getRegisteredFragment(0);
+
                 if (!qualityInspectionReportListFragment.loading()) {
                     List<QualityInspectionReport> qualityInspectionReports = qualityInspectionReportListFragment.getQualityInspectionReports();
                     if (qualityInspectionReports.isEmpty()) {
@@ -128,6 +131,10 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 }
                 break;
             case R.id.action_new_quality_inspection_report:
+                Intent intent = new Intent(QualityInspectorWorkCommandActivity.this, CreateQIReportStep1.class);
+                intent.putExtra("workCommandProcessedWeight", workCommand.getProcessedWeight());
+                intent.putExtra("qualityInspectedWeight", qualityInspectionReportListFragment.getQualityInspectedWeight());
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -173,7 +180,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             }
         };
 
-        if (qualityInspectionReportListFragment.modified()) {
+        if (qualityInspectionReportListFragment.isModified()) {
             displayRefreshWarning(runnable);
 
         } else {
@@ -198,7 +205,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     @Override
     public void onBackPressed() {
         final QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) this.fragmentPagerAdapter.getRegisteredFragment(0);
-        if (qualityInspectionReportListFragment.modified()) {
+        if (qualityInspectionReportListFragment.isModified()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("您已经修改了质检报告，退出前保存质检报告?");
             builder.setTitle("警告");

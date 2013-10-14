@@ -1,5 +1,7 @@
 package com.jinheyu.lite_mms;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     private List<QualityInspectionReport> qualityInspectionReports;
     private TextView textViewWorkCommandProcessed;
     private TextView textViewQualityInspected;
+    private boolean modified;
+    private WorkCommand workCommand;
 
     public QualityInspectionReportListFragment() {
     }
@@ -56,13 +60,14 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     @Override
     public void updateWorkCommand(WorkCommand workCommand) {
         mask.setVisibility(View.GONE);
+        this.workCommand = workCommand;
         int orderType = workCommand.getOrderType();
-        qualityInspectionReports = workCommand.getQualityInspectionReportList();
+        qualityInspectionReports.addAll(workCommand.getQualityInspectionReportList());
         if (qualityInspectionReports.isEmpty()) {
             noItems.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
         } else {
-            setListAdapter(new MyAdapter(orderType, qualityInspectionReports));
+            setListAdapter(new MyAdapter());
             main.setVisibility(View.VISIBLE);
             int qualityInspectedCnt = 0;
             int qualityInspectedweight = 0;
@@ -87,6 +92,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     @Override
     public void beforeUpdateWorkCommand() {
         mask();
+        qualityInspectionReports.clear();
         this.loading = true;
     }
 
@@ -105,18 +111,21 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         return qualityInspectionReports;
     }
 
-    public boolean modified() {
-        return false;
+    public boolean isModified() {
+        return modified;
+    }
+
+    public int getQualityInspectedWeight() {
+        int ret = 0;
+        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+            ret += qualityInspectionReport.getWeight();
+        }
+        return ret;
     }
 
     private class MyAdapter extends BaseAdapter {
 
-        private final List<QualityInspectionReport> qualityInspectionReports;
-        private final int orderType;
-
-        public MyAdapter(int orderType, List<QualityInspectionReport> qualityInspectionReports) {
-            this.orderType = orderType;
-            this.qualityInspectionReports = qualityInspectionReports;
+        public MyAdapter() {
         }
 
         @Override
@@ -138,36 +147,63 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             ImageButton imageButton;
             TextView textViewResult;
             TextView textViewWeight;
+            ImageButton imageButtonDiscard;
 
-            public ViewHolder(ImageButton imageButton, TextView textViewResult, TextView testViewWeight) {
+            public ViewHolder(ImageButton imageButton, TextView textViewResult, TextView textViewWeight,
+                              ImageButton imageButtonDiscard) {
                 this.imageButton = imageButton;
                 this.textViewResult = textViewResult;
-                this.textViewWeight = testViewWeight;
+                this.textViewWeight = textViewWeight;
+                this.imageButtonDiscard = imageButtonDiscard;
             }
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
             if (convertView == null) {
                 convertView = View.inflate(getActivity(), R.layout.quality_inspection_report_list_item, null);
                 viewHolder = new ViewHolder((ImageButton) convertView.findViewById(R.id.imageButton),
                         (TextView) convertView.findViewById(R.id.textViewResult),
-                        (TextView) convertView.findViewById(R.id.textViewWeight));
+                        (TextView) convertView.findViewById(R.id.textViewWeight),
+                        (ImageButton) convertView.findViewById(R.id.imageButtonDiscard));
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
+            final QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
             new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
             String weight = "";
-            if (this.orderType == Order.EXTRA_ORDER_TYPE) {
+            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
                 weight = qualityInspectionReport.getQuantity() + "件";
             }
+            viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("您确认要删除这一条质检报告?");
+                    builder.setNegativeButton(R.string.cancel, null);
+                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            qualityInspectionReports.remove(position);
+                            modified = true;
+                            notifyDataSetChanged();
+                        }
+                    });
+                    builder.show();
+                }
+            });
             weight += qualityInspectionReport.getWeight() + "公斤";
             viewHolder.textViewWeight.setText(weight);
             return convertView;
         }
+    }
+
+    public void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
+        qualityInspectionReports.add(qualityInspectionReport);
+        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+        modified = true;
     }
 }
