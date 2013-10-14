@@ -96,7 +96,7 @@
     <string name="tech_req">技术要求</string>
     <string name="status">工单状态</string>
     <string name="quality_inspecting">待质检</string>
-    <string name="quality_inspected">已质检</string>
+    <string name="quality_inspected_today">今日已质检</string>
     <string name="quality_inspection_report_list">质检报告列表</string>
     <string name="work_command_detail">工单详情</string>
     <string name="new_quality_inspection_report">新建报告</string>
@@ -108,4 +108,5 @@
     <string name="OK">确认</string>
     <string name="save">保存</string>
     <string name="unsave">不保存</string>
+    <string name="next_step">下一步</string>
 </resources>

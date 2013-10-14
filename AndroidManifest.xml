@@ -123,6 +123,24 @@
         <activity
             android:name=".ImageActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <activity android:name=".CreateQIReportStep1"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".CreateQIReportStep2"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".CreateQIReportStep3"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
     </application>
 
 </manifest>

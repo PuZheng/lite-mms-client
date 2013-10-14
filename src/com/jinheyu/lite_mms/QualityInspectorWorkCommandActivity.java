@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -41,6 +42,7 @@ import static android.content.DialogInterface.OnClickListener;
 public class QualityInspectorWorkCommandActivity extends FragmentActivity implements
         GetPullToRefreshAttacher, ActionBar.TabListener, PullToRefreshAttacher.OnRefreshListener, UpdateWorkCommand {
 
+    private static final int CREATE_QUALITY_INSPECTION_REPORT_CODE = 98;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private ViewPager mViewPager;
     private int workCommandId;
@@ -81,6 +83,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         workCommandId = getIntent().getIntExtra("workCommandId", 0);
         PullToRefreshLayout ptrLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
         ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
+
         /**
          * 之所以要将获取工单信息和质检报告列表的操作统一放在Activity中进行，原因是这两个Fragment的信息要时刻保证一致，
          * 不能一个刷新了一个还没有刷新
@@ -122,20 +125,24 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             case R.id.action_complete_quality_inspection:
 
                 if (!qualityInspectionReportListFragment.loading()) {
-                    List<QualityInspectionReport> qualityInspectionReports = qualityInspectionReportListFragment.getQualityInspectionReports();
+                    List<QualityInspectionReport> qualityInspectionReports = MyApp.getQualityInspectionReports();
                     if (qualityInspectionReports.isEmpty()) {
-                        Toast.makeText(QualityInspectorWorkCommandActivity.this, "请生成质检报告后再提交", Toast.LENGTH_SHORT).show();
-                    } else {
+                        Toast.makeText(QualityInspectorWorkCommandActivity.this, "请至少填写一条质检报告！", Toast.LENGTH_SHORT).show();
+                    } else if (!qualityInspectionReportListFragment.isModified()) {
+                        Toast.makeText(QualityInspectorWorkCommandActivity.this, "您没有对质检报告作出变动，不必提交!", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
                         showNoticeDialog(qualityInspectionReports, this.workCommand);
                     }
                 }
                 break;
             case R.id.action_new_quality_inspection_report:
                 Intent intent = new Intent(QualityInspectorWorkCommandActivity.this, CreateQIReportStep1.class);
-                intent.putExtra("workCommandProcessedWeight", workCommand.getProcessedWeight());
-                intent.putExtra("qualityInspectedWeight", qualityInspectionReportListFragment.getQualityInspectedWeight());
-                startActivity(intent);
+                intent.putExtra("workCommand", workCommand);
+                startActivityForResult(intent, CREATE_QUALITY_INSPECTION_REPORT_CODE);
                 break;
+            case R.id.action_reset:
+                qualityInspectionReportListFragment.resetContent();
             default:
                 break;
         }
@@ -162,12 +169,14 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
     @Override
     public void updateWorkCommandFailed(Exception ex) {
-
+        ((QualityInspectionReportListFragment)fragmentPagerAdapter.getRegisteredFragment(0)).updateWorkCommandFailed(ex);
+        ((WorkCommandFragment)fragmentPagerAdapter.getRegisteredFragment(1)).updateWorkCommandFailed(ex);
     }
 
     @Override
     public void beforeUpdateWorkCommand() {
-
+        ((QualityInspectionReportListFragment)fragmentPagerAdapter.getRegisteredFragment(0)).beforeUpdateWorkCommand();
+        ((WorkCommandFragment)fragmentPagerAdapter.getRegisteredFragment(1)).beforeUpdateWorkCommand();
     }
 
     @Override
@@ -193,13 +202,19 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.warning);
         builder.setMessage("您已经修改了质检报告， 刷新将丢失修改，你确认要继续刷新吗?");
-        builder.setNegativeButton(R.string.cancel, null);
+        builder.setNegativeButton(R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                getPullToRefreshAttacher().setRefreshComplete();
+            }
+        });
         builder.setPositiveButton(R.string.OK, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 after.run();
             }
         });
+        builder.show();
     }
 
     @Override
@@ -209,24 +224,17 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("您已经修改了质检报告，退出前保存质检报告?");
             builder.setTitle("警告");
-            String[] items = {getString(R.string.cancel), getString(R.string.save), getString(R.string.unsave)};
-            builder.setItems(items, new OnClickListener() {
+            builder.setNegativeButton(R.string.cancel, null);
+            builder.setPositiveButton(R.string.save, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case 0:
-                            dialog.dismiss();
-                            break;
-                        case 1:
-                            saveQualityInspectionReports(workCommand, qualityInspectionReportListFragment.getQualityInspectionReports());
-                            finish();
-                            break;
-                        case 2:
-                            finish();
-                            break;
-                        default:
-                            break;
-                    }
+                    saveQualityInspectionReports(workCommand, MyApp.getQualityInspectionReports());
+                }
+            });
+            builder.setNeutralButton(R.string.unsave, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
                 }
             });
             builder.show();
@@ -246,7 +254,14 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 return null;
             }
         });
+        builder.after(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        });
         builder.okMsg("保存成功");
+        builder.create().start();
     }
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -357,6 +372,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                                 submitQualityInspectionReport();
                             }
                         });
+                        builder.show();
                     } else {
                         submitQualityInspectionReport();
                     }
@@ -367,7 +383,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
         private void submitQualityInspectionReport() {
 
-            XProgressableRunnable.Builder<Void> builder = new XProgressableRunnable.Builder<Void>(getActivity());
+            XProgressableRunnable.Builder<Void> builder = new XProgressableRunnable.Builder<Void>(QualityInspectorWorkCommandActivity.this);
             builder.msg("正在提交质检结果");
             builder.run(new XProgressableRunnable.XRunnable<Void>() {
                 @Override
@@ -386,5 +402,22 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             builder.create().start();
         }
 
+    }
+
+    private int getQualityInspectedWeight() {
+        int ret = 0;
+        for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {
+            ret += qualityInspectionReport.getWeight();
+        }
+        return ret;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CREATE_QUALITY_INSPECTION_REPORT_CODE && resultCode == RESULT_OK) {
+            QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
+            ((BaseAdapter)qualityInspectionReportListFragment.getListAdapter()).notifyDataSetChanged();
+            qualityInspectionReportListFragment.setModified(true);
+        }
     }
 }

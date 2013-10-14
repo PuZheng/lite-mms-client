@@ -655,7 +655,7 @@ public class WebService {
 
     public void saveQualityInspectionReports(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, JSONException, BadRequest {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("work-command-id", String.valueOf(workCommand.getId()));
+        params.put("work_command_id", String.valueOf(workCommand.getId()));
         URL url = new URL(composeUrl("manufacture_ws", "quality-inspection-report-list", params));
         doUploadQualityInspectionReports(workCommand, qualityInspectionReports, url);
 
@@ -683,15 +683,13 @@ public class WebService {
             qirList.put(jsonObject);
         }
         ds.writeBytes("--" + boundary + "\r\n");
-        ds.writeBytes("Content-Disposition: form-data;name=\"qirList\"");
-        ds.writeBytes("\r\n\r\n");
+        ds.writeBytes("Content-Disposition: form-data;name=\"qirList\"\r\n\r\n");
         ds.writeBytes(qirList.toString());
         ds.writeBytes("\r\n");
 
         for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
             ds.writeBytes("--" + boundary + "\r\n");
-            ds.writeBytes("Content-Disposition: form-data;name=\""+ qualityInspectionReport.getId() + "\";filename=\"" + qualityInspectionReport.getId()+".jpeg\"\r\n");
-            ds.writeBytes("\r\n\r\n");
+            ds.writeBytes("Content-Disposition: form-data;name=\""+ qualityInspectionReport.getId() + "\";filename=\"" + qualityInspectionReport.getId()+".jpeg\"\r\n\r\n");
             ImageCache imageCache = ImageCache.getInstance(this.context);
             synchronized (imageCache.getLock()) {
                 FileInputStream fStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());

@@ -8,18 +8,18 @@ import android.os.Parcelable;
  */
 public class QualityInspectionReport implements Parcelable {
 
-    private static final int FINISHED = 1;
-    private static final int NEXT_PROCEDURE = 2;
-    private static final int REPAIR = 3;
-    private static final int REPLATE = 4;
-    private static final int DISCARD = 5;
+    public static final int FINISHED = 1;
+    public static final int NEXT_PROCEDURE = 2;
+    public static final int REPAIR = 3;
+    public static final int REPLATE = 4;
+    public static final int DISCARD = 5;
 
-    private final int id;
-    private final int quantity;
-    private final int weight;
-    private final int result;
-    private final int actorId;
-    private final String picUrl;
+    private int id;
+    private int quantity;
+    private int weight;
+    private int result;
+    private int actorId;
+    private String picUrl;
 
     public QualityInspectionReport(int id, int quantity, int weight, int result,
                                    int actorId, String picUrl) {
@@ -38,6 +38,10 @@ public class QualityInspectionReport implements Parcelable {
         result = in.readInt();
         actorId = in.readInt();
         picUrl = in.readString();
+    }
+
+    public QualityInspectionReport() {
+
     }
 
     public int getId() {
@@ -112,4 +116,24 @@ public class QualityInspectionReport implements Parcelable {
             return new QualityInspectionReport[size];
         }
     };
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

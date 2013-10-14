@@ -1,12 +1,11 @@
 package com.jinheyu.lite_mms;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ActionMode;
 import android.widget.ArrayAdapter;
 
 import com.jinheyu.lite_mms.data_structures.Constants;
@@ -52,7 +51,7 @@ public class QualityInspectorActivity extends WorkCommandListActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return position == 0? getString(R.string.quality_inspecting):
-                    getString(R.string.quality_inspected);
+                    getString(R.string.quality_inspected_today);
         }
     }
 

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 /**
  * Created by xc on 13-10-6.
@@ -42,12 +41,20 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
     }
 
     public void mask() {
-        View mask = rootView.findViewById(R.id.linearLayoutMask);
-        mask.setVisibility(View.VISIBLE);
-        View main = rootView.findViewById(R.id.scrollViewWorkCommand);
-        main.setVisibility(View.GONE);
-        View error = rootView.findViewById(R.id.linearyLayoutError);
-        error.setVisibility(View.GONE);
+        if (rootView != null) {
+            View mask = rootView.findViewById(R.id.linearLayoutMask);
+            if (mask != null) {
+                mask.setVisibility(View.VISIBLE);
+            }
+            View main = rootView.findViewById(R.id.scrollViewWorkCommand);
+            if (main != null) {
+                main.setVisibility(View.GONE);
+            }
+            View error = rootView.findViewById(R.id.linearyLayoutError);
+            if (error != null) {
+                error.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override

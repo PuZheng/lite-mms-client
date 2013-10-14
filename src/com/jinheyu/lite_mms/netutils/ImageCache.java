@@ -58,20 +58,26 @@ public class ImageCache {
         return instance != null;
     }
 
-    public void addBitmapToCache(String key, InputStream steam) {
+    public boolean addBitmapToCache(String key, InputStream stream) {
         synchronized (mDiskCacheLock) {
             if (containsKey(key)) {
-                return;
+                try {
+                    mDiskLruCache.remove(key);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
             }
             DiskLruCache.Editor editor = null;
             try {
                 editor = mDiskLruCache.edit(key);
                 if (editor == null) {
-                    return;
+                    return false;
                 }
-                if (writeToFile(steam, editor)) {
+                if (writeToFile(stream, editor)) {
                     mDiskLruCache.flush();
                     editor.commit();
+                    return true;
                 } else {
                     editor.abort();
                 }
@@ -80,13 +86,14 @@ public class ImageCache {
                     if (editor != null) {
                         editor.abort();
                     }
-                    if (steam != null) {
-                        steam.close();
+                    if (stream != null) {
+                        stream.close();
                     }
                 } catch (IOException ignored) {
                 }
             }
         }
+        return false;
     }
 
     public boolean containsKey(String key) {

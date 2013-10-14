@@ -29,6 +29,7 @@ public class Utils {
 
     private static final String TAG = "Utils";
     private static final String UNLOAD_TASK_PIC_FILE_NAME = "unload-task-pic.jpeg";
+    private static final String TEMP_QI_REPORT_FILE_NAME = "temp-qi-report-pic.jpeg";
 
     public static void assertDirExists(String dir) {
         File file = new File(dir);
@@ -195,5 +196,9 @@ public class Utils {
             Log.e("MD5", e.getLocalizedMessage());
             return null;
         }
+    }
+
+    public static Uri getTempQIReportPicUri() {
+        return Uri.fromFile(new File(getStorageDir() + TEMP_QI_REPORT_FILE_NAME));
     }
 }

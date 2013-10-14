@@ -109,7 +109,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/scrollViewNoItems">
 
         <TextView
