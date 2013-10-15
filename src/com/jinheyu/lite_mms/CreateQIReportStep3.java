@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
@@ -65,7 +66,11 @@ public class CreateQIReportStep3 extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_submit:
-                showNoticeDialog();
+                if (!new File(Utils.getTempQIReportPicUri().getPath()).exists()) {
+                    Toast.makeText(this, "请拍照后提交", Toast.LENGTH_SHORT).show();
+                } else {
+                    showNoticeDialog();
+                }
                 break;
             case R.id.action_take_pic:
                 // create Intent to take a picture and return control to the calling application
