@@ -34,9 +34,6 @@ import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-
 import static android.content.DialogInterface.OnClickListener;
 
 
