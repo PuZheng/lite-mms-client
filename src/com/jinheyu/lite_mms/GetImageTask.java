@@ -81,7 +81,7 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(mImageView.getContext(), ImageActivity.class);
-                        intent.putExtra("imageUrl", mKey);
+                        intent.putExtra("imageUrl", mUrl);
                         mImageView.getContext().startActivity(intent);
                     }
                 });
