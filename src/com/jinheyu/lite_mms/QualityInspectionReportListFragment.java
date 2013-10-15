@@ -109,7 +109,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         textViewWorkCommandProcessed.setText(workCommand.getProcessedWeight() + "公斤");
     }
 
-    private void setTextViewQualityInspected() {
+    public void setTextViewQualityInspected() {
         int qualityInspectedCnt = 0;
         int qualityInspectedweight = 0;
         for (QualityInspectionReport qir : MyApp.getQualityInspectionReports()) {

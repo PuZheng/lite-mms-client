@@ -40,11 +40,9 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import static android.content.DialogInterface.OnClickListener;
 
 
-public class QualityInspectorWorkCommandActivity extends FragmentActivity implements
-        GetPullToRefreshAttacher, ActionBar.TabListener, PullToRefreshAttacher.OnRefreshListener, UpdateWorkCommand {
+public class QualityInspectorWorkCommandActivity extends FragmentActivity implements ActionBar.TabListener, UpdateWorkCommand {
 
     private static final int CREATE_QUALITY_INSPECTION_REPORT_CODE = 98;
-    private PullToRefreshAttacher mPullToRefreshAttacher;
     private ViewPager mViewPager;
     private int workCommandId;
     private MyFragmentPagerAdapter fragmentPagerAdapter;
@@ -61,10 +59,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         return new Intent(this, MyApp.getCurrentUser().getDefaultActivity());
     }
 
-    @Override
-    public PullToRefreshAttacher getPullToRefreshAttacher() {
-        return mPullToRefreshAttacher;
-    }
 
     @Override
     public void onBackPressed() {
@@ -95,8 +89,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quality_inspector_work_command);
-        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
-
         // make action bar hide title
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -124,15 +116,19 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         }
 
         workCommandId = getIntent().getIntExtra("workCommandId", 0);
-        PullToRefreshLayout ptrLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-        ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
-
         /**
          * 之所以要将获取工单信息和质检报告列表的操作统一放在Activity中进行，原因是这两个Fragment的信息要时刻保证一致，
          * 不能一个刷新了一个还没有刷新
          */
         new GetWorkCommandAsyncTask(this).execute(workCommandId);
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
+//        qualityInspectionReportListFragment.setTextViewQualityInspected();
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -183,20 +179,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     }
 
     @Override
-    public void onRefreshStarted(View view) {
-        QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) this.fragmentPagerAdapter.getRegisteredFragment(0);
-        Runnable runnable = getRefreshRunnable();
-
-        if (qualityInspectionReportListFragment.isModified()) {
-            displayRefreshWarning(runnable);
-
-        } else {
-            runnable.run();
-        }
-
-    }
-
-    @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
     }
 
@@ -214,7 +196,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     public void updateWorkCommand(WorkCommand workCommand) {
         ((QualityInspectionReportListFragment) fragmentPagerAdapter.getRegisteredFragment(0)).updateWorkCommand(workCommand);
         ((WorkCommandFragment) fragmentPagerAdapter.getRegisteredFragment(1)).updateWorkCommand(workCommand);
-        mPullToRefreshAttacher.setRefreshComplete();
         this.workCommand = workCommand;
     }
 
@@ -229,36 +210,9 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         if (requestCode == CREATE_QUALITY_INSPECTION_REPORT_CODE && resultCode == RESULT_OK) {
             QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
             ((BaseAdapter) qualityInspectionReportListFragment.getListAdapter()).notifyDataSetChanged();
+            qualityInspectionReportListFragment.setTextViewQualityInspected();
             qualityInspectionReportListFragment.setModified(true);
         }
-    }
-
-    private void displayRefreshWarning(final Runnable after) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.warning);
-        builder.setMessage("您已经修改了质检报告， 刷新将丢失修改，你确认要继续刷新吗?");
-        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                getPullToRefreshAttacher().setRefreshComplete();
-            }
-        });
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                after.run();
-            }
-        });
-        builder.show();
-    }
-
-    private Runnable getRefreshRunnable() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                new GetWorkCommandAsyncTask(QualityInspectorWorkCommandActivity.this).execute(QualityInspectorWorkCommandActivity.this.workCommandId);
-            }
-        };
     }
 
     private void saveQualityInspectionReports(final WorkCommand workCommand, final List<QualityInspectionReport> qualityInspectionReports) {
