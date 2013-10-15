@@ -21,7 +21,7 @@ public class DepartmentLeaderActivity extends WorkCommandListActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.logout_or_off_duty, menu);
+        getMenuInflater().inflate(R.menu.logout_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -30,8 +30,6 @@ public class DepartmentLeaderActivity extends WorkCommandListActivity {
         switch (item.getItemId()) {
             case R.id.action_logout:
                 new LogoutDialog(this).show();
-                break;
-            case R.id.action_off_duty:
                 break;
         }
         return super.onOptionsItemSelected(item);
