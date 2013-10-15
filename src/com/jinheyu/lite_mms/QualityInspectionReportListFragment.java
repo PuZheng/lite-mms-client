@@ -16,8 +16,6 @@ import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
 class QualityInspectionReportListFragment extends ListFragment implements UpdateWorkCommand {
-
-    private View rootView;
     private View mask;
     private View main;
     private View error;
@@ -31,9 +29,28 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     @Override
+    public void beforeUpdateWorkCommand() {
+        mask();
+        MyApp.getQualityInspectionReports().clear();
+        this.loading = true;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean b) {
+        modified = b;
+    }
+
+    public boolean loading() {
+        return loading;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_quality_inspection_report_list, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_quality_inspection_report_list, container, false);
         mask = rootView.findViewById(R.id.linearLayoutMask);
         main = rootView.findViewById(R.id.linearLayoutMain);
         error = rootView.findViewById(R.id.linearyLayoutError);
@@ -44,11 +61,14 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         return rootView;
     }
 
-    @Override
-    public void updateWorkCommandFailed(Exception ex) {
-        mask.setVisibility(View.GONE);
-        error.setVisibility(View.VISIBLE);
-        main.setVisibility(View.GONE);
+    public void resetContent() {
+        MyApp.getQualityInspectionReports().clear();
+        for (QualityInspectionReport qualityInspectionReport : workCommand.getQualityInspectionReportList()) {
+            MyApp.addQualityInspectionReport(qualityInspectionReport);
+        }
+        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+        setTextViewQualityInspected();
+        modified = false;
     }
 
     @Override
@@ -70,6 +90,21 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         modified = false;
     }
 
+    @Override
+    public void updateWorkCommandFailed(Exception ex) {
+        mask.setVisibility(View.GONE);
+        error.setVisibility(View.VISIBLE);
+        main.setVisibility(View.GONE);
+    }
+
+    private void mask() {
+        if (mask != null && error != null && main != null) {
+            mask.setVisibility(View.VISIBLE);
+            main.setVisibility(View.GONE);
+            error.setVisibility(View.GONE);
+        }
+    }
+
     private void setTextViewProcessed() {
         textViewWorkCommandProcessed.setText(workCommand.getProcessedWeight() + "公斤");
     }
@@ -87,43 +122,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         }
         qualityInspected += qualityInspectedweight + "公斤";
         textViewQualityInspected.setText(qualityInspected);
-    }
-
-    @Override
-    public void beforeUpdateWorkCommand() {
-        mask();
-        MyApp.getQualityInspectionReports().clear();
-        this.loading = true;
-    }
-
-    private void mask() {
-        if (mask != null && error != null && main != null) {
-            mask.setVisibility(View.VISIBLE);
-            main.setVisibility(View.GONE);
-            error.setVisibility(View.GONE);
-        }
-    }
-
-    public boolean loading() {
-        return loading;
-    }
-
-    public boolean isModified() {
-        return modified;
-    }
-
-    public void resetContent() {
-        MyApp.getQualityInspectionReports().clear();
-        for (QualityInspectionReport qualityInspectionReport: workCommand.getQualityInspectionReportList()) {
-            MyApp.addQualityInspectionReport(qualityInspectionReport);
-        }
-        ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
-        setTextViewQualityInspected();
-        modified = false;
-    }
-
-    public void setModified(boolean b) {
-        modified = b;
     }
 
     private class MyAdapter extends BaseAdapter {
@@ -144,21 +142,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         @Override
         public long getItemId(int position) {
             return MyApp.getQualityInspectionReports().get(position).getId();
-        }
-
-        class ViewHolder {
-            ImageButton imageButton;
-            TextView textViewResult;
-            TextView textViewWeight;
-            ImageButton imageButtonDiscard;
-
-            public ViewHolder(ImageButton imageButton, TextView textViewResult, TextView textViewWeight,
-                              ImageButton imageButtonDiscard) {
-                this.imageButton = imageButton;
-                this.textViewResult = textViewResult;
-                this.textViewWeight = textViewWeight;
-                this.imageButtonDiscard = imageButtonDiscard;
-            }
         }
 
         @Override
@@ -186,8 +169,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setMessage("您确认要删除这一条质检报告?");
-                    builder.setNegativeButton(R.string.cancel, null);
-                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                    builder.setNegativeButton(android.R.string.cancel, null);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MyApp.getQualityInspectionReports().remove(position);
@@ -203,6 +186,21 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             weight += qualityInspectionReport.getWeight() + "公斤";
             viewHolder.textViewWeight.setText(weight);
             return convertView;
+        }
+
+        class ViewHolder {
+            ImageButton imageButton;
+            TextView textViewResult;
+            TextView textViewWeight;
+            ImageButton imageButtonDiscard;
+
+            public ViewHolder(ImageButton imageButton, TextView textViewResult, TextView textViewWeight,
+                              ImageButton imageButtonDiscard) {
+                this.imageButton = imageButton;
+                this.textViewResult = textViewResult;
+                this.textViewWeight = textViewWeight;
+                this.imageButtonDiscard = imageButtonDiscard;
+            }
         }
     }
 

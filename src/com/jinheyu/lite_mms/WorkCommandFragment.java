@@ -21,22 +21,14 @@ import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
-/**
- * Created by xc on 13-10-6.
- */
 public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
-    private PullToRefreshAttacher mPullToRefreshAttacher;
     private View rootView;
     private WorkCommand mWorkCommand;
-
-    public WorkCommandFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_work_command, container, false);
-        this.mPullToRefreshAttacher = ((GetPullToRefreshAttacher) getActivity()).getPullToRefreshAttacher();
         return rootView;
     }
 
@@ -73,7 +65,6 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         main.setVisibility(View.GONE);
         View error = rootView.findViewById(R.id.linearyLayoutError);
         error.setVisibility(View.VISIBLE);
-        mPullToRefreshAttacher.setRefreshComplete();
     }
 
     @Override
@@ -81,12 +72,15 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         mask();
     }
 
+    public WorkCommand getWorkCommand() {
+        return this.mWorkCommand;
+    }
+
     public void unmask() {
         View mask = rootView.findViewById(R.id.linearLayoutMask);
         mask.setVisibility(View.GONE);
         View main = rootView.findViewById(R.id.scrollViewWorkCommand);
         main.setVisibility(View.VISIBLE);
-        mPullToRefreshAttacher.setRefreshComplete();
     }
 
     private void _initView() {
@@ -194,12 +188,6 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         textView.setText(String.format("%s(%s-%s)", mWorkCommand.getProductName(),
                 Utils.isEmptyString(mWorkCommand.getSpec()) ? "  " : mWorkCommand.getSpec(),
                 Utils.isEmptyString(mWorkCommand.getType()) ? "  " : mWorkCommand.getType()));
-    }
-
-    private void _setTeamLeaderMenu(Menu menu, MenuInflater inflater) {
-        if (mWorkCommand.getStatus() == Constants.STATUS_ENDING) {
-            inflater.inflate(R.menu.team_leader_work_command_menu, menu);
-        }
     }
 
     private void _setTechReq() {

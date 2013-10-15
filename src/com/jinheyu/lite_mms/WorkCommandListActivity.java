@@ -12,8 +12,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.view.Window;
-import android.view.WindowManager;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 
@@ -139,12 +137,14 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
     protected abstract FragmentPagerAdapter getFragmentPagerAdapter(int position);
 
     private Spinner getSpinner() {
-        Spinner spinner = new Spinner(this);
         ArrayAdapter adapter = getArrayAdapter(android.R.layout.simple_spinner_item);
-        final ActionBar actionBar = getActionBar();
         if (adapter == null) {
-            return null; 
+            return null;
         }
+
+        Spinner spinner = new Spinner(this);
+        final ActionBar actionBar = getActionBar();
+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 

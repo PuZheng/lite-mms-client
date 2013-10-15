@@ -1,6 +1,7 @@
 package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,7 +12,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 
+import android.view.View;
 import com.jinheyu.lite_mms.data_structures.User;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -200,5 +204,26 @@ public class Utils {
 
     public static Uri getTempQIReportPicUri() {
         return Uri.fromFile(new File(getStorageDir() + TEMP_QI_REPORT_FILE_NAME));
+    }
+
+    public static PullToRefreshAttacher initPullToRereshAttacher(Activity activity, PullToRefreshAttacher.OnRefreshListener listener) {
+        PullToRefreshAttacher.Options options = new PullToRefreshAttacher.Options();
+        options.refreshScrollDistance = 0.4f;
+        PullToRefreshAttacher pullToRefreshAttacher = PullToRefreshAttacher.get(activity, options);
+        View view = activity.findViewById(R.id.ptr_layout);
+        if (view != null) {
+            PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) view;
+            pullToRefreshLayout.setPullToRefreshAttacher(pullToRefreshAttacher, listener);
+            return pullToRefreshAttacher;
+        }
+        return null;
+    }
+
+    public static PullToRefreshAttacher initPullToRereshAttacher(Activity activity) {
+        if (activity instanceof PullToRefreshAttacher.OnRefreshListener) {
+            return initPullToRereshAttacher(activity, (PullToRefreshAttacher.OnRefreshListener) activity);
+        }else {
+            throw new IllegalArgumentException();
+        }
     }
 }

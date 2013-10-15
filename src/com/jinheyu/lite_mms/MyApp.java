@@ -24,6 +24,26 @@ public class MyApp extends Application {
     private static User currentUser;
     private static List<QualityInspectionReport> qualityInspectionReports;
 
+    public static void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
+        qualityInspectionReports.add(qualityInspectionReport);
+    }
+
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    public static void setCurrentUser(User currentUser) {
+        MyApp.currentUser = currentUser;
+    }
+
+    public static List<QualityInspectionReport> getQualityInspectionReports() {
+        return qualityInspectionReports;
+    }
+
+    public static WebService getWebServieHandler() {
+        return webServieHandler;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -31,26 +51,5 @@ public class MyApp extends Application {
         webServieHandler = WebService.getInstance(MyApp.context);
         qualityInspectionReports = new ArrayList<QualityInspectionReport>();
         Utils.assertDirExists(Utils.getStorageDir());
-    }
-
-    public static WebService getWebServieHandler() {
-        return webServieHandler;
-    }
-
-
-    public static void setCurrentUser(User currentUser) {
-        MyApp.currentUser = currentUser;
-    }
-
-    public static User getCurrentUser() {
-        return currentUser;
-    }
-
-    public static List<QualityInspectionReport> getQualityInspectionReports() {
-        return qualityInspectionReports;
-    }
-
-    public static void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
-        qualityInspectionReports.add(qualityInspectionReport);
     }
 }

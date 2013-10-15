@@ -34,7 +34,7 @@ public class LogoutDialog {
 
     private AlertDialog.Builder initDialog(final Activity activity, final boolean isOffDuty) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(isOffDuty ? "您确认要下班吗？" : "您确认要登出吗?");
+        builder.setTitle(isOffDuty ? "确认下班？" : "确认登出?");
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override

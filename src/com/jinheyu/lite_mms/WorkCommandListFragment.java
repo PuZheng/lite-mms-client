@@ -63,6 +63,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                 } else {
                     if (!isLoadingWorkCommandList) {
                         Intent intent = new Intent(getActivity(), getWorkCommandAcitityClass());
+                        intent.putExtra("symbol", getIntExtraSymbol());
                         intent.putExtra("workCommandId", getWorkCommandIdAtPosition(position));
                         getActivity().startActivity(intent);
                     }
@@ -84,6 +85,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
             }
         });
         return convertView;
+    }
+
+    protected int getIntExtraSymbol() {
+        return getSymbols()[STATUS_INDEX];
     }
 
     /**

@@ -44,7 +44,6 @@ import java.util.Map;
 public class CreateDeliveryTaskActivity extends FragmentActivity {
 
     private DeliverySession deliverySession;
-    private SubOrder subOrder;
     private List<StoreBillFragment> storeBillFragmentList;
     private StoreBillFragment fragmentHalfDelivered;
 
@@ -56,7 +55,7 @@ public class CreateDeliveryTaskActivity extends FragmentActivity {
         textViewStepName.setText(getString(R.string.step_n, getIntent().getBooleanExtra("selectOrderBypassed", false) ? "二" : "三") + ": " +
                 getString(R.string.handle_delivery_session));
         deliverySession = getIntent().getParcelableExtra("deliverySession");
-        subOrder = getIntent().getParcelableExtra("subOrder");
+        SubOrder subOrder = getIntent().getParcelableExtra("subOrder");
         storeBillFragmentList = new ArrayList<StoreBillFragment>();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         for (StoreBill storeBill : subOrder.getStoreBillList()) {

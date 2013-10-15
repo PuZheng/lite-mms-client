@@ -8,7 +8,6 @@ import com.jinheyu.lite_mms.Utils;
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.Customer;
 import com.jinheyu.lite_mms.data_structures.DeliverySession;
-import com.jinheyu.lite_mms.data_structures.DeliverySessionDetail;
 import com.jinheyu.lite_mms.data_structures.Department;
 import com.jinheyu.lite_mms.data_structures.Harbor;
 import com.jinheyu.lite_mms.data_structures.Order;
@@ -155,9 +154,9 @@ public class WebService {
         return ret;
     }
 
-    public DeliverySessionDetail getDeliverySessionDetail(int id) throws IOException, JSONException, BadRequest {
+    public DeliverySession getDeliverySession(int id) throws IOException, JSONException, BadRequest {
 
-        DeliverySessionDetail ret;
+        DeliverySession ret;
         Map<String, String> params = new LinkedHashMap<String, String>();
         params.put("id", String.valueOf(id));
         String url = composeUrl("delivery_ws", "delivery-session", params);
@@ -169,7 +168,7 @@ public class WebService {
         if (stateCode == HttpStatus.SC_OK) {
             JSONObject root = new JSONObject(result);
             String plate = root.getString("plate");
-            ret = new DeliverySessionDetail(id, plate);
+            ret = new DeliverySession(id, plate);
 
             JSONObject jsonObject = new JSONObject(result).getJSONObject("store_bills");
             Iterator iterator = jsonObject.keys();
@@ -415,6 +414,10 @@ public class WebService {
         return result;
     }
 
+    public boolean retrieveQualityInspectionReport() throws IOException, BadRequest, JSONException {
+        return false;
+    }
+
     public void submitQualityInspection(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, BadRequest, JSONException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", String.valueOf(Constants.ACT_QI));
@@ -426,9 +429,8 @@ public class WebService {
         if (params == null) {
             params = new HashMap<String, String>();
         }
-        params.put("work_command_id", String.valueOf(workCommandId));
         params.put("action", String.valueOf(action_code));
-        String url = composeUrl("manufacture_ws", "work-command", params);
+        String url = composeUrl("manufacture_ws", String.format("work-command/%d", workCommandId), params);
         HttpResponse response = sendRequest(url, "PUT", (String) null);
         String result = EntityUtils.toString(response.getEntity(), "utf-8");
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {

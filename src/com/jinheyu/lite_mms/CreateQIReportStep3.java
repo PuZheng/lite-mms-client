@@ -134,7 +134,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
             weight += qualityInspectionReport.getWeight() + "公斤";
             textViewWeight.setText(weight);
             builder.setView(view);
-            builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int position) {
 

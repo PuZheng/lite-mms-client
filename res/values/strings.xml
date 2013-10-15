@@ -104,9 +104,10 @@
     <string name="loading">加载中</string>
     <string name="loading_error">加载错误!请尝试刷新</string>
     <string name="warning">警告</string>
-    <string name="cancel">取消</string>
-    <string name="OK">确认</string>
     <string name="save">保存</string>
     <string name="unsave">不保存</string>
     <string name="next_step">下一步</string>
+    <string name="retrieve_quality_inspection_report">回收报告</string>
+    <string name="confirm_retrieve_qi">确认回收质检结果，工单%d？</string>
+    <string name="confirm_retrieve_qi_success">回收质检结果成功</string>
 </resources>

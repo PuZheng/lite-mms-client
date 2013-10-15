@@ -24,28 +24,24 @@ public class CreateQIReportStep1 extends Activity {
 
     private static final int SET_RESULT_CODE = 99;
     private WorkCommand workCommand;
-    private TextView textViewWorkCommandProcessedWeight;
-    private TextView textViewQualityInspectedWeight;
-    private TextView textViewHint;
     private EditText editTextQuantity;
     private EditText editTextWeight;
-    private TableRow tableRowQuantity;
     private Toast backToast;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_create_qi_report_step1);
-        this.textViewWorkCommandProcessedWeight = (TextView) findViewById(R.id.textViewWorkCommandProcessedWeight);
-        this.textViewQualityInspectedWeight = (TextView)findViewById(R.id.textViewQualityInspectedWeight);
-        this.textViewHint = (TextView) findViewById(R.id.textViewHint);
+        TextView textViewWorkCommandProcessedWeight = (TextView) findViewById(R.id.textViewWorkCommandProcessedWeight);
+        TextView textViewQualityInspectedWeight = (TextView) findViewById(R.id.textViewQualityInspectedWeight);
+        TextView textViewHint = (TextView) findViewById(R.id.textViewHint);
         this.editTextQuantity = (EditText) findViewById(R.id.editTextQuantity);
         this.editTextWeight = (EditText)findViewById(R.id.editTextWeight);
-        this.tableRowQuantity = (TableRow) findViewById(R.id.tableRowQuantity);
+        TableRow tableRowQuantity = (TableRow) findViewById(R.id.tableRowQuantity);
 
         this.workCommand = getIntent().getParcelableExtra("workCommand");
         if (workCommand.getOrderType() == Order.STANDARD_ORDER_TYPE) {
-            this.tableRowQuantity.setVisibility(View.GONE);
+            tableRowQuantity.setVisibility(View.GONE);
         }
         int qualityInspectedWeight = 0;
         for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {

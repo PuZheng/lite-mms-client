@@ -1,5 +1,6 @@
 package com.jinheyu.lite_mms;
 
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.jinheyu.lite_mms.data_structures.Customer;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 
 import org.json.JSONException;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,12 +28,13 @@ import java.util.Map;
 /**
  * Created by xc on 13-8-14.
  */
-public class SelectCustomerActivity extends PtrListActivity {
+public class SelectCustomerActivity extends ListActivity implements PullToRefreshAttacher.OnRefreshListener {
 
     private EditText editTextAbbr;
     private ProgressBar progressBar;
     private List<Map<String, Object>> appearedCustomerList = null;
     private List<Customer> customerList = null;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,20 +44,10 @@ public class SelectCustomerActivity extends PtrListActivity {
 
         editTextAbbr.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
             public void afterTextChanged(Editable editable) {
                 String needle = editable.toString();
                 appearedCustomerList.clear();
-                for (Customer customer: customerList) {
+                for (Customer customer : customerList) {
                     if (customer.getAbbr().startsWith(needle)) {
                         Map<String, Object> row = new HashMap<String, Object>();
                         row.put("name", customer.getName());
@@ -64,11 +57,21 @@ public class SelectCustomerActivity extends PtrListActivity {
                 }
                 ((SimpleAdapter) getListAdapter()).notifyDataSetChanged();
             }
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
         });
 
         appearedCustomerList = new ArrayList<Map<String, Object>>();
 
-        pullToRefreshInit();
+        mPullToRefreshAttacher = Utils.initPullToRereshAttacher(this);
 
         new GetCustomerListTask().execute();
     }
@@ -81,13 +84,6 @@ public class SelectCustomerActivity extends PtrListActivity {
     class GetCustomerListTask extends AsyncTask<Void, Void, Boolean> {
 
         private Exception ex = null;
-
-
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-            getListView().setVisibility(View.INVISIBLE);
-        }
 
         @Override
         protected Boolean doInBackground(Void... voids) {
@@ -140,7 +136,13 @@ public class SelectCustomerActivity extends PtrListActivity {
             });
             getListView().setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
-            getPullToRefreshAttacher().setRefreshComplete();
+            mPullToRefreshAttacher.setRefreshComplete();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+            getListView().setVisibility(View.INVISIBLE);
         }
     }
 }

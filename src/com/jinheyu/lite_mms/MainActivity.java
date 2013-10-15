@@ -2,6 +2,8 @@ package com.jinheyu.lite_mms;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -25,6 +27,25 @@ import java.io.IOException;
  */
 public class MainActivity extends Activity {
     AsyncTask<Void, Void, Void> task;
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.add("设置");
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = new Intent(MainActivity.this, MyPreferenceActivity.class);
+        startActivity(intent);
+        if (task != null) {
+            task.cancel(true);
+            task = null;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Called when the activity is starting.  This is where most initialization
@@ -89,25 +110,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.add("设置");
-        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent(MainActivity.this, MyPreferenceActivity.class);
-        startActivity(intent);
-        if (task != null) {
-            task.cancel(true);
-            task = null;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public class InitTask extends AsyncTask<Void, Void, Void> {
         Exception ex;
 
@@ -143,10 +145,6 @@ public class MainActivity extends Activity {
             return null;
         }
 
-        private void initDepartmentList() throws JSONException, IOException, BadRequest {
-            Department.initDepartmentCollection(MyApp.getWebServieHandler().getDepartmentList());
-        }
-
         /**
          * <p>Runs on the UI thread after {@link #doInBackground}. The
          * specified result is the value returned by {@link #doInBackground}.</p>
@@ -165,8 +163,22 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 MainActivity.this.finish();
             } else {
-                Utils.displayError(MainActivity.this, ex);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.error);
+                builder.setMessage(ex.getMessage());
+                builder.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                    }
+                });
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.show();
             }
+        }
+
+        private void initDepartmentList() throws JSONException, IOException, BadRequest {
+            Department.initDepartmentCollection(MyApp.getWebServieHandler().getDepartmentList());
         }
 
         private void initTeamList() throws IOException, JSONException, BadRequest {

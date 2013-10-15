@@ -3,4 +3,4 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public interface GetPullToRefreshAttacher {
     public PullToRefreshAttacher getPullToRefreshAttacher();
-};
+}

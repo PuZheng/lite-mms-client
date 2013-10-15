@@ -23,39 +23,6 @@ import java.util.List;
 public class QualityInspectorActivity extends WorkCommandListActivity {
 
     @Override
-    protected ArrayAdapter getArrayAdapter(int resource) {
-        return null;
-    }
-
-    @Override
-    protected FragmentPagerAdapter getFragmentPagerAdapter(int position) {
-        return new MyFragmentPagerAdapter(getSupportFragmentManager());
-    }
-
-    private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-
-        public MyFragmentPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return new MyWorkCommandListFragment(i==0);
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return position == 0? getString(R.string.quality_inspecting):
-                    getString(R.string.quality_inspected_today);
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.quality_inspector, menu);
         return super.onCreateOptionsMenu(menu);
@@ -73,12 +40,45 @@ public class QualityInspectorActivity extends WorkCommandListActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected ArrayAdapter getArrayAdapter(int resource) {
+        return null;
+    }
+
+    @Override
+    protected FragmentPagerAdapter getFragmentPagerAdapter(int position) {
+        return new MyFragmentPagerAdapter(getSupportFragmentManager());
+    }
+
+    private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
+
+        public MyFragmentPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return new MyWorkCommandListFragment(i == 0);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return position == 0 ? getString(R.string.quality_inspecting) :
+                    getString(R.string.quality_inspected_today);
+        }
+    }
+
     class MyWorkCommandListFragment extends WorkCommandListFragment {
 
-        private final boolean qualityInspecting;
+        private final int mStatus;
 
         public MyWorkCommandListFragment(boolean qualityInspecting) {
-            this.qualityInspecting = qualityInspecting;
+            this.mStatus = qualityInspecting ? Constants.STATUS_QUALITY_INSPECTING : Constants.STATUS_FINISHED;
         }
 
         @Override
@@ -87,28 +87,32 @@ public class QualityInspectorActivity extends WorkCommandListActivity {
         }
 
         @Override
-        protected void loadWorkCommandList() {
-            new GetWorkCommandListTask(qualityInspecting, this).execute();
-        }
-
-        class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
-            private final boolean qualityInspecting;
-
-            public GetWorkCommandListTask(boolean qualityInspecting, WorkCommandListFragment listFragment) {
-                super(listFragment);
-                this.qualityInspecting = qualityInspecting;
-            }
-
-            @Override
-            protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
-                int status = qualityInspecting? Constants.STATUS_QUALITY_INSPECTING: Constants.STATUS_FINISHED;
-                return MyApp.getWebServieHandler().getWorkCommandList(status);
-            }
+        protected int getIntExtraSymbol() {
+            return mStatus;
         }
 
         @Override
         protected Class<?> getWorkCommandAcitityClass() {
             return QualityInspectorWorkCommandActivity.class;
+        }
+
+        @Override
+        protected void loadWorkCommandList() {
+            new GetWorkCommandListTask(mStatus, this).execute();
+        }
+
+        class GetWorkCommandListTask extends AbstractGetWorkCommandListTask {
+            private final int currentStatus;
+
+            public GetWorkCommandListTask(int status, WorkCommandListFragment listFragment) {
+                super(listFragment);
+                currentStatus = status;
+            }
+
+            @Override
+            protected List<WorkCommand> getWorkCommandList() throws IOException, JSONException, BadRequest {
+                return MyApp.getWebServieHandler().getWorkCommandList(currentStatus);
+            }
         }
     }
 }

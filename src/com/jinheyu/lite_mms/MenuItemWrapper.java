@@ -324,6 +324,21 @@ public class MenuItemWrapper {
         ).show();
     }
 
+    public void retrieveQualityInspection(final WorkCommand workCommand) {
+        final int workCommandId = workCommand.getId();
+        newBuilder(mActivity.getString(R.string.confirm_retrieve_qi, workCommandId),
+                String.format("工单%d质检结果打回中", workCommandId),
+                new XProgressableRunnable.XRunnable() {
+                    @Override
+                    public Void run() throws Exception {
+                        MyApp.getWebServieHandler().updateWorkCommand(workCommandId, Constants.ACT_RETRIVE_QI, null);
+                        return null;
+                    }
+                },
+                mActivity.getString(R.string.confirm_retrieve_qi_success, workCommandId)
+        ).show();
+    }
+
     private void _addWeightToServer(final boolean isFinished, final WorkCommand workCommand, final int weight, final int cnt) {
         XProgressableRunnable.Builder builder = new XProgressableRunnable.Builder(mActivity);
         builder.msg(mActivity.getString(R.string.add_work_command_weight));
@@ -347,7 +362,7 @@ public class MenuItemWrapper {
                     mActivity.onNavigateUp();
                 } else {
                     if (mActivity instanceof WorkCommandActivity) {
-                        new GetWorkCommandTask((WorkCommandActivity) mActivity).execute();
+                        new GetWorkCommandAsyncTask((WorkCommandActivity) mActivity).execute(workCommand.getId());
                     }
                 }
             }
@@ -477,7 +492,6 @@ public class MenuItemWrapper {
                             @Override
                             public void run() {
                                 if (mActionMode == null) {
-
                                     mActivity.onNavigateUp();
                                 } else {
                                     mActionMode.finish();
