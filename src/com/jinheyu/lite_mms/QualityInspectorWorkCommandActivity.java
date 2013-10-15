@@ -416,7 +416,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CREATE_QUALITY_INSPECTION_REPORT_CODE && resultCode == RESULT_OK) {
             QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
-            ((BaseAdapter)qualityInspectionReportListFragment.getListAdapter()).notifyDataSetChanged();
+            ((BaseAdapter) qualityInspectionReportListFragment.getListAdapter()).notifyDataSetChanged();
             qualityInspectionReportListFragment.setModified(true);
         }
     }

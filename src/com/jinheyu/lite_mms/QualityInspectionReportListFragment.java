@@ -21,7 +21,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     private View mask;
     private View main;
     private View error;
-    private View noItems;
     private boolean loading;
     private TextView textViewWorkCommandProcessed;
     private TextView textViewQualityInspected;
@@ -38,7 +37,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         mask = rootView.findViewById(R.id.linearLayoutMask);
         main = rootView.findViewById(R.id.linearLayoutMain);
         error = rootView.findViewById(R.id.linearyLayoutError);
-        noItems = rootView.findViewById(R.id.scrollViewNoItems);
 
         textViewWorkCommandProcessed = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeight);
         textViewQualityInspected = (TextView) rootView.findViewById(R.id.textViewQualityInspectedWeight);
@@ -51,7 +49,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         mask.setVisibility(View.GONE);
         error.setVisibility(View.VISIBLE);
         main.setVisibility(View.GONE);
-        noItems.setVisibility(View.GONE);
     }
 
     @Override
@@ -61,15 +58,13 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         for (QualityInspectionReport qualityInspectionReport : workCommand.getQualityInspectionReportList()) {
             MyApp.addQualityInspectionReport(qualityInspectionReport);
         }
-        if (MyApp.getQualityInspectionReports().isEmpty()) {
-            noItems.setVisibility(View.VISIBLE);
-            main.setVisibility(View.GONE);
-        } else {
+        main.setVisibility(View.VISIBLE);
+        setTextViewQualityInspected();
+        setTextViewProcessed();
+        if (getListAdapter() == null) {
             setListAdapter(new MyAdapter());
-            main.setVisibility(View.VISIBLE);
-            noItems.setVisibility(View.GONE);
-            setTextViewQualityInspected();
-            setTextViewProcessed();
+        } else {
+            ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
         }
         loading = false;
         modified = false;
@@ -102,11 +97,10 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     private void mask() {
-        if (mask != null && error != null && main != null && noItems != null) {
+        if (mask != null && error != null && main != null) {
             mask.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
             error.setVisibility(View.GONE);
-            noItems.setVisibility(View.GONE);
         }
     }
 
@@ -131,7 +125,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     public void setModified(boolean b) {
         modified = b;
     }
-
 
     private class MyAdapter extends BaseAdapter {
 

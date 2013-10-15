@@ -13,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,7 @@ import java.io.InputStream;
  */
 public class CreateQIReportStep3 extends FragmentActivity {
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    private static final String TAG = "CreateQIREportStep3";
     private ImageView imageView;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +108,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.create_qi_reports_step3, menu);
+        getMenuInflater().inflate(R.menu.create_qi_report_step3, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -132,7 +134,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
             weight += qualityInspectionReport.getWeight() + "公斤";
             textViewWeight.setText(weight);
             builder.setView(view);
-            builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int position) {
 
@@ -165,6 +167,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
                             ImageCache.getInstance(getActivity()).addBitmapToCache(Utils.getMd5Hash(url), inputStream);
                             qualityInspectionReport.setPicUrl(url);
                             MyApp.addQualityInspectionReport(qualityInspectionReport);
+                            Log.d(TAG, "add quality inspection report");
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }

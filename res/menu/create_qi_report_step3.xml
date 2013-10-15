@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/action_submit"
-        android:title="提交"
+        android:title="确认"
         android:showAsAction="always" />
 
 </menu>
