@@ -11,13 +11,12 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
-
 import android.view.View;
+import android.widget.ImageView;
+
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.User;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +26,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 /**
  * Created by xc on 13-8-13.
@@ -237,4 +239,18 @@ public class Utils {
         return workCommand.measured_by_weight() ? String.format("%d 公斤", weight) :
                 String.format("%d 公斤/%d %s", weight, quantity, workCommand.getUnit());
     }
+
+    public static int calculateSampleSize(ImageView mImageView) {
+        // 按500w（2560×1920）像素， 720×1280屏幕计算
+        if (mImageView.getScaleType() == ImageView.ScaleType.MATRIX) {
+            return 1;
+        }
+        if (mImageView.getMeasuredHeight() == 0 && mImageView.getMeasuredWidth() == 0) {
+            return 2;
+        }
+        Log.d(TAG, "sample size: " + 16);
+        return 16;
+    }
+
+
 }

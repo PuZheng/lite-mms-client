@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jinheyu.lite_mms.data_structures.Constants;
-import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -221,9 +220,10 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         builder.after(new Runnable() {
             @Override
             public void run() {
+                // 删除对应的本地图片
                 for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {
-                    if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
-                        new File(qualityInspectionReport.getPicLocalPath()).delete();
+                    if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
+                        new File(qualityInspectionReport.getLocalPicPath()).delete();
                     }
                 }
                 finish();
@@ -368,8 +368,8 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 public void run() {
                     // clear the local pictures
                     for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {
-                        if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
-                            new File(qualityInspectionReport.getPicLocalPath()).delete();
+                        if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
+                            new File(qualityInspectionReport.getLocalPicPath()).delete();
                         }
                     }
                     finish();

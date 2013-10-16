@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -51,29 +51,25 @@ public class CreateQIReportStep1 extends Activity {
         textViewQualityInspectedWeight.setText(String.valueOf(qualityInspectedWeight) + "公斤");
         textViewWorkCommandProcessedWeight.setText(String.valueOf(workCommand.getProcessedWeight()) + "公斤");
         textViewHint.setText(String.format("估计待质检重量为%d公斤", workCommand.getProcessedWeight() - qualityInspectedWeight));
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(editTextWeight, InputMethodManager.SHOW_FORCED);
-    }
+        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(editTextWeight, 0);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.create_qi_report_step1, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CreateQIReportStep1.this, CreateQIReportStep2.class);
+                intent.putExtra("workCommand", CreateQIReportStep1.this.workCommand);
+                QualityInspectionReport qualityInspectionReport = new QualityInspectionReport();
+                qualityInspectionReport.setWeight(Integer.valueOf(CreateQIReportStep1.this.editTextWeight.getText().toString()));
+                if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                    qualityInspectionReport.setQuantity(Integer.valueOf(CreateQIReportStep1.this.editTextQuantity.getText().toString()));
+                }
+                intent.putExtra("qualityInspectionReport", qualityInspectionReport);
+                startActivityForResult(intent, SET_RESULT_CODE);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_next_step) {
-            Intent intent = new Intent(CreateQIReportStep1.this, CreateQIReportStep2.class);
-            intent.putExtra("workCommand", this.workCommand);
-            QualityInspectionReport qualityInspectionReport = new QualityInspectionReport();
-            qualityInspectionReport.setWeight(Integer.valueOf(this.editTextWeight.getText().toString()));
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                qualityInspectionReport.setQuantity(Integer.valueOf(this.editTextQuantity.getText().toString()));
             }
-            intent.putExtra("qualityInspectionReport", qualityInspectionReport);
-            startActivityForResult(intent, SET_RESULT_CODE);
-        }
-        return super.onOptionsItemSelected(item);
+        });
     }
 
     @Override

@@ -21,7 +21,6 @@ public class QualityInspectionReport implements Parcelable {
     private int actorId;
     private String picUrl;
     private String localPicPath;
-    private String picLocalPath;
 
     public QualityInspectionReport(int id, int quantity, int weight, int result,
                                    int actorId, String picUrl) {
@@ -145,7 +144,7 @@ public class QualityInspectionReport implements Parcelable {
         this.localPicPath = localPicPath;
     }
 
-    public String getPicLocalPath() {
-        return picLocalPath;
+    public String getLocalPicPath() {
+        return localPicPath;
     }
 }

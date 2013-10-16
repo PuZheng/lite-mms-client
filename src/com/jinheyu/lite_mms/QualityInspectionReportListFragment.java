@@ -2,6 +2,8 @@ package com.jinheyu.lite_mms;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -11,9 +13,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 class QualityInspectionReportListFragment extends ListFragment implements UpdateWorkCommand {
     private View mask;
@@ -155,7 +162,31 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             final QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
-            new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
+            // 若有对应的本地图片，读取本地对应的图片。注意，若是重新加载的质检报告列表，本地图片都是空的，所以也不存在会
+            // 读取之前遗留的本地图片的问题
+            if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
+                InputStream in = null;
+                try {
+                    in = new FileInputStream(new File(qualityInspectionReport.getLocalPicPath()));
+                    if (in != null) {
+                        BufferedInputStream bufferedInputStream = new BufferedInputStream(in, 1024);
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = false;
+                        options.inPreferredConfig = Bitmap.Config.RGB_565;
+                        options.inPurgeable = true;
+                        options.inInputShareable = true;
+                        options.inSampleSize = Utils.calculateSampleSize(viewHolder.imageButton);
+                        Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream, null, options);
+                        viewHolder.imageButton.setImageBitmap(bitmap);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else if (!Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
+                new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
+            } else {
+                viewHolder.imageButton.setImageResource(R.drawable.content_picture);
+            }
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
             viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
                 @Override

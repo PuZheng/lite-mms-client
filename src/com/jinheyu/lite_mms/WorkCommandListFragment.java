@@ -6,15 +6,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.method.ScrollingMovementMethod;
-import android.view.*;
-import android.widget.*;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public abstract class WorkCommandListFragment extends ListFragment implements PullToRefreshAttacher.OnRefreshListener {
     /**
@@ -123,6 +134,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "on resume");
         mProgressDialog = newProgressDialog();
         loadWorkCommandList();
     }

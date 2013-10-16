@@ -131,5 +131,16 @@
             android:id="@+id/textViewHint" />
     </TableLayout>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next_step"
+        android:id="@+id/button"
+        android:layout_gravity="center"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp" />
+
 
 </LinearLayout>

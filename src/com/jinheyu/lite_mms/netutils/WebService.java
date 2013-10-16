@@ -690,26 +690,29 @@ public class WebService {
         ds.writeBytes(qirList.toString());
         ds.writeBytes("\r\n");
 
-        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
-            ds.writeBytes("--" + boundary + "\r\n");
-            ds.writeBytes("Content-Disposition: form-data;name=\""+ qualityInspectionReport.getId() + "\";filename=\"" + qualityInspectionReport.getId()+".jpeg\"\r\n\r\n");
-            ImageCache imageCache = ImageCache.getInstance(this.context);
-            synchronized (imageCache.getLock()) {
-                FileInputStream fileInputStream;
-                // 首先尝试去读取qir对应的本地图片，所有的本地图片都会
-                if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
-                    fileInputStream = (FileInputStream) new FileInputStream(new File(qualityInspectionReport.getPicLocalPath()));
-                } else {
-                    fileInputStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
-                }
-                int bufferSize = 1024;
-                byte[] buffer = new byte[bufferSize];
-                int length;
-                while ((length = fileInputStream.read(buffer)) != -1) {
-                    ds.write(buffer, 0, length);
-                }
-                ds.writeBytes("\r\n");
+        ImageCache imageCache = ImageCache.getInstance(this.context);
+        for (int i=0; i < qualityInspectionReports.size(); ++i) {
+            QualityInspectionReport qualityInspectionReport = qualityInspectionReports.get(i);
+            if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath()) || !Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
+                ds.writeBytes("--" + boundary + "\r\n");
+                ds.writeBytes("Content-Disposition: form-data;name=\""+ i + "\";filename=\"" + i +".jpeg\"\r\n\r\n");
+                synchronized (imageCache.getLock()) {
+                    FileInputStream fileInputStream;
+                    // 首先尝试去读取qir对应的本地图片，所有修改过的质检报告都会产生本地图片
+                    if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
+                        fileInputStream = new FileInputStream(new File(qualityInspectionReport.getLocalPicPath()));
+                    } else {
+                        fileInputStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
+                    }
+                    int bufferSize = 1024;
+                    byte[] buffer = new byte[bufferSize];
+                    int length;
+                    while ((length = fileInputStream.read(buffer)) != -1) {
+                        ds.write(buffer, 0, length);
+                    }
+                    ds.writeBytes("\r\n");
 
+                }
             }
         }
         ds.writeBytes("--" + boundary + "--\r\n");
