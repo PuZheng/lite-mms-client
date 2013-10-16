@@ -5,12 +5,12 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.util.Log;
 
 public class ImageActivity extends Activity {
 

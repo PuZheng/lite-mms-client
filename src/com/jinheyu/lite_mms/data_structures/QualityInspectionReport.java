@@ -20,6 +20,8 @@ public class QualityInspectionReport implements Parcelable {
     private int result;
     private int actorId;
     private String picUrl;
+    private String localPicPath;
+    private String picLocalPath;
 
     public QualityInspectionReport(int id, int quantity, int weight, int result,
                                    int actorId, String picUrl) {
@@ -38,6 +40,7 @@ public class QualityInspectionReport implements Parcelable {
         result = in.readInt();
         actorId = in.readInt();
         picUrl = in.readString();
+        localPicPath = in.readString();
     }
 
     public QualityInspectionReport() {
@@ -105,6 +108,7 @@ public class QualityInspectionReport implements Parcelable {
         dest.writeInt(result);
         dest.writeInt(actorId);
         dest.writeString(picUrl);
+        dest.writeString(localPicPath);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -135,5 +139,13 @@ public class QualityInspectionReport implements Parcelable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setLocalPicPath(String localPicPath) {
+        this.localPicPath = localPicPath;
+    }
+
+    public String getPicLocalPath() {
+        return picLocalPath;
     }
 }

@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -694,11 +695,17 @@ public class WebService {
             ds.writeBytes("Content-Disposition: form-data;name=\""+ qualityInspectionReport.getId() + "\";filename=\"" + qualityInspectionReport.getId()+".jpeg\"\r\n\r\n");
             ImageCache imageCache = ImageCache.getInstance(this.context);
             synchronized (imageCache.getLock()) {
-                FileInputStream fStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
+                FileInputStream fileInputStream;
+                // 首先尝试去读取qir对应的本地图片，所有的本地图片都会
+                if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
+                    fileInputStream = (FileInputStream) new FileInputStream(new File(qualityInspectionReport.getPicLocalPath()));
+                } else {
+                    fileInputStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
+                }
                 int bufferSize = 1024;
                 byte[] buffer = new byte[bufferSize];
                 int length;
-                while ((length = fStream.read(buffer)) != -1) {
+                while ((length = fileInputStream.read(buffer)) != -1) {
                     ds.write(buffer, 0, length);
                 }
                 ds.writeBytes("\r\n");

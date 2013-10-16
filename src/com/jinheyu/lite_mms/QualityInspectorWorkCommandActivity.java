@@ -31,6 +31,7 @@ import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,12 +121,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         new GetWorkCommandAsyncTask(this).execute(workCommandId);
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        QualityInspectionReportListFragment qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
-//        qualityInspectionReportListFragment.setTextViewQualityInspected();
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -226,6 +221,11 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
         builder.after(new Runnable() {
             @Override
             public void run() {
+                for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {
+                    if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
+                        new File(qualityInspectionReport.getPicLocalPath()).delete();
+                    }
+                }
                 finish();
             }
         });
@@ -374,6 +374,12 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             builder.after(new Runnable() {
                 @Override
                 public void run() {
+                    // clear the local pictures
+                    for (QualityInspectionReport qualityInspectionReport: MyApp.getQualityInspectionReports()) {
+                        if (!Utils.isEmptyString(qualityInspectionReport.getPicLocalPath())) {
+                            new File(qualityInspectionReport.getPicLocalPath()).delete();
+                        }
+                    }
                     finish();
                 }
             });

@@ -144,6 +144,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
                 public void onClick(DialogInterface dialogInterface, int position) {
 
                     boolean mergedWithOld = false;
+                    String picFileName = "";
                     for (int i=0; i < MyApp.getQualityInspectionReports().size(); ++i) {
                         QualityInspectionReport oldQualityInspectionReport = MyApp.getQualityInspectionReports().get(i);
                         if (oldQualityInspectionReport.getResult() == qualityInspectionReport.getResult()) {
@@ -152,10 +153,10 @@ public class CreateQIReportStep3 extends FragmentActivity {
                                 oldQualityInspectionReport.setQuantity(qualityInspectionReport.getQuantity() + oldQualityInspectionReport.getQuantity());
                             }
                             try {
-                                String url = getFakeQIReportUrl(workCommand, i);
+                                picFileName = getFakeQIReportPicPath(workCommand, i);
                                 InputStream inputStream = new FileInputStream(new File(Utils.getTempQIReportPicUri().getPath()));
-                                ImageCache.getInstance(getActivity()).addBitmapToCache(Utils.getMd5Hash(url), inputStream);
-                                oldQualityInspectionReport.setPicUrl(url);
+                                ImageCache.getInstance(getActivity()).addBitmapToCache(Utils.getMd5Hash(picFileName), inputStream);
+                                oldQualityInspectionReport.setLocalPicPath(picFileName);
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
@@ -168,16 +169,18 @@ public class CreateQIReportStep3 extends FragmentActivity {
                         InputStream inputStream = null;
                         try {
                             inputStream = new FileInputStream(new File(Utils.getTempQIReportPicUri().getPath()));
-                            String url = getFakeQIReportUrl(workCommand, MyApp.getQualityInspectionReports().size());
-                            ImageCache.getInstance(getActivity()).addBitmapToCache(Utils.getMd5Hash(url), inputStream);
-                            qualityInspectionReport.setPicUrl(url);
+                            picFileName = getFakeQIReportPicPath(workCommand, MyApp.getQualityInspectionReports().size());
+                            ImageCache.getInstance(getActivity()).addBitmapToCache(Utils.getMd5Hash(picFileName), inputStream);
+                            qualityInspectionReport.setLocalPicPath(picFileName);
                             MyApp.addQualityInspectionReport(qualityInspectionReport);
                             Log.d(TAG, "add quality inspection report");
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
                     }
-                    new File(Utils.getTempQIReportPicUri().getPath()).delete();
+                    File to = new File(picFileName);
+                    File from = new File(Utils.getTempQIReportPicUri().getPath());
+                    from.renameTo(to);
                     CreateQIReportStep3.this.setResult(RESULT_OK);
                     finish();
                 }
@@ -186,7 +189,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
             return builder.create();
         }
 
-        private String getFakeQIReportUrl(WorkCommand workCommand, int i) {
+        private String getFakeQIReportPicPath(WorkCommand workCommand, int i) {
             return "qir-" + workCommand.getId() + "-" + i + ".jpeg";
         }
     }
