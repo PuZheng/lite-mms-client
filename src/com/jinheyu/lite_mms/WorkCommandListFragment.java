@@ -242,7 +242,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         viewHolder.customerTextView.setText(workCommand.getCustomerName());
         viewHolder.productTextView.setText(workCommand.getProductName());
 
-        viewHolder.orgWeightTextView.setText(workCommand.measured_by_weight() ? String.format("%d千克", workCommand.getOrgWeight()) : String.format("%d千克/%d%s", workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand.getUnit()));
+        viewHolder.orgWeightTextView.setText(Utils.getWeightAndQuantity(workCommand.getOrgWeight(), workCommand.getOrgCnt(), workCommand));
         viewHolder.specTypeTextView.setText(String.format("(%s-%s)",
                 Utils.isEmptyString(workCommand.getSpec()) ? "  " : workCommand.getSpec(),
                 Utils.isEmptyString(workCommand.getType()) ? "  " : workCommand.getType()));

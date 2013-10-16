@@ -13,7 +13,9 @@ import android.util.Log;
 import android.util.Pair;
 
 import android.view.View;
+import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.User;
+import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
@@ -225,5 +227,14 @@ public class Utils {
         }else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public static String getQIRWeightAndQuantity(QualityInspectionReport report, WorkCommand workCommand) {
+        return getWeightAndQuantity(report.getWeight(), report.getQuantity(), workCommand);
+    }
+
+    public static String getWeightAndQuantity(int weight, int quantity, WorkCommand workCommand) {
+        return workCommand.measured_by_weight() ? String.format("%d 公斤", weight) :
+                String.format("%d 公斤/%d %s", weight, quantity, workCommand.getUnit());
     }
 }

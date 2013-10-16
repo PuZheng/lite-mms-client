@@ -132,12 +132,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
             final QualityInspectionReport qualityInspectionReport = getIntent().getParcelableExtra("qualityInspectionReport");
             final WorkCommand workCommand = getIntent().getParcelableExtra("workCommand");
             textViewResult.setText(qualityInspectionReport.getLiterableResult());
-            String weight = "";
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                weight = qualityInspectionReport.getQuantity() + "件; ";
-            }
-            weight += qualityInspectionReport.getWeight() + "公斤";
-            textViewWeight.setText(weight);
+            textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
             builder.setView(view);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -149,7 +144,7 @@ public class CreateQIReportStep3 extends FragmentActivity {
                         QualityInspectionReport oldQualityInspectionReport = MyApp.getQualityInspectionReports().get(i);
                         if (oldQualityInspectionReport.getResult() == qualityInspectionReport.getResult()) {
                             oldQualityInspectionReport.setWeight(qualityInspectionReport.getWeight() + oldQualityInspectionReport.getWeight());
-                            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                            if (!workCommand.measured_by_weight()) {
                                 oldQualityInspectionReport.setQuantity(qualityInspectionReport.getQuantity() + oldQualityInspectionReport.getQuantity());
                             }
                             try {

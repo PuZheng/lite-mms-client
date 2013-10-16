@@ -24,6 +24,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     private TextView textViewQualityInspected;
     private boolean modified;
     private WorkCommand workCommand;
+    private TextView textViewWorkCommandProcessedRow;
 
     public QualityInspectionReportListFragment() {
     }
@@ -54,7 +55,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         mask = rootView.findViewById(R.id.linearLayoutMask);
         main = rootView.findViewById(R.id.linearLayoutMain);
         error = rootView.findViewById(R.id.linearyLayoutError);
-
+        textViewWorkCommandProcessedRow = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeightRow);
         textViewWorkCommandProcessed = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeight);
         textViewQualityInspected = (TextView) rootView.findViewById(R.id.textViewQualityInspectedWeight);
 
@@ -106,22 +107,18 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     private void setTextViewProcessed() {
-        textViewWorkCommandProcessed.setText(workCommand.getProcessedWeight() + "公斤");
+        textViewWorkCommandProcessedRow.setText(workCommand.measured_by_weight() ? "工单重量:" : "工单重量/数量:");
+        textViewWorkCommandProcessed.setText(Utils.getWeightAndQuantity(workCommand.getProcessedWeight(), workCommand.getProcessedCnt(), workCommand));
     }
 
     public void setTextViewQualityInspected() {
         int qualityInspectedCnt = 0;
-        int qualityInspectedweight = 0;
+        int qualityInspectedWeight = 0;
         for (QualityInspectionReport qir : MyApp.getQualityInspectionReports()) {
             qualityInspectedCnt += qir.getQuantity();
-            qualityInspectedweight += qir.getWeight();
+            qualityInspectedWeight += qir.getWeight();
         }
-        String qualityInspected = "";
-        if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-            qualityInspected += qualityInspectedCnt + "件";
-        }
-        qualityInspected += qualityInspectedweight + "公斤";
-        textViewQualityInspected.setText(qualityInspected);
+        textViewQualityInspected.setText(Utils.getWeightAndQuantity(qualityInspectedWeight, qualityInspectedCnt, workCommand));
     }
 
     private class MyAdapter extends BaseAdapter {
@@ -160,10 +157,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             final QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
             new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
-            String weight = "";
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                weight = qualityInspectionReport.getQuantity() + "件";
-            }
             viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -183,8 +176,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                     builder.show();
                 }
             });
-            weight += qualityInspectionReport.getWeight() + "公斤";
-            viewHolder.textViewWeight.setText(weight);
+            viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
             return convertView;
         }
 

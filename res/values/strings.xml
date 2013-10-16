@@ -83,7 +83,7 @@
     <string name="refuse">打回</string>
     <string name="confirm_refuse">确认打回工单%s？</string>
     <string name="confirm_refuse_success">打回工单%s成功</string>
-    <string name="confirm_processed_weight">请确认工序后重量（千克）</string>
+    <string name="confirm_processed_weight">请确认工序后重量（公斤）</string>
     <string name="confirm_processed_quantity">请确认工序后数量（%s）</string>
     <string name="org_weight">工序前重量</string>
     <string name="org_weight_and_cnt">工序前重量/数量</string>
