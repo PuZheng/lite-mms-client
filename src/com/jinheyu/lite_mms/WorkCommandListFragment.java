@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
 import java.util.ArrayList;
@@ -258,7 +259,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         viewHolder.specTypeTextView.setText(String.format("(%s-%s)",
                 Utils.isEmptyString(workCommand.getSpec()) ? "  " : workCommand.getSpec(),
                 Utils.isEmptyString(workCommand.getType()) ? "  " : workCommand.getType()));
-        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute();
+        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute(Constants.SMALL_SAMPLE_SIZE);
     }
 
     private boolean startActionMode() {

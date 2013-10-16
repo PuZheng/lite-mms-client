@@ -8,12 +8,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.util.Log;
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.netutils.ImageCache;
 
 /**
  * Created by <a href='https://github.com/abc549825'>abc549825@163.com</a> at 09-23.
  */
-public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
+public class GetImageTask extends AsyncTask<Integer, Void, Bitmap> {
 
     private Exception ex;
     private String mKey;
@@ -35,25 +36,18 @@ public class GetImageTask extends AsyncTask<Void, Void, Bitmap> {
         mImageCache = ImageCache.getInstance(mImageView.getContext());
     }
 
-    private int calculateSampleSize(ImageView mImageView) {
-        // 按500w（2560×1920）像素， 720×1280屏幕计算
-        if (mImageView.getScaleType() == ImageView.ScaleType.MATRIX) {
-            return 1;
-        }
-        if (mImageView.getMeasuredHeight() == 0 && mImageView.getMeasuredWidth() == 0) {
-            return 2;
-        }
-        Log.d(TAG, "sample size: " + 16);
-        return 16;
-    }
-
     @Override
-    protected Bitmap doInBackground(Void... params) {
+    protected Bitmap doInBackground(Integer... params) {
         mImageView.setTag(mUrl);
         if (Utils.isEmptyString(mUrl)) {
             return null;
         }
-        final int sampleSize = calculateSampleSize(mImageView);
+        int sampleSize;
+        try {
+            sampleSize = params[0];
+        } catch (IndexOutOfBoundsException e) {
+            sampleSize = Constants.LARGE_SAMPLE_SIZE;
+        }
         try {
             Log.d(TAG, "try to get bitmap from cache " + mKey);
             Bitmap bitmap = mImageCache.getBitmapFromDiskCache(mKey, sampleSize);

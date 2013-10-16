@@ -240,17 +240,4 @@ public class Utils {
                 String.format("%d 公斤/%d %s", weight, quantity, workCommand.getUnit());
     }
 
-    public static int calculateSampleSize(ImageView mImageView) {
-        // 按500w（2560×1920）像素， 720×1280屏幕计算
-        if (mImageView.getScaleType() == ImageView.ScaleType.MATRIX) {
-            return 1;
-        }
-        if (mImageView.getMeasuredHeight() == 0 && mImageView.getMeasuredWidth() == 0) {
-            return 2;
-        }
-        Log.d(TAG, "sample size: " + 16);
-        return 16;
-    }
-
-
 }

@@ -45,5 +45,12 @@ public interface Constants {
     int HT_NORMAL = 1;// 正常加工
     int HT_REPLATE = 2;// 返镀
     int HT_REPAIRE = 3;// 返修
+
+    /**
+     * 图片sampleSize
+     */
+    int LARGE_SAMPLE_SIZE = 1;
+    int MIDDLE_SAMPLE_SIZE = 2;
+    int SMALL_SAMPLE_SIZE = 16;
 }
 

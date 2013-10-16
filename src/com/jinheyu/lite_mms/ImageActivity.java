@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import com.jinheyu.lite_mms.data_structures.Constants;
 
 public class ImageActivity extends Activity {
 
@@ -25,7 +26,7 @@ public class ImageActivity extends Activity {
         String url = getIntent().getStringExtra("imageUrl");
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
         Log.d(TAG, "get url " + url);
-        new GetImageTask(imageView, url).execute();
+        new GetImageTask(imageView, url).execute(Constants.LARGE_SAMPLE_SIZE);
         imageView.setOnTouchListener(new MulitPointTouchListener());
     }
 }

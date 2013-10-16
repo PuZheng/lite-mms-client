@@ -13,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -175,7 +176,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                         options.inPreferredConfig = Bitmap.Config.RGB_565;
                         options.inPurgeable = true;
                         options.inInputShareable = true;
-                        options.inSampleSize = Utils.calculateSampleSize(viewHolder.imageButton);
+                        options.inSampleSize = Constants.SMALL_SAMPLE_SIZE;
                         Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream, null, options);
                         viewHolder.imageButton.setImageBitmap(bitmap);
                     }
@@ -183,7 +184,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                     e.printStackTrace();
                 }
             } else if (!Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
-                new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
+                new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute(Constants.SMALL_SAMPLE_SIZE);
             } else {
                 viewHolder.imageButton.setImageResource(R.drawable.content_picture);
             }

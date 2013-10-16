@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
 
+import android.util.Log;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.jinheyu.lite_mms.Utils;
 
@@ -122,6 +123,7 @@ public class ImageCache {
                 }
             }
             if (mDiskLruCache != null) {
+                Log.d("samplesize", String.valueOf(sampleSize));
                 return getBitmap(key, sampleSize);
             }
         }

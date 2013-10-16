@@ -11,6 +11,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
 import java.util.ArrayList;
@@ -156,7 +157,7 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
 
     private void _setPic() {
         ImageButton imageButton = (ImageButton) rootView.findViewById(R.id.image);
-        new GetImageTask(imageButton, mWorkCommand.getPicPath()).execute();
+        new GetImageTask(imageButton, mWorkCommand.getPicPath()).execute(Constants.MIDDLE_SAMPLE_SIZE);
     }
 
     private void _setProcedureAndPreviousProcedure() {
