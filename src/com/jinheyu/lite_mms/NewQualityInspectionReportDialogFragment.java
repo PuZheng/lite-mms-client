@@ -40,32 +40,21 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int position) {
 
-                boolean mergedWithOld = false;
                 String picFileName = "";
                 File from = new File(Utils.getTempQIReportPicUri().getPath());
-                for (int i=0; i < MyApp.getQualityInspectionReports().size(); ++i) {
-                    QualityInspectionReport oldQualityInspectionReport = MyApp.getQualityInspectionReports().get(i);
-                    if (oldQualityInspectionReport.getResult() == qualityInspectionReport.getResult()) {
-                        oldQualityInspectionReport.setWeight(qualityInspectionReport.getWeight() + oldQualityInspectionReport.getWeight());
-                        if (!workCommand.measured_by_weight()) {
-                            oldQualityInspectionReport.setQuantity(qualityInspectionReport.getQuantity() + oldQualityInspectionReport.getQuantity());
-                        }
-                        if (from.exists()) {
-                            picFileName = getFakeQIReportPicPath(workCommand, i);
-                            oldQualityInspectionReport.setLocalPicPath(picFileName);
-                        }
-                        mergedWithOld = true;
-                        break;
-                    }
-                }
-                if (!mergedWithOld) {
-                    if (from.exists()) {
-                        picFileName = getFakeQIReportPicPath(workCommand, MyApp.getQualityInspectionReports().size());
-                        qualityInspectionReport.setLocalPicPath(picFileName);
-                    }
+                QualityInspectionReport targetQualityInspectionReport = MyApp.getQualityInspectionReport(qualityInspectionReport.getResult());
+                if (targetQualityInspectionReport == null) {
                     MyApp.addQualityInspectionReport(qualityInspectionReport);
+                    targetQualityInspectionReport = qualityInspectionReport;
+                } else {
+                    targetQualityInspectionReport.setWeight(qualityInspectionReport.getWeight() + targetQualityInspectionReport.getWeight());
+                    if (!workCommand.measured_by_weight()) {
+                        targetQualityInspectionReport.setQuantity(qualityInspectionReport.getQuantity() + targetQualityInspectionReport.getQuantity());
+                    }
                 }
                 if (from.exists()) {
+                    picFileName = getFakeQIReportPicPath(targetQualityInspectionReport.getResult());
+                    targetQualityInspectionReport.setLocalPicPath(picFileName);
                     File to = new File(picFileName);
                     from.renameTo(to);
                 }
@@ -77,7 +66,7 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private String getFakeQIReportPicPath(WorkCommand workCommand, int i) {
-        return Utils.getStorageDir() + "qir-" + workCommand.getId() + "-" + i + ".jpeg";
+    private String getFakeQIReportPicPath(int i) {
+        return Utils.getStorageDir() + "qir-" + "-" + i + ".jpeg";
     }
 }

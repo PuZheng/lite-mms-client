@@ -40,6 +40,15 @@ public class MyApp extends Application {
         return qualityInspectionReports;
     }
 
+    public static QualityInspectionReport getQualityInspectionReport(int result) {
+        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+            if (qualityInspectionReport.getResult() == result) {
+                return qualityInspectionReport;
+            }
+        }
+        return null;
+    }
+
     public static WebService getWebServieHandler() {
         return webServieHandler;
     }
