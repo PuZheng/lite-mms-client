@@ -17,24 +17,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.jinheyu.lite_mms.data_structures.User;
-import com.jinheyu.lite_mms.netutils.BadRequest;
 import com.jinheyu.lite_mms.netutils.ValidationError;
 
-import org.json.JSONException;
 
 import java.io.IOException;
 
 public class LogInActivity extends Activity {
 
-	private EditText editTextUsername = null;
-	private Button buttonLogin = null;
-	private EditText editTextPassword = null;
+    private EditText editTextUsername = null;
+    private EditText editTextPassword = null;
     private TextView textViewError;
 
     @Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         User user = Utils.readUserPrefs(this);
         if (user != null) {
             Intent detailIntent = new Intent(this, user.getDefaultActivity());
@@ -46,11 +42,11 @@ public class LogInActivity extends Activity {
 
         setContentView(R.layout.activity_log_in);
 
-		this.editTextUsername = (EditText) findViewById(R.id.editTextUserName);
-		this.editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        this.editTextUsername = (EditText) findViewById(R.id.editTextUserName);
+        this.editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         this.textViewError = (TextView) findViewById(R.id.textViewError);
-		this.buttonLogin = (Button) findViewById(R.id.buttonLogin);
-		this.buttonLogin.setOnClickListener(new OnClickListener() {
+        Button buttonLogin = (Button) findViewById(R.id.buttonLogin);
+        buttonLogin.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -70,65 +66,6 @@ public class LogInActivity extends Activity {
                 new LoginTask(username, password, pd).execute();
             }
         });
-	}
-
-
-
-    class LoginTask extends AsyncTask<Void, Void, User> {
-
-        private final String username;
-        private final String password;
-        private final ProgressDialog pd;
-        private Exception ex;
-
-        public LoginTask(String username, String password, ProgressDialog pd) {
-            this.username = username;
-            this.password = password;
-            this.pd = pd;
-        }
-
-
-        @Override
-        protected User doInBackground(Void... voids) {
-
-            try {
-                return MyApp.getWebServieHandler().login(username, password);
-            } catch (IOException e) {
-                e.printStackTrace();
-                ex = e;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                ex = e;
-            } catch (BadRequest badRequest) {
-                badRequest.printStackTrace();
-                ex = badRequest;
-            } catch (ValidationError validationError) {
-                validationError.printStackTrace();
-                ex = validationError;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            pd.cancel();
-            if (user != null) {
-                // we save the username password
-                Utils.storeUserPrefs(user, LogInActivity.this);
-                MyApp.setCurrentUser(user);
-                // go to the work activity
-                Intent detailIntent = new Intent(LogInActivity.this, user.getDefaultActivity());
-                startActivity(detailIntent);
-                LogInActivity.this.finish();
-            } else {
-                if (ex instanceof ValidationError) {
-                    textViewError.setText("*" + ex.getMessage());
-                } else {
-                    Utils.displayError(LogInActivity.this, ex);
-                }
-            }
-        }
-
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -160,5 +97,53 @@ public class LogInActivity extends Activity {
             builder.show();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    class LoginTask extends AsyncTask<Void, Void, User> {
+
+        private final String username;
+        private final String password;
+        private final ProgressDialog pd;
+        private Exception ex;
+
+        public LoginTask(String username, String password, ProgressDialog pd) {
+            this.username = username;
+            this.password = password;
+            this.pd = pd;
+        }
+
+        @Override
+        protected User doInBackground(Void... voids) {
+
+            try {
+                return MyApp.getWebServieHandler().login(username, password);
+            } catch (Exception e) {
+                e.printStackTrace();
+                ex = e;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            pd.cancel();
+            if (user != null) {
+                // we save the username password
+                Utils.storeUserPrefs(user, LogInActivity.this);
+                MyApp.setCurrentUser(user);
+                // go to the work activity
+                Intent detailIntent = new Intent(LogInActivity.this, user.getDefaultActivity());
+                startActivity(detailIntent);
+                LogInActivity.this.finish();
+            } else {
+                if (ex instanceof ValidationError) {
+                    textViewError.setText("*" + ex.getMessage());
+                } else {
+                    Utils.displayError(LogInActivity.this, ex);
+                }
+            }
+        }
+
     }
 }

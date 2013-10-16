@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by xc on 13-8-15.
  */
-public class Customer implements Parcelable{
+public class Customer implements Parcelable {
 
     private int id;
     private String abbr;

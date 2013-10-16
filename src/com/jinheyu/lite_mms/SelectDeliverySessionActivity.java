@@ -1,5 +1,6 @@
 package com.jinheyu.lite_mms;
 
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import com.jinheyu.lite_mms.data_structures.DeliverySession;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 
 import org.json.JSONException;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,22 +25,23 @@ import java.util.List;
 /**
  * Created by xc on 13-8-17.
  */
-public class SelectDeliverySessionActivity extends PtrListActivity {
+public class SelectDeliverySessionActivity extends ListActivity implements PullToRefreshAttacher.OnRefreshListener {
 
     private TextView textViewNoData;
     private Toast backToast;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_delivery_session);
         textViewNoData = (TextView) findViewById(R.id.textViewNoData);
-        pullToRefreshInit();
+        mPullToRefreshAttacher = Utils.initPullToRereshAttacher(this);
         new GetDeliverySessionTask().execute();
     }
 
     @Override
     public void onBackPressed() {
-        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
+        if (backToast != null && backToast.getView().getWindowToken() != null) {
             finish();
             backToast.cancel();
         } else {
@@ -87,7 +90,7 @@ public class SelectDeliverySessionActivity extends PtrListActivity {
                 getListView().setVisibility(View.VISIBLE);
                 setListAdapter(new MyListAdapter(SelectDeliverySessionActivity.this, deliverySessionList));
             }
-            getPullToRefreshAttacher().setRefreshComplete();
+            mPullToRefreshAttacher.setRefreshComplete();
             super.onPostExecute(deliverySessionList);
         }
     }
@@ -142,10 +145,10 @@ public class SelectDeliverySessionActivity extends PtrListActivity {
             }
             final DeliverySession deliverySession = (DeliverySession) getItem(i);
             viewHolder.textView.setText(deliverySession.getPlate());
-            viewHolder.textView.setTextColor(deliverySession.isLocked()?
-                    getResources().getColor(android.R.color.darker_gray):
+            viewHolder.textView.setTextColor(deliverySession.isLocked() ?
+                    getResources().getColor(android.R.color.darker_gray) :
                     getResources().getColor(android.R.color.primary_text_light));
-            viewHolder.imageView.setVisibility(deliverySession.isLocked()? View.VISIBLE: View.GONE);
+            viewHolder.imageView.setVisibility(deliverySession.isLocked() ? View.VISIBLE : View.GONE);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

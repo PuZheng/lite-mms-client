@@ -1,5 +1,6 @@
 package com.jinheyu.lite_mms;
 
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import com.jinheyu.lite_mms.data_structures.UnloadSession;
 import com.jinheyu.lite_mms.netutils.BadRequest;
 
 import org.json.JSONException;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,16 +25,28 @@ import java.util.List;
 /**
  * Created by xc on 13-8-13.
  */
-public class SelectUnloadSessionActivity extends PtrListActivity {
+public class SelectUnloadSessionActivity extends ListActivity implements PullToRefreshAttacher.OnRefreshListener {
     private static final String TAG = "SelectUnloadSessionActivity";
     private Toast backToast;
     private TextView textViewNoData;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
+
+    @Override
+    public void onBackPressed() {
+        if (backToast != null && backToast.getView().getWindowToken() != null) {
+            finish();
+            backToast.cancel();
+        } else {
+            backToast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
+            backToast.show();
+        }
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_unload_session);
         textViewNoData = (TextView) findViewById(R.id.textViewNoData);
-        pullToRefreshInit();
+        mPullToRefreshAttacher = Utils.initPullToRereshAttacher(this);
         new GetUnloadSessionListTask().execute();
     }
 
@@ -81,18 +95,7 @@ public class SelectUnloadSessionActivity extends PtrListActivity {
                 getListView().setVisibility(View.VISIBLE);
                 setListAdapter(new MyListAdapter(SelectUnloadSessionActivity.this, unloadSessionList));
             }
-            getPullToRefreshAttacher().setRefreshComplete();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(backToast !=null&& backToast.getView().getWindowToken()!=null) {
-            finish();
-            backToast.cancel();
-        } else {
-            backToast = Toast.makeText(this, "再按一次返回将取消本次任务", Toast.LENGTH_SHORT);
-            backToast.show();
+            mPullToRefreshAttacher.setRefreshComplete();
         }
     }
 
@@ -121,16 +124,6 @@ public class SelectUnloadSessionActivity extends PtrListActivity {
         @Override
         public long getItemId(int i) {
             return unloadSessionList.get(i).getId();
-        }
-
-        class ViewHolder {
-            TextView textView;
-            ImageView imageView;
-
-            public ViewHolder(TextView textView, ImageView imageView) {
-                this.textView = textView;
-                this.imageView = imageView;
-            }
         }
 
         @Override
@@ -168,6 +161,16 @@ public class SelectUnloadSessionActivity extends PtrListActivity {
                 }
             });
             return view;
+        }
+
+        class ViewHolder {
+            TextView textView;
+            ImageView imageView;
+
+            public ViewHolder(TextView textView, ImageView imageView) {
+                this.textView = textView;
+                this.imageView = imageView;
+            }
         }
 
     }

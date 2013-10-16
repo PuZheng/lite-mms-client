@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jinheyu.lite_mms.data_structures.DeliverySession;
-import com.jinheyu.lite_mms.data_structures.DeliverySessionDetail;
 import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.StoreBill;
 import com.jinheyu.lite_mms.data_structures.SubOrder;
@@ -29,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 /**
  * Created by xc on 13-8-18.
@@ -37,7 +35,6 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 public class SelectSubOrderActivity extends FragmentActivity implements PullToRefreshAttacher.OnRefreshListener {
 
     private static final boolean BYPASS_ONE_SUB_ORDER = false;
-
     private DeliverySession deliverySession;
     private TextView textViewNoData;
     private LinearLayout linearLayoutOrders;
@@ -53,24 +50,18 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
         TextView textViewStepName = (TextView) findViewById(R.id.textViewStepName);
         textViewStepName.setText(getString(R.string.step_n, "二") + ": " + getString(R.string.choose_order));
 
-        PullToRefreshAttacher.Options options = new PullToRefreshAttacher.Options();
-        options.refreshScrollDistance = 0.2f;
-        mPullToRefreshAttacher = PullToRefreshAttacher.get(this, options);
-        PullToRefreshLayout pullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-        pullToRefreshLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
-
-        new GetDeliverySessionTask(this).execute(deliverySession);
-
+        mPullToRefreshAttacher = Utils.initPullToRereshAttacher(this, this);
+        new GetDeliverySessionTask(this).execute(deliverySession.getId());
     }
 
     @Override
     public void onRefreshStarted(View view) {
-        new GetDeliverySessionTask(this).execute(deliverySession);
+        new GetDeliverySessionTask(this).execute(deliverySession.getId());
     }
 
-    private class GetDeliverySessionTask extends AsyncTask<DeliverySession, Void, Void> {
+    private class GetDeliverySessionTask extends AsyncTask<Integer, Void, Void> {
         private final Context context;
-        private DeliverySessionDetail deliverySessionDetail;
+        private DeliverySession mDeliverySession;
         private Exception ex;
 
         public GetDeliverySessionTask(Context context) {
@@ -78,43 +69,9 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
         }
 
         @Override
-        protected void onPostExecute(Void arg) {
-            if (ex != null) {
-                Utils.displayError(SelectSubOrderActivity.this, ex);
-                return;
-            }
-            if (BYPASS_ONE_SUB_ORDER && deliverySessionDetail.getSubOrderCount() == 1) {
-                Intent intent = new Intent(context, CreateDeliveryTaskActivity.class);
-                Order order = deliverySessionDetail.getOrderList().get(0);
-                SubOrder subOrder = order.getSubOrderList().get(0);
-                intent.putExtra("subOrder", subOrder);
-                intent.putExtra("customerOrderNumber", order.getCustomerOrderNumber());
-                intent.putExtra("customer", order.getCustomerName());
-                intent.putExtra("selectOrderBypassed", true);
-                intent.putExtras(getIntent().getExtras());
-                finish();
-                startActivity(intent);
-            } else {
-                if (deliverySessionDetail.getSubOrderCount() == 0) {
-                    textViewNoData.setVisibility(View.VISIBLE);
-                } else {
-                    textViewNoData.setVisibility(View.GONE);
-                    linearLayoutOrders.removeAllViews();
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    for (Order order: deliverySessionDetail.getOrderList()) {
-                        ft.add(R.id.linearLayoutOrders, new OrderFragment(order), "ORDER");
-                    }
-                    ft.commit();
-                }
-                mPullToRefreshAttacher.setRefreshComplete();
-            }
-
-        }
-
-        @Override
-        protected Void doInBackground(DeliverySession... deliverySessions) {
+        protected Void doInBackground(Integer... deliverySessionIds) {
             try {
-                deliverySessionDetail = MyApp.getWebServieHandler().getDeliverySessionDetail(deliverySessions[0].getId());
+                mDeliverySession = MyApp.getWebServieHandler().getDeliverySession(deliverySessionIds[0]);
             } catch (IOException e) {
                 e.printStackTrace();
                 ex = e;
@@ -126,6 +83,40 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
                 ex = badRequest;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void arg) {
+            if (ex != null) {
+                Utils.displayError(SelectSubOrderActivity.this, ex);
+                return;
+            }
+            if (BYPASS_ONE_SUB_ORDER && mDeliverySession.getSubOrderCount() == 1) {
+                Intent intent = new Intent(context, CreateDeliveryTaskActivity.class);
+                Order order = mDeliverySession.getOrderList().get(0);
+                SubOrder subOrder = order.getSubOrderList().get(0);
+                intent.putExtra("subOrder", subOrder);
+                intent.putExtra("customerOrderNumber", order.getCustomerOrderNumber());
+                intent.putExtra("customer", order.getCustomerName());
+                intent.putExtra("selectOrderBypassed", true);
+                intent.putExtras(getIntent().getExtras());
+                finish();
+                startActivity(intent);
+            } else {
+                if (mDeliverySession.getSubOrderCount() == 0) {
+                    textViewNoData.setVisibility(View.VISIBLE);
+                } else {
+                    textViewNoData.setVisibility(View.GONE);
+                    linearLayoutOrders.removeAllViews();
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    for (Order order : mDeliverySession.getOrderList()) {
+                        ft.add(R.id.linearLayoutOrders, new OrderFragment(order), "ORDER");
+                    }
+                    ft.commit();
+                }
+                mPullToRefreshAttacher.setRefreshComplete();
+            }
+
         }
     }
 
@@ -174,16 +165,6 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
             return 0;
         }
 
-        class ViewHolder {
-            TextView textView1;
-            TextView textView2;
-
-            public ViewHolder(TextView textView1, TextView textView2) {
-                this.textView1 = textView1;
-                this.textView2 = textView2;
-            }
-        };
-
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             ViewHolder viewHolder;
@@ -197,7 +178,7 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
             }
             final SubOrder subOrder = (SubOrder) getItem(i);
             List<String> storeBillIdList = new ArrayList<String>();
-            for (StoreBill storeBill: subOrder.getStoreBillList()) {
+            for (StoreBill storeBill : subOrder.getStoreBillList()) {
                 storeBillIdList.add(String.valueOf(storeBill.getId()));
             }
             viewHolder.textView1.setText("仓单号: " + Utils.join(storeBillIdList, ", "));
@@ -214,6 +195,18 @@ public class SelectSubOrderActivity extends FragmentActivity implements PullToRe
                 }
             });
             return view;
+        }
+
+        ;
+
+        class ViewHolder {
+            TextView textView1;
+            TextView textView2;
+
+            public ViewHolder(TextView textView1, TextView textView2) {
+                this.textView1 = textView1;
+                this.textView2 = textView2;
+            }
         }
     }
 }

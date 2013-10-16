@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+            android:id="@+id/action_new_quality_inspection_report"
+            android:title="@string/new_quality_inspection_report"
+            android:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/action_reset"
+        android:title="重置"
+        android:showAsAction="always" />
+
+    <item
+            android:id="@+id/action_complete_quality_inspection"
+            android:title="@string/complete_quality_inspection"
+            android:showAsAction="always" />
+
+</menu>

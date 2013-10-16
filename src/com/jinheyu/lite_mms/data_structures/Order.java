@@ -7,10 +7,13 @@ import java.util.List;
  * Created by xc on 13-8-19.
  */
 public class Order {
+    public static int STANDARD_ORDER_TYPE = 1;
+    public static int EXTRA_ORDER_TYPE = 2;
 
     private List<SubOrder> subOrderList;
     private int id;
     private String customerOrderNumber;
+
 
     public Order() {
         this.subOrderList = new ArrayList<SubOrder>();
@@ -48,8 +51,8 @@ public class Order {
 
     public String getCustomerName() {
         String customerName = "";
-        for (SubOrder subOrder: subOrderList) {
-            for (StoreBill storeBill: subOrder.getStoreBillList()) {
+        for (SubOrder subOrder : subOrderList) {
+            for (StoreBill storeBill : subOrder.getStoreBillList()) {
                 customerName = storeBill.getCustomerName();
                 break;
             }

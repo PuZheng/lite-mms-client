@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by xc on 13-8-15.
  */
-public class Harbor implements Parcelable{
+public class Harbor implements Parcelable {
 
 
     private final String name;

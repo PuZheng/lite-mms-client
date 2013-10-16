@@ -26,9 +26,6 @@ import com.jinheyu.lite_mms.data_structures.UnloadSession;
 
 import java.io.File;
 
-/**
- * Created by xc on 13-8-14.
- */
 public class TakeUnloadTaskPicActivity extends FragmentActivity {
     private ImageView imageView;
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
@@ -38,7 +35,7 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
         setContentView(R.layout.activity_take_unload_task_pic);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        
+
         if (new File(Utils.getUnloadTaskPicUri().getPath()).exists()) {
             Bitmap photo;
 
@@ -154,8 +151,9 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
                     builder.okMsg("恭喜您！卸货任务成功提交");
                     builder.run(new XProgressableRunnable.XRunnable() {
                         @Override
-                        public void run() throws Exception {
+                        public Void run() throws Exception {
                             MyApp.getWebServieHandler().createUnloadTask(unloadSession, harbor, customer, done, Utils.getUnloadTaskPicUri().getPath());
+                            return null;
                         }
                     });
                     builder.after(new Runnable() {
@@ -172,7 +170,7 @@ public class TakeUnloadTaskPicActivity extends FragmentActivity {
                     builder.create().start();
                 }
             });
-            builder.setNegativeButton(R.string.cancel, null);
+            builder.setNegativeButton(android.R.string.cancel, null);
             return builder.create();
         }
     }

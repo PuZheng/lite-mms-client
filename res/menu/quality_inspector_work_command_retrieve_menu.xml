@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:showAsAction="always"
+        android:id="@+id/action_retrieve_quality_inspection_report"
+        android:title="@string/retrieve_quality_inspection_report" />
+</menu>
