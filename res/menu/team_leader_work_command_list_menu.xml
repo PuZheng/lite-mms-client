@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/end_work_command"
+        android:title="@string/end"
+        android:showAsAction="always" />
+    <!--<item-->
+        <!--android:title="@string/carry_forward"-->
+        <!--android:id="@+id/carry_forward"-->
+        <!--android:showAsAction="always" />-->
+    <item
+        android:id="@+id/quick_carryForward"
+        android:title="@string/quick_carryForward"
+        android:showAsAction="always" />
+</menu>

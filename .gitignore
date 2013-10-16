@@ -1,3 +1,4 @@
+/lite-mms-client.iml
 # built application files
 *.apk
 *.ap_
@@ -11,6 +12,8 @@
 # generated files
 bin/
 gen/
+build/
+out/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -18,3 +21,9 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+
+# idea project files
+.idea/
+
+# gradle files
+.gradle/

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/action_take_pic"
+        android:title="重新拍照"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_submit"
+        android:title="@android:string/ok"
+        android:showAsAction="always" />
+
+</menu>

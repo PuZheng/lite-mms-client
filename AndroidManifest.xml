@@ -1,76 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.jinheyu.lite_mms"
-          android:versionCode="1"
-          android:versionName="1.0">
+    package="com.jinheyu.lite_mms"
+    android:versionCode="1"
+    android:versionName="1.1">
 
     <uses-sdk
-            android:minSdkVersion="8"
-            android:targetSdkVersion="17"/>
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera" />
 
 
     <application
-            android:name="com.jinheyu.lite_mms.MyApp"
-            android:allowBackup="true"
-            android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme">
+        android:name="com.jinheyu.lite_mms.MyApp"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
         <activity
-                android:name="com.jinheyu.lite_mms.LogInActivity"
-                android:uiOptions="splitActionBarWhenNarrow"
-                android:configChanges="orientation|keyboardHidden|screenSize"
-                android:label="@string/app_name"
-                android:theme="@style/AppTheme">
+            android:name=".MainActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
-                    android:name="android.support.UI_OPTIONS"
-                    android:value="splitActionBarWhenNarrow"/>
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-                android:name=".LoaderMainActivity"
-                android:uiOptions="splitActionBarWhenNarrow">
+            android:name="com.jinheyu.lite_mms.LogInActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme">
             <meta-data
-                    android:name="android.support.UI_OPTIONS"
-                    android:value="splitActionBarWhenNarrow"/>
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
         <activity
-                android:name=".SelectUnloadSessionActivity"
-                android:screenOrientation="portrait"/>
-        <activity
-                android:name=".SelectCustomerActivity"
-                android:windowSoftInputMode="stateVisible"
-                android:screenOrientation="portrait"/>
-        <activity
-                android:name=".SelectHarborActivity"
-                android:screenOrientation="portrait"/>
-        <activity
-                android:uiOptions="splitActionBarWhenNarrow"
-                android:name=".TakeUnloadTaskPicActivity">
+            android:name=".LoaderMainActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
-                    android:name="android.support.UI_OPTIONS"
-                    android:value="splitActionBarWhenNarrow"/>
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
-        <activity android:name=".MyPreferenceActivity"/>
-        <activity android:name=".SelectDeliverySessionActivity"/>
-        <activity android:name=".CreateDeliveryTaskActivity" android:uiOptions="splitActionBarWhenNarrow">
+        <activity
+            android:label="@string/title_activity_leader_main_activity"
+            android:name=".TeamLeaderActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
-                    android:name="android.support.UI_OPTIONS"
-                    android:value="splitActionBarWhenNarrow"/>
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
-        <activity android:name=".SelectSubOrderActivity"
-                android:screenOrientation="portrait"/>
+         <activity
+            android:label="@string/title_activity_leader_main_activity"
+            android:name=".DepartmentLeaderActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
+            android:name=".WorkCommandActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:screenOrientation="portrait"
+            android:label="@string/title_activity_work_command">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
+            android:name=".QualityInspectorWorkCommandActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
+            android:name=".SelectUnloadSessionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SelectCustomerActivity"
+            android:windowSoftInputMode="stateVisible"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SelectHarborActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:name=".TakeUnloadTaskPicActivity">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".MyPreferenceActivity" />
+        <activity android:name=".SelectDeliverySessionActivity" />
+        <activity
+            android:name=".CreateDeliveryTaskActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".QualityInspectorActivity"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity
+            android:name=".SelectSubOrderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ImageActivity"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <activity android:name=".CreateQIReportStep1"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".CreateQIReportStep2"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
+        <activity android:name=".CreateQIReportStep3"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
     </application>
 
 </manifest>

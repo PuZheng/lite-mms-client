@@ -9,92 +9,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
-public class XProgressableRunnable {
+public class XProgressableRunnable<Result> {
 
     private final static String ERROR = "错误";
     private final static String UNKNOWN_ERROR = "未知错误";
     private final static String I_SEE = "我知道了";
-
-    public interface XRunnable {
-        public void run() throws Exception;
-    }
-
-    public interface ExceptionHandler {
-        public void run(Exception e);
-    }
-
-    private XRunnable mRunnable = null;
+    private XRunnable<Result> mRunnable = null;
     private CharSequence mMsg = null;
     private Runnable mAfter = null;
     private ExceptionHandler mExceptionHandler = null;
     private Context mContext = null;
     private Exception mException;
-    private MessageGenerator messageGenerator;
+    private MessageGenerator<Result> messageGenerator;
+    private Result xRunnableResult;
 
-    public interface MessageGenerator {
-        public String genMessage();
-    }
-
-    static public class Builder {
-
-
-        private CharSequence _mMsg = null;
-        private String _mOkMsg;
-        private Runnable _mAfter;
-        private Context _mContext;
-        private XRunnable _mRunnable;
-        private ExceptionHandler _mExceptionHandler;
-        private MessageGenerator messageGenerator;
-
-        public Builder(Context context) {
-            _mContext = context;
-            messageGenerator = new MessageGenerator() {
-
-                @Override
-                public String genMessage() {
-                    return _mOkMsg;
-                }
-            };
-        }
-
-        public Builder run(XRunnable runnable) {
-            _mRunnable = runnable;
-            return this;
-        }
-
-        public Builder msg(String msg) {
-            _mMsg = msg;
-            return this;
-        }
-
-        public Builder okMsg(String okMsg) {
-            _mOkMsg = okMsg;
-            return this;
-        }
-
-        public Builder after(Runnable after) {
-            _mAfter = after;
-            return this;
-        }
-
-        public Builder exceptionHandler(ExceptionHandler exceptionHandler) {
-            _mExceptionHandler = exceptionHandler;
-            return this;
-        }
-
-        public Builder setOkMessageGenerator(MessageGenerator messageGenerator) {
-            this.messageGenerator = messageGenerator;
-            return this;
-        }
-
-        public XProgressableRunnable create() {
-            return new XProgressableRunnable(_mRunnable, _mMsg, this.messageGenerator, _mAfter,
-                    _mExceptionHandler, _mContext);
-        }
-
-    }
-
-    XProgressableRunnable(XRunnable runnable, CharSequence msg, MessageGenerator messageGenerator, Runnable after,
+    XProgressableRunnable(XRunnable<Result> runnable, CharSequence msg, MessageGenerator<Result> messageGenerator, Runnable after,
                           ExceptionHandler exceptionHandler, Context context) {
         mRunnable = runnable;
         mMsg = msg;
@@ -110,10 +39,10 @@ public class XProgressableRunnable {
         pd.setOnShowListener(new DialogInterface.OnShowListener() {
             public void onShow(DialogInterface dialog) {
                 new Thread() {
-
+                    @Override
                     public void run() {
                         try {
-                            mRunnable.run();
+                            xRunnableResult = mRunnable.run();
                         } catch (Exception e) {
                             mException = e;
                         }
@@ -122,12 +51,13 @@ public class XProgressableRunnable {
                 }.start();
             }
         });
+        pd.setCancelable(false);
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
+            @Override
             public void onCancel(DialogInterface dialog) {
                 final AlertDialog ad = new AlertDialog.Builder(mContext).create();
                 if (mException == null) { // success
-                    ad.setMessage(XProgressableRunnable.this.messageGenerator.genMessage());
+                    ad.setMessage(XProgressableRunnable.this.messageGenerator.genMessage(xRunnableResult));
                     ad.setOnShowListener(new DialogInterface.OnShowListener() {
 
                         public void onShow(DialogInterface dialog) {
@@ -170,5 +100,73 @@ public class XProgressableRunnable {
         });
         pd.setMessage(mMsg);
         pd.show();
+    }
+
+    public interface XRunnable<Result> {
+        public Result run() throws Exception;
+    }
+
+    public interface ExceptionHandler {
+        public void run(Exception e);
+    }
+
+    public interface MessageGenerator<Result> {
+        public String genMessage(Result result);
+    }
+
+    public static class Builder<Result> {
+        private CharSequence _mMsg = null;
+        private String _mOkMsg;
+        private Runnable _mAfter;
+        private Context _mContext;
+        private XRunnable<Result> _mRunnable;
+        private ExceptionHandler _mExceptionHandler;
+        private MessageGenerator<Result> messageGenerator;
+
+        public Builder(Context context) {
+            _mContext = context;
+            messageGenerator = new MessageGenerator<Result>() {
+
+                @Override
+                public String genMessage(Result result) {
+                    return _mOkMsg;
+                }
+            };
+        }
+
+        public Builder<Result> after(Runnable after) {
+            _mAfter = after;
+            return this;
+        }
+
+        public XProgressableRunnable<Result> create() {
+            return new XProgressableRunnable<Result>(_mRunnable, _mMsg, this.messageGenerator, _mAfter,
+                    _mExceptionHandler, _mContext);
+        }
+
+        public Builder<Result> exceptionHandler(ExceptionHandler exceptionHandler) {
+            _mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        public Builder<Result> msg(String msg) {
+            _mMsg = msg;
+            return this;
+        }
+
+        public Builder<Result> okMsg(String okMsg) {
+            _mOkMsg = okMsg;
+            return this;
+        }
+
+        public Builder<Result> run(XRunnable<Result> runnable) {
+            _mRunnable = runnable;
+            return this;
+        }
+
+        public Builder<Result> setOkMessageGenerator(MessageGenerator<Result> messageGenerator) {
+            this.messageGenerator = messageGenerator;
+            return this;
+        }
     }
 }

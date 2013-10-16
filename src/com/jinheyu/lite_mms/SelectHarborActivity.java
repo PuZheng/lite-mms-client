@@ -60,7 +60,7 @@ public class SelectHarborActivity extends ListActivity {
                 return;
             }
             List<Map<String, String>> data = new ArrayList<Map<String, String>>();
-            for (Harbor harbor: harborList) {
+            for (Harbor harbor : harborList) {
                 Map<String, String> row = new HashMap<String, String>();
                 row.put("name", harbor.getName());
                 data.add(row);
