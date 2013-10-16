@@ -500,7 +500,7 @@ public class MenuItemWrapper {
         TextView orgCntView = (TextView) rootView.findViewById(R.id.org_cnt);
         orgCntView.setText(String.format("%d %s", workCommand.getOrgCnt(), workCommand.getUnit()));
 
-        TextView processedWeightView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt);
+        TextView processedWeightView = (TextView) rootView.findViewById(R.id.processed_weight);
         processedWeightView.setText(String.format("%d 公斤", workCommand.getProcessedWeight()));
 
         TextView processedCntView = (TextView) rootView.findViewById(R.id.processed_cnt);
