@@ -2,10 +2,12 @@ package com.jinheyu.lite_mms;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,12 +54,31 @@ public class MenuItemWrapper {
             }
         }
         ).show();
+        weightEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showKeyBoard(v);
+                }
+            }
+        });
+    }
+
+    private void showKeyBoard(final View v) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager inputMethodManager = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+            }
+        };
+        v.postDelayed(runnable, 500);
     }
 
     public void carryForward(final WorkCommand workCommand) {
         final int workCommandId = workCommand.getId();
 
-        newBuilder(mActivity.getString(R.string.confirm_carry_forward, workCommandId),
+        newDialogBuilder(mActivity.getString(R.string.confirm_carry_forward, workCommandId),
                 String.format("工单%d结转中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -80,7 +101,7 @@ public class MenuItemWrapper {
         }
         final String workCommandsStr = stringBuilder.toString();
 
-        newBuilder(mActivity.getString(R.string.confirm_carry_forward, workCommandsStr),
+        newDialogBuilder(mActivity.getString(R.string.confirm_carry_forward, workCommandsStr),
                 String.format("工单%s批量结转中", workCommandsStr),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -99,7 +120,7 @@ public class MenuItemWrapper {
     public void carryForwardQuickly(final WorkCommand workCommand) {
         if (_checkWeightAndCntValue(workCommand, 0, 0)) {
             final int workCommandId = workCommand.getId();
-            newBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandId),
+            newDialogBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandId),
                     String.format("工单%d快速结转中", workCommandId),
                     new XProgressableRunnable.XRunnable() {
                         @Override
@@ -128,7 +149,7 @@ public class MenuItemWrapper {
         }
         final String workCommandIds_str = stringBuilder.toString();
 
-        newBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandIds_str),
+        newDialogBuilder(mActivity.getString(R.string.confirm_carry_forward_quickly, workCommandIds_str),
                 String.format("工单%s批量快速结转中", workCommandIds_str),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -144,7 +165,7 @@ public class MenuItemWrapper {
     }
 
     public void confirmRetrieve(final WorkCommand workCommand) {
-        newBuilder(mActivity.getString(R.string.confirm_retrieve),
+        newDialogBuilder(mActivity.getString(R.string.confirm_retrieve),
                 String.format("工单%d确认回收中", workCommand.getId()),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -162,11 +183,19 @@ public class MenuItemWrapper {
                 },
                 mActivity.getString(R.string.confirm_retrieve_sucess, workCommand.getId())
         ).setView(getConfirmRetrieveView(workCommand)).show();
+        weightEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showKeyBoard(v);
+                }
+            }
+        });
     }
 
     public void denyRetrieve(final WorkCommand workCommand) {
         final int workCommandId = workCommand.getId();
-        newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandId),
+        newDialogBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandId),
                 String.format("工单%s拒绝回收中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -179,7 +208,7 @@ public class MenuItemWrapper {
 
     public void deny_retrieve(final int[] workCommandIds) {
         final String workCommandIdsStr = Arrays.toString(workCommandIds);
-        newBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandIdsStr),
+        newDialogBuilder(mActivity.getString(R.string.refuse_retrieval, workCommandIdsStr),
                 String.format("工单%s批量拒绝回收中", workCommandIdsStr),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -196,7 +225,7 @@ public class MenuItemWrapper {
         final int workCommandId = workCommand.getId();
         final Department department = Department.getDepartmentById(workCommand.getDepartmentId());
 
-        newBuilder(mActivity.getString(R.string.confirm_assign, workCommandId),
+        newDialogBuilder(mActivity.getString(R.string.confirm_assign, workCommandId),
                 String.format("工单%s分配中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -221,7 +250,7 @@ public class MenuItemWrapper {
     public void dispatch(final int[] workCommandIds, final int departmentId) {
         final Department department = Department.getDepartmentById(departmentId);
         final String workCommandIdsStr = Arrays.toString(workCommandIds);
-        newBuilder(mActivity.getString(R.string.confirm_assign, workCommandIdsStr),
+        newDialogBuilder(mActivity.getString(R.string.confirm_assign, workCommandIdsStr),
                 String.format("工单%s批量分配中", workCommandIdsStr),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -249,7 +278,7 @@ public class MenuItemWrapper {
     public void endWorkCommand(final WorkCommand workCommand) {
         if (_checkWeightAndCntValue(workCommand, 0, 0)) {
             final int workCommandId = workCommand.getId();
-            newBuilder(mActivity.getString(R.string.confirm_end, workCommandId),
+            newDialogBuilder(mActivity.getString(R.string.confirm_end, workCommandId),
                     String.format("工单%d结束中", workCommandId),
                     new XProgressableRunnable.XRunnable() {
                         @Override
@@ -277,7 +306,7 @@ public class MenuItemWrapper {
             }
         }
         final String workCommandIdsStr = stringBuilder.toString();
-        newBuilder(mActivity.getString(R.string.confirm_end, workCommandIdsStr),
+        newDialogBuilder(mActivity.getString(R.string.confirm_end, workCommandIdsStr),
                 String.format("工单%s批量结束中", workCommandIdsStr),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -294,7 +323,7 @@ public class MenuItemWrapper {
 
     public void refuse(final int[] workCommandIds) {
         final String workCommandIdsStr = Arrays.toString(workCommandIds);
-        newBuilder(mActivity.getString(R.string.confirm_refuse, workCommandIdsStr),
+        newDialogBuilder(mActivity.getString(R.string.confirm_refuse, workCommandIdsStr),
                 String.format("工单%s批量打回中", workCommandIdsStr),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -311,7 +340,7 @@ public class MenuItemWrapper {
 
     public void refuse(final WorkCommand workCommand) {
         final int workCommandId = workCommand.getId();
-        newBuilder(mActivity.getString(R.string.confirm_refuse, workCommandId),
+        newDialogBuilder(mActivity.getString(R.string.confirm_refuse, workCommandId),
                 String.format("工单%s打回中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -326,7 +355,7 @@ public class MenuItemWrapper {
 
     public void retrieveQualityInspection(final WorkCommand workCommand) {
         final int workCommandId = workCommand.getId();
-        newBuilder(mActivity.getString(R.string.confirm_retrieve_qi, workCommandId),
+        newDialogBuilder(mActivity.getString(R.string.confirm_retrieve_qi, workCommandId),
                 String.format("工单%d质检结果打回中", workCommandId),
                 new XProgressableRunnable.XRunnable() {
                     @Override
@@ -480,7 +509,7 @@ public class MenuItemWrapper {
         return rootView;
     }
 
-    private AlertDialog.Builder newBuilder(final String titleString, final String startString, final XProgressableRunnable.XRunnable runnable, final String okString) {
+    private AlertDialog.Builder newDialogBuilder(final String titleString, final String startString, final XProgressableRunnable.XRunnable runnable, final String okString) {
         return new AlertDialog.Builder(mActivity)
                 .setTitle(titleString)
                 .setNegativeButton(android.R.string.cancel, null)
