@@ -24,6 +24,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     private TextView textViewQualityInspected;
     private boolean modified;
     private WorkCommand workCommand;
+    private TextView textViewWorkCommandProcessedRow;
 
     public QualityInspectionReportListFragment() {
     }
@@ -54,7 +55,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         mask = rootView.findViewById(R.id.linearLayoutMask);
         main = rootView.findViewById(R.id.linearLayoutMain);
         error = rootView.findViewById(R.id.linearyLayoutError);
-
+        textViewWorkCommandProcessedRow = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeightRow);
         textViewWorkCommandProcessed = (TextView) rootView.findViewById(R.id.textViewWorkCommandProcessedWeight);
         textViewQualityInspected = (TextView) rootView.findViewById(R.id.textViewQualityInspectedWeight);
 
@@ -106,7 +107,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     private void setTextViewProcessed() {
-        textViewWorkCommandProcessed.setText(workCommand.getProcessedWeight() + "公斤");
+        textViewWorkCommandProcessedRow.setText(workCommand.measured_by_weight() ? "工单重量:" : "工单重量/数量:");
+        textViewWorkCommandProcessed.setText(Utils.getWeightAndQuantity(workCommand.getProcessedWeight(), workCommand.getProcessedCnt(), workCommand));
     }
 
     public void setTextViewQualityInspected() {

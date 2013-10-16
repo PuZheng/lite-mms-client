@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
                     android:textStyle="bold"
-                    android:text="工单重量:">
+                    android:id="@+id/textViewWorkCommandProcessedWeightRow">
                 </TextView>
                 <TextView
                     android:layout_width="match_parent"
