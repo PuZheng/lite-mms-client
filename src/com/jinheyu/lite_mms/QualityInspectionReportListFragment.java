@@ -111,17 +111,12 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
 
     public void setTextViewQualityInspected() {
         int qualityInspectedCnt = 0;
-        int qualityInspectedweight = 0;
+        int qualityInspectedWeight = 0;
         for (QualityInspectionReport qir : MyApp.getQualityInspectionReports()) {
             qualityInspectedCnt += qir.getQuantity();
-            qualityInspectedweight += qir.getWeight();
+            qualityInspectedWeight += qir.getWeight();
         }
-        String qualityInspected = "";
-        if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-            qualityInspected += qualityInspectedCnt + "件";
-        }
-        qualityInspected += qualityInspectedweight + "公斤";
-        textViewQualityInspected.setText(qualityInspected);
+        textViewQualityInspected.setText(Utils.getWeightAndQuantity(qualityInspectedWeight, qualityInspectedCnt, workCommand));
     }
 
     private class MyAdapter extends BaseAdapter {
@@ -160,10 +155,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             final QualityInspectionReport qualityInspectionReport = (QualityInspectionReport) getItem(position);
             new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute();
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
-            String weight = "";
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                weight = qualityInspectionReport.getQuantity() + "件";
-            }
             viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -183,8 +174,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                     builder.show();
                 }
             });
-            weight += qualityInspectionReport.getWeight() + "公斤";
-            viewHolder.textViewWeight.setText(weight);
+            viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
             return convertView;
         }
 

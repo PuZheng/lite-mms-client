@@ -23,7 +23,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="0.7"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="(千克)"
+            android:text="(公斤)"
             android:id="@+id/textView"
             android:gravity="center"/>
 

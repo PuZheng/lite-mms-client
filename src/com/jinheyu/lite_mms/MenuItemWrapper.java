@@ -427,7 +427,7 @@ public class MenuItemWrapper {
         View rootView = inflater.inflate(R.layout.fragement_add_weight, null);
 
         TextView weightText = (TextView) rootView.findViewById(R.id.dialog_add_current_weight);
-        weightText.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
+        weightText.setText(String.format("%d 公斤", workCommand.getProcessedWeight()));
         TextView cntText = (TextView) rootView.findViewById(R.id.dialog_add_current_cnt);
         cntText.setText(String.format("%d %s", workCommand.getProcessedCnt(), workCommand.getUnit()));
 
@@ -466,13 +466,13 @@ public class MenuItemWrapper {
         View rootView = inflater.inflate(R.layout.fragment_work_command_proccessed, null);
 
         TextView orgWeightView = (TextView) rootView.findViewById(R.id.org_weight);
-        orgWeightView.setText(String.format("%d 千克", workCommand.getOrgWeight()));
+        orgWeightView.setText(String.format("%d 公斤", workCommand.getOrgWeight()));
 
         TextView orgCntView = (TextView) rootView.findViewById(R.id.org_cnt);
         orgCntView.setText(String.format("%d %s", workCommand.getOrgCnt(), workCommand.getUnit()));
 
         TextView processedWeightView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt);
-        processedWeightView.setText(String.format("%d 千克", workCommand.getProcessedWeight()));
+        processedWeightView.setText(String.format("%d 公斤", workCommand.getProcessedWeight()));
 
         TextView processedCntView = (TextView) rootView.findViewById(R.id.processed_cnt);
         processedCntView.setText(String.format("%d %s", workCommand.getProcessedCnt(), workCommand.getUnit()));

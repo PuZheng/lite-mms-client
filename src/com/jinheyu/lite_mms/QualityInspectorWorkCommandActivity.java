@@ -311,14 +311,11 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 textViewResult.setPadding((int) (10 * dpSize), 0, 0, 0);
                 TextView textViewWeight = new TextView(getActivity());
-                String weight = "";
-                if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                    weight = qir.getQuantity() + "件; ";
+                if (!workCommand.measured_by_weight()) {
                     totalQuantity += qir.getQuantity();
                 }
-                weight += qir.getWeight() + "公斤";
                 textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
-                textViewWeight.setText(weight);
+                textViewWeight.setText(Utils.getQIRWeightAndQuantity(qir, workCommand));
                 textViewWeight.setPadding((int) (5 * dpSize), 0, 0, 0);
                 tableRow.addView(textViewResult, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 tableRow.addView(textViewWeight, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -327,12 +324,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             }
 
             TextView textViewWeight = (TextView) view.findViewById(R.id.textViewTotalWeight);
-            String weight = "";
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
-                weight = totalQuantity + "件; ";
-            }
-            weight += totalWeight + "公斤";
-            textViewWeight.setText(weight);
+            textViewWeight.setText(Utils.getWeightAndQuantity(totalWeight, totalQuantity, workCommand));
             builder.setNegativeButton(android.R.string.cancel, null);
             final int finalTotalWeight = totalWeight;
             builder.setPositiveButton(R.string.submit, new OnClickListener() {

@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -13,13 +11,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
     private View rootView;
@@ -153,11 +148,10 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         TextView weightAndCntView = (TextView) rootView.findViewById(R.id.org_weight_and_cnt_view);
         if (mWorkCommand.measured_by_weight()) {
             weightAndCntView.setText(R.string.org_weight);
-            textView.setText(String.format("%d 千克", mWorkCommand.getOrgWeight()));
         } else {
             weightAndCntView.setText(R.string.org_weight_and_cnt);
-            textView.setText(String.format("%d千克/%d%s", mWorkCommand.getOrgWeight(), mWorkCommand.getOrgCnt(), mWorkCommand.getUnit()));
         }
+        textView.setText(Utils.getWeightAndQuantity(mWorkCommand.getOrgWeight(), mWorkCommand.getOrgCnt(), mWorkCommand));
     }
 
     private void _setPic() {
@@ -176,11 +170,10 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         TextView weightAndCntView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt_row);
         if (mWorkCommand.measured_by_weight()) {
             weightAndCntView.setText(R.string.processed_weight);
-            textView.setText(String.format("%d千克", mWorkCommand.getProcessedWeight()));
         } else {
             weightAndCntView.setText(R.string.processed_weight_and_cnt);
-            textView.setText(String.format("%d千克/%d%s", mWorkCommand.getProcessedWeight(), mWorkCommand.getProcessedCnt(), mWorkCommand.getUnit()));
         }
+        textView.setText(Utils.getWeightAndQuantity(mWorkCommand.getProcessedWeight(), mWorkCommand.getProcessedCnt(), mWorkCommand));
     }
 
     private void _setProductAndSpecType() {
