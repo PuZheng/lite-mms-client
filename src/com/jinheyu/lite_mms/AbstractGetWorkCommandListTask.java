@@ -67,20 +67,21 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
     @Override
     protected void onPostExecute(List<WorkCommand> workCommandList) {
         if (ex != null) {
-            dismiss();
-            Utils.displayError(mFragment.getActivity(), ex);
+            mFragment.unmask(ex);
             return;
         }
         doUpdateView(workCommandList);
     }
 
-    private void doUpdateView(List<WorkCommand> workCommandList) {
-        mFragment.setListAdapter(new WorkCommandListAdapter(mFragment, workCommandList));
-        dismiss();
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        mFragment.mask();
     }
 
-    private void dismiss() {
-        mFragment.dismissProcessDialog();
+    private void doUpdateView(List<WorkCommand> workCommandList) {
+        mFragment.setListAdapter(new WorkCommandListAdapter(mFragment, workCommandList));
+        mFragment.unmask();
         mFragment.setRefreshComplete();
     }
 }
