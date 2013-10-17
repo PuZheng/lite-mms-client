@@ -24,7 +24,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -58,8 +57,7 @@ import java.util.Map;
 public class WebService {
 
     private static final int MILLSECONDS_PER_SECOND = 1000;
-    private static final int DEAFULT_TIME_OUT_MILLSECONDS = 5000;
-
+    private static final int DEAFULT_TIME_OUT_MILLSECONDS = 10000;
     private static WebService instance;
     private Context context;
 
@@ -108,6 +106,7 @@ public class WebService {
 
         URL url = new URL(composeUrl("cargo_ws", "unload-task", params));
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setConnectTimeout(DEAFULT_TIME_OUT_MILLSECONDS);
         httpURLConnection.setRequestMethod("POST");
 
         String boundary = "*****";
@@ -426,6 +425,14 @@ public class WebService {
         return false;
     }
 
+    public void saveQualityInspectionReports(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, JSONException, BadRequest {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("work_command_id", String.valueOf(workCommand.getId()));
+        URL url = new URL(composeUrl("manufacture_ws", "quality-inspection-report-list", params));
+        doUploadQualityInspectionReports(workCommand, qualityInspectionReports, url);
+
+    }
+
     public void submitQualityInspection(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, BadRequest, JSONException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", String.valueOf(Constants.ACT_QI));
@@ -476,6 +483,21 @@ public class WebService {
         return result;
     }
 
+    private List<QualityInspectionReport> _parseQualityInspectionReportList(JSONArray qirList) throws JSONException {
+        List<QualityInspectionReport> qualityInspectionReports = new ArrayList<QualityInspectionReport>();
+        for (int i = 0; i < qirList.length(); ++i) {
+            JSONObject jo = qirList.getJSONObject(i);
+            int _id = jo.getInt("id");
+            int _quantity = jo.getInt("quantity");
+            int _weight = jo.getInt("weight");
+            int _result = jo.getInt("result");
+            int _actorId = jo.getInt("actorId");
+            String _picUrl = jo.getString("picUrl");
+            qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
+        }
+        return qualityInspectionReports;
+    }
+
     private List<Team> _parseTeamList(String result) throws JSONException {
         List<Team> teamList = new ArrayList<Team>();
         JSONArray objs = new JSONArray(result);
@@ -509,6 +531,64 @@ public class WebService {
             }
         }
         return ret.toString();
+    }
+
+    private void doUploadQualityInspectionReports(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports, URL url) throws IOException, JSONException, BadRequest {
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setConnectTimeout(DEAFULT_TIME_OUT_MILLSECONDS);
+        httpURLConnection.setRequestMethod("PUT");
+        httpURLConnection.setDoInput(true);
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setUseCaches(false);
+        httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
+        String boundary = "*****";
+        httpURLConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+        DataOutputStream ds = new DataOutputStream(httpURLConnection.getOutputStream());
+        JSONArray qirList = new JSONArray();
+        for (QualityInspectionReport qualityInspectionReport : qualityInspectionReports) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("result", qualityInspectionReport.getResult());
+            jsonObject.put("weight", qualityInspectionReport.getWeight());
+            if (!workCommand.measuredByWeight()) {
+                jsonObject.put("quantity", qualityInspectionReport.getQuantity());
+            }
+            qirList.put(jsonObject);
+        }
+        ds.writeBytes("--" + boundary + "\r\n");
+        ds.writeBytes("Content-Disposition: form-data;name=\"qirList\"\r\n\r\n");
+        ds.writeBytes(qirList.toString());
+        ds.writeBytes("\r\n");
+
+        ImageCache imageCache = ImageCache.getInstance(this.context);
+        for (int i = 0; i < qualityInspectionReports.size(); ++i) {
+            QualityInspectionReport qualityInspectionReport = qualityInspectionReports.get(i);
+            if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath()) || !Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
+                ds.writeBytes("--" + boundary + "\r\n");
+                ds.writeBytes("Content-Disposition: form-data;name=\"" + i + "\";filename=\"" + i + ".jpeg\"\r\n\r\n");
+                synchronized (imageCache.getLock()) {
+                    FileInputStream fileInputStream;
+                    // 首先尝试去读取qir对应的本地图片，所有修改过的质检报告都会产生本地图片
+                    if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
+                        fileInputStream = new FileInputStream(new File(qualityInspectionReport.getLocalPicPath()));
+                    } else {
+                        fileInputStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
+                    }
+                    int bufferSize = 1024;
+                    byte[] buffer = new byte[bufferSize];
+                    int length;
+                    while ((length = fileInputStream.read(buffer)) != -1) {
+                        ds.write(buffer, 0, length);
+                    }
+                    ds.writeBytes("\r\n");
+
+                }
+            }
+        }
+        ds.writeBytes("--" + boundary + "--\r\n");
+        if (httpURLConnection.getResponseCode() != HttpStatus.SC_OK) {
+            throw new BadRequest(httpURLConnection.getResponseMessage());
+        }
     }
 
     private List<WorkCommand> getWorkCommandListFromResp(String result) throws IOException, JSONException {
@@ -566,7 +646,7 @@ public class WebService {
         wc.setProcedure(procedure);
         wc.setTechReq(tech_req);
         wc.setSubOrderId(subOrderId);
-        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
+        for (QualityInspectionReport qualityInspectionReport : qualityInspectionReports) {
             wc.addQualityInspectionReport(qualityInspectionReport);
         }
         if (!Utils.isEmptyString(o.getString("team"))) {
@@ -578,21 +658,6 @@ public class WebService {
             wc.setDepartmentId(department.getInt("id"));
         }
         return wc;
-    }
-
-    private List<QualityInspectionReport> _parseQualityInspectionReportList(JSONArray qirList) throws JSONException {
-        List<QualityInspectionReport> qualityInspectionReports = new ArrayList<QualityInspectionReport>();
-        for (int i=0; i < qirList.length(); ++i) {
-            JSONObject jo = qirList.getJSONObject(i);
-            int _id = jo.getInt("id");
-            int _quantity = jo.getInt("quantity");
-            int _weight = jo.getInt("weight");
-            int _result = jo.getInt("result");
-            int _actorId = jo.getInt("actorId");
-            String _picUrl = jo.getString("picUrl");
-            qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
-        }
-        return qualityInspectionReports;
     }
 
     private HttpResponse postRequest(String url) throws IOException {
@@ -664,70 +729,5 @@ public class WebService {
             response = new DefaultHttpClient().execute(hp);
         }
         return response;
-    }
-
-    public void saveQualityInspectionReports(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports) throws IOException, JSONException, BadRequest {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("work_command_id", String.valueOf(workCommand.getId()));
-        URL url = new URL(composeUrl("manufacture_ws", "quality-inspection-report-list", params));
-        doUploadQualityInspectionReports(workCommand, qualityInspectionReports, url);
-
-    }
-
-    private void doUploadQualityInspectionReports(WorkCommand workCommand, List<QualityInspectionReport> qualityInspectionReports, URL url) throws IOException, JSONException, BadRequest {
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-        httpURLConnection.setRequestMethod("PUT");
-        httpURLConnection.setDoInput(true);
-        httpURLConnection.setDoOutput(true);
-        httpURLConnection.setUseCaches(false);
-        httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
-        String boundary = "*****";
-        httpURLConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-
-        DataOutputStream ds = new DataOutputStream(httpURLConnection.getOutputStream());
-        JSONArray qirList = new JSONArray();
-        for (QualityInspectionReport qualityInspectionReport: qualityInspectionReports) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("result", qualityInspectionReport.getResult());
-            jsonObject.put("weight", qualityInspectionReport.getWeight());
-            if (!workCommand.measuredByWeight()) {
-                jsonObject.put("quantity", qualityInspectionReport.getQuantity());
-            }
-            qirList.put(jsonObject);
-        }
-        ds.writeBytes("--" + boundary + "\r\n");
-        ds.writeBytes("Content-Disposition: form-data;name=\"qirList\"\r\n\r\n");
-        ds.writeBytes(qirList.toString());
-        ds.writeBytes("\r\n");
-
-        ImageCache imageCache = ImageCache.getInstance(this.context);
-        for (int i=0; i < qualityInspectionReports.size(); ++i) {
-            QualityInspectionReport qualityInspectionReport = qualityInspectionReports.get(i);
-            if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath()) || !Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
-                ds.writeBytes("--" + boundary + "\r\n");
-                ds.writeBytes("Content-Disposition: form-data;name=\""+ i + "\";filename=\"" + i +".jpeg\"\r\n\r\n");
-                synchronized (imageCache.getLock()) {
-                    FileInputStream fileInputStream;
-                    // 首先尝试去读取qir对应的本地图片，所有修改过的质检报告都会产生本地图片
-                    if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
-                        fileInputStream = new FileInputStream(new File(qualityInspectionReport.getLocalPicPath()));
-                    } else {
-                        fileInputStream = (FileInputStream) imageCache.getInputStream(qualityInspectionReport.getPicUrl());
-                    }
-                    int bufferSize = 1024;
-                    byte[] buffer = new byte[bufferSize];
-                    int length;
-                    while ((length = fileInputStream.read(buffer)) != -1) {
-                        ds.write(buffer, 0, length);
-                    }
-                    ds.writeBytes("\r\n");
-
-                }
-            }
-        }
-        ds.writeBytes("--" + boundary + "--\r\n");
-        if (httpURLConnection.getResponseCode() != HttpStatus.SC_OK) {
-            throw new BadRequest(httpURLConnection.getResponseMessage());
-        }
     }
 }
