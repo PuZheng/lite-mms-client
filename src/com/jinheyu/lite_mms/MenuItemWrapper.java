@@ -388,7 +388,7 @@ public class MenuItemWrapper {
             @Override
             public void run() {
                 if (isFinished) {
-                    mActivity.onNavigateUp();
+                    mActivity.finish();
                 } else {
                     if (mActivity instanceof WorkCommandActivity) {
                         new GetWorkCommandAsyncTask((WorkCommandActivity) mActivity).execute(workCommand.getId());
@@ -520,8 +520,9 @@ public class MenuItemWrapper {
                         builder.msg(startString).run(runnable).after(new Runnable() {
                             @Override
                             public void run() {
+
                                 if (mActionMode == null) {
-                                    mActivity.onNavigateUp();
+                                    mActivity.finish();
                                 } else {
                                     mActionMode.finish();
                                 }
