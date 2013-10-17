@@ -36,17 +36,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     public static final String ARG_SECTION_NUMBER = "section_number";
     public static final String TAG = "WORK_COMMAND_LIST_FRAGMENT";
     protected ActionMode mActionMode;
+    private View rootView;
     private ActionMode.Callback mActionModeListener = getActionModeCallback();
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
     private PullToRefreshAttacher mPullToRefreshAttacher;
-    private ProgressDialog mProgressDialog;
-    private boolean isLoadingWorkCommandList;
-
-    public void dismissProcessDialog() {
-        if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
-        }
-    }
 
     public View getItemView(final int position, View convertView) {
         final WorkCommand workCommand = getWorkCommandAtPosition(position);
@@ -73,12 +66,10 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
                     CheckBox checkBox = (CheckBox) v.findViewById(R.id.check);
                     checkBox.toggle();
                 } else {
-                    if (!isLoadingWorkCommandList) {
-                        Intent intent = new Intent(getActivity(), getWorkCommandAcitityClass());
-                        intent.putExtra("symbol", getIntExtraSymbol());
-                        intent.putExtra("workCommandId", getWorkCommandIdAtPosition(position));
-                        getActivity().startActivity(intent);
-                    }
+                    Intent intent = new Intent(getActivity(), getWorkCommandAcitityClass());
+                    intent.putExtra("symbol", getIntExtraSymbol());
+                    intent.putExtra("workCommandId", getWorkCommandIdAtPosition(position));
+                    getActivity().startActivity(intent);
                 }
             }
         });
@@ -99,21 +90,27 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return convertView;
     }
 
-    protected int getIntExtraSymbol() {
-        return getSymbols()[STATUS_INDEX];
-    }
-
-    /**
-     * you should override this method to provide your own work command detail activity
-     * */
-    protected Class<?> getWorkCommandAcitityClass() {
-        return WorkCommandActivity.class;
+    public void mask() {
+        if (rootView != null) {
+            View mask = rootView.findViewById(R.id.linearLayoutMask);
+            if (mask != null) {
+                mask.setVisibility(View.VISIBLE);
+            }
+            View main = rootView.findViewById(R.id.ptr_layout);
+            if (main != null) {
+                main.setVisibility(View.GONE);
+            }
+            View error = rootView.findViewById(R.id.linearyLayoutError);
+            if (error != null) {
+                error.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
+        rootView = inflater.inflate(R.layout.fragment_work_command_list, container, false);
         mPullToRefreshAttacher = ((WorkCommandListActivity) getActivity()).getPullToRefreshAttacher();
         final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
         ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
@@ -129,24 +126,40 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     @Override
     public void onRefreshStarted(View view) {
         loadWorkCommandList();
-        isLoadingWorkCommandList = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "on resume");
-        mProgressDialog = newProgressDialog();
         loadWorkCommandList();
     }
 
     public void setRefreshComplete() {
         mPullToRefreshAttacher.setRefreshComplete();
-        isLoadingWorkCommandList = false;
+    }
+
+    public void unmask() {
+        if (rootView != null) {
+            View mask = rootView.findViewById(R.id.linearLayoutMask);
+            mask.setVisibility(View.GONE);
+            View main = rootView.findViewById(R.id.ptr_layout);
+            main.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void unmask(Exception ex) {
+        if (rootView != null) {
+            View mask = rootView.findViewById(R.id.linearLayoutMask);
+            mask.setVisibility(View.GONE);
+            View main = rootView.findViewById(R.id.ptr_layout);
+            main.setVisibility(View.GONE);
+            View error = rootView.findViewById(R.id.linearyLayoutError);
+            error.setVisibility(View.VISIBLE);
+        }
+        Utils.displayError(this.getActivity(), ex);
     }
 
     protected void clearAllCheckedItems() {
-        mProgressDialog = newProgressDialog();
         loadWorkCommandList();
         mSelectedPositions.clear();
     }
@@ -170,8 +183,19 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         return result;
     }
 
+    protected int getIntExtraSymbol() {
+        return getSymbols()[STATUS_INDEX];
+    }
+
     protected int[] getSymbols() {
         return getArguments() != null ? getArguments().getIntArray(ARG_SECTION_NUMBER) : new int[]{0, 0};
+    }
+
+    /**
+     * you should override this method to provide your own work command detail activity
+     */
+    protected Class<?> getWorkCommandAcitityClass() {
+        return WorkCommandActivity.class;
     }
 
     protected abstract void loadWorkCommandList();

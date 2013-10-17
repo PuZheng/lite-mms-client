@@ -24,8 +24,12 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +57,8 @@ import java.util.Map;
 public class WebService {
 
     private static final int MILLSECONDS_PER_SECOND = 1000;
+    private static final int DEAFULT_TIME_OUT_MILLSECONDS = 5000;
+
     private static WebService instance;
     private Context context;
 
@@ -600,24 +606,26 @@ public class WebService {
             throws IOException {
 
         HttpResponse response = null;
-
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, DEAFULT_TIME_OUT_MILLSECONDS);
+        HttpConnectionParams.setSoTimeout(params, DEAFULT_TIME_OUT_MILLSECONDS);
         if (method.equals("GET")) {
             HttpGet hg = new HttpGet(url);
-            response = new DefaultHttpClient().execute(hg);
+            response = new DefaultHttpClient(params).execute(hg);
         } else if (method.equals("POST")) {
             HttpPost hp = new HttpPost(url);
             if (data != null) {
                 hp.setHeader("Content-type", "application/json");
                 hp.setEntity(new StringEntity(data, "utf-8"));
             }
-            response = new DefaultHttpClient().execute(hp);
+            response = new DefaultHttpClient(params).execute(hp);
         } else if (method.equals("PUT")) {
             HttpPut hp = new HttpPut(url);
             if (data != null) {
                 hp.setHeader("Content-type", "application/json");
                 hp.setEntity(new StringEntity(data, "utf-8"));
             }
-            response = new DefaultHttpClient().execute(hp);
+            response = new DefaultHttpClient(params).execute(hp);
         }
         return response;
     }
