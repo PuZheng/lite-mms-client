@@ -37,11 +37,9 @@ public class WorkCommandActivity extends FragmentActivity implements UpdateWorkC
         switch (MyApp.getCurrentUser().getGroupId()) {
             case User.TEAM_LEADER:
                 _setTeamLeaderMenu(menu, inflater, currentStatus);
-
                 break;
             case User.DEPARTMENT_LEADER:
                 _setDepartmentLeaderMenu(menu, inflater, currentStatus);
-
             default:
                 break;
         }
@@ -52,6 +50,9 @@ public class WorkCommandActivity extends FragmentActivity implements UpdateWorkC
     public boolean onOptionsItemSelected(MenuItem item) {
         MenuItemWrapper menuItemWrapper = new MenuItemWrapper(this);
         WorkCommand workCommand = getWorkCommandFragment().getWorkCommand();
+        if (workCommand == null) {
+            return false;
+        }
         switch (item.getItemId()) {
             case R.id.quick_carryForward:
                 menuItemWrapper.carryForwardQuickly(workCommand);

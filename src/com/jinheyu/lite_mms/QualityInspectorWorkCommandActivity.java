@@ -134,6 +134,9 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (workCommand == null) {
+            return false;
+        }
         QualityInspectionReportListFragment qualityInspectionReportListFragment;
         qualityInspectionReportListFragment = (QualityInspectionReportListFragment) ((MyFragmentPagerAdapter) mViewPager.getAdapter()).getRegisteredFragment(0);
 
