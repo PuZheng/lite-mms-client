@@ -174,7 +174,7 @@ public class MenuItemWrapper {
                         int cnt = Integer.parseInt(cntEditText.getText().toString());
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put("weight", String.valueOf(weight));
-                        if (!workCommand.measured_by_weight()) {
+                        if (!workCommand.measuredByWeight()) {
                             params.put("quantity", String.valueOf(cnt));
                         }
                         MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_AFFIRM_RETRIEVAL, params);
@@ -377,7 +377,7 @@ public class MenuItemWrapper {
                 HashMap<String, String> params = new HashMap<String, String>();
                 params.put("weight", String.valueOf(weight));
                 params.put("is_finished", isFinished ? "1" : "0");
-                if (!workCommand.measured_by_weight()) {
+                if (!workCommand.measuredByWeight()) {
                     params.put("quantity", String.valueOf(cnt));
                 }
                 MyApp.getWebServieHandler().updateWorkCommand(workCommand.getId(), Constants.ACT_ADD_WEIGHT, params);
@@ -409,7 +409,7 @@ public class MenuItemWrapper {
                 if (weight + workCommand.getProcessedWeight() < workCommand.getOrgWeight()) {
                     alertMessage = mActivity.getString(R.string.previous_weight_greater);
                 }
-                if (!workCommand.measured_by_weight() && (cnt + workCommand.getProcessedCnt() < workCommand.getOrgCnt())) {
+                if (!workCommand.measuredByWeight() && (cnt + workCommand.getProcessedCnt() < workCommand.getOrgCnt())) {
                     alertMessage = mActivity.getString(R.string.previous_count_greater);
                 }
                 if (!Utils.isEmptyString(alertMessage)) {
@@ -440,7 +440,7 @@ public class MenuItemWrapper {
             Toast.makeText(mActivity, mActivity.getString(R.string.invalid_weight_data, workCommand.getId()), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!workCommand.measured_by_weight() && currentCnt <= 0) {
+        if (!workCommand.measuredByWeight() && currentCnt <= 0) {
             Toast.makeText(mActivity, mActivity.getString(R.string.invalid_cnt_data, workCommand.getId()), Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -462,7 +462,7 @@ public class MenuItemWrapper {
 
         weightEditText = (EditText) rootView.findViewById(R.id.dialog_add_edittext_weight);
         cntEditText = (EditText) rootView.findViewById(R.id.dialog_add_edittext_count);
-        if (workCommand.measured_by_weight()) {
+        if (workCommand.measuredByWeight()) {
             rootView.findViewById(R.id.count_row).setVisibility(View.GONE);
             rootView.findViewById(R.id.processed_cnt_row).setVisibility(View.GONE);
         } else {
@@ -482,7 +482,7 @@ public class MenuItemWrapper {
         TextView cntView = (TextView) view.findViewById(R.id.dialog_confirm_label_quantity);
         cntView.setText(mActivity.getString(R.string.confirm_processed_quantity, workCommand.getUnit()));
 
-        if (workCommand.measured_by_weight()) {
+        if (workCommand.measuredByWeight()) {
             view.findViewById(R.id.count_row).setVisibility(View.GONE);
         } else {
             view.findViewById(R.id.count_row).setVisibility(View.VISIBLE);

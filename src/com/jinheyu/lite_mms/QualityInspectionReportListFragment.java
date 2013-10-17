@@ -115,7 +115,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     private void setTextViewProcessed() {
-        textViewWorkCommandProcessedRow.setText(workCommand.measured_by_weight() ? "工单重量:" : "工单重量/数量:");
+        textViewWorkCommandProcessedRow.setText(workCommand.measuredByWeight() ? "工单重量:" : "工单重量/数量:");
         textViewWorkCommandProcessed.setText(Utils.getWeightAndQuantity(workCommand.getProcessedWeight(), workCommand.getProcessedCnt(), workCommand));
     }
 
