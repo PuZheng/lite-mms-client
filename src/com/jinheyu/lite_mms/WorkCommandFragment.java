@@ -81,6 +81,7 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
 
     private void _initView() {
         _setIdTextViewAndStatus();
+        _setCreateDate();
         _setExtra();
         _setHandleType();
         _setOrderNumber();
@@ -92,6 +93,11 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
         _setProcessedWeightAndCnt();
         _setPic();
         _setBackgroundColor();
+    }
+
+    private void _setCreateDate() {
+        TextView textView = (TextView) rootView.findViewById(R.id.order_create_date);
+        textView.setText(mWorkCommand.getOrderCreateDate());
     }
 
     private void _setBackgroundColor() {

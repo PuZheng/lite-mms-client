@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 import com.jinheyu.lite_mms.data_structures.Department;
 import com.jinheyu.lite_mms.data_structures.Team;
 import com.jinheyu.lite_mms.netutils.BadRequest;
@@ -79,6 +81,13 @@ public class MainActivity extends Activity {
         if (!ImageCache.isInitialized()) {
             ImageCache.initialize(this);
         }
+        ImageButton button = (ImageButton) findViewById(R.id.refreshButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.this.onResume();
+            }
+        });
     }
 
     /**
@@ -104,6 +113,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        findViewById(R.id.linearLayoutMain).setVisibility(View.VISIBLE);
+        findViewById(R.id.textViewError).setVisibility(View.GONE);
         if (task == null) {
             task = new InitTask();
             task.execute();
@@ -163,6 +174,9 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 MainActivity.this.finish();
             } else {
+                task = null;
+                findViewById(R.id.linearLayoutMain).setVisibility(View.GONE);
+                findViewById(R.id.textViewError).setVisibility(View.VISIBLE);
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.error);
                 builder.setMessage(ex.getMessage());

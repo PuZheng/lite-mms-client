@@ -38,7 +38,7 @@
         <activity
             android:name="com.jinheyu.lite_mms.LogInActivity"
             android:uiOptions="splitActionBarWhenNarrow"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <meta-data
@@ -55,14 +55,16 @@
         <activity
             android:label="@string/title_activity_leader_main_activity"
             android:name=".TeamLeaderActivity"
+            android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
-         <activity
+        <activity
             android:label="@string/title_activity_leader_main_activity"
             android:name=".DepartmentLeaderActivity"
+            android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
@@ -111,7 +113,9 @@
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
-        <activity android:name=".QualityInspectorActivity"
+        <activity
+            android:name=".QualityInspectorActivity"
+            android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
@@ -123,19 +127,22 @@
         <activity
             android:name=".ImageActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
-        <activity android:name=".CreateQIReportStep1"
+        <activity
+            android:name=".CreateQIReportStep1"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
-        <activity android:name=".CreateQIReportStep2"
+        <activity
+            android:name=".CreateQIReportStep2"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
-        <activity android:name=".CreateQIReportStep3"
+        <activity
+            android:name=".CreateQIReportStep3"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
                 android:name="android.support.UI_OPTIONS"

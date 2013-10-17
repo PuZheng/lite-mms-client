@@ -505,7 +505,13 @@ public class MenuItemWrapper {
 
         TextView processedCntView = (TextView) rootView.findViewById(R.id.processed_cnt);
         processedCntView.setText(String.format("%d %s", workCommand.getProcessedCnt(), workCommand.getUnit()));
-
+        if (workCommand.measured_by_weight()) {
+            rootView.findViewById(R.id.org_cnt_row).setVisibility(View.GONE);
+            rootView.findViewById(R.id.processed_cnt_row).setVisibility(View.GONE);
+        }else{
+            rootView.findViewById(R.id.org_cnt_row).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.processed_cnt_row).setVisibility(View.VISIBLE);
+        }
         return rootView;
     }
 
