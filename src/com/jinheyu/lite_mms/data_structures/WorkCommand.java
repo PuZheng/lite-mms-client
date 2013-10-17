@@ -41,7 +41,7 @@ public class WorkCommand implements Parcelable {
         put(Constants.HT_REPLATE, "返镀");
     }};
     private int id;
-    private String createTime;
+    private String orderCreateDate;
     private int departmentId;
     private int org_cnt;
     private int org_weight;
@@ -92,6 +92,7 @@ public class WorkCommand implements Parcelable {
         this.previous_procedure = parcel.readString();
         this.subOrderId = parcel.readInt();
         this.qualityInspectionReportList = new ArrayList<QualityInspectionReport>();
+        this.orderCreateDate = parcel.readString();
         parcel.readTypedList(this.qualityInspectionReportList, QualityInspectionReport.CREATOR);
     }
 
@@ -108,6 +109,10 @@ public class WorkCommand implements Parcelable {
 
     public static String getStatusString(int status) {
         return mSatuses.get(status);
+    }
+
+    public void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
+        this.qualityInspectionReportList.add(qualityInspectionReport);
     }
 
     /**
@@ -154,12 +159,28 @@ public class WorkCommand implements Parcelable {
         return id;
     }
 
+    public String getOrderCreateDate() {
+        return orderCreateDate;
+    }
+
+    public void setOrderCreateDate(String orderCreateDate) {
+        this.orderCreateDate = orderCreateDate;
+    }
+
     public int getOrderNumber() {
         return orderNumber;
     }
 
     public void setOrderNumber(int orderNumber) {
         this.orderNumber = orderNumber;
+    }
+
+    public int getOrderType() {
+        return this.orderType;
+    }
+
+    public void setOrderType(int orderType) {
+        this.orderType = orderType;
     }
 
     public int getOrgCnt() {
@@ -212,6 +233,10 @@ public class WorkCommand implements Parcelable {
 
     public String getProductName() {
         return productName;
+    }
+
+    public List<QualityInspectionReport> getQualityInspectionReportList() {
+        return this.qualityInspectionReportList;
     }
 
     public String getSpec() {
@@ -282,22 +307,6 @@ public class WorkCommand implements Parcelable {
         return orderType == Constants.STANDARD_ORDER_TYPE;
     }
 
-    public int getOrderType() {
-        return this.orderType;
-    }
-
-    public void setOrderType(int orderType) {
-        this.orderType = orderType;
-    }
-
-    public List<QualityInspectionReport> getQualityInspectionReportList() {
-        return this.qualityInspectionReportList;
-    }
-
-    public void addQualityInspectionReport(QualityInspectionReport qualityInspectionReport) {
-        this.qualityInspectionReportList.add(qualityInspectionReport);
-    }
-
     /**
      * Flatten this object in to a Parcel.
      *
@@ -328,6 +337,7 @@ public class WorkCommand implements Parcelable {
         dest.writeString(tech_req);
         dest.writeString(previous_procedure);
         dest.writeInt(subOrderId);
+        dest.writeString(orderCreateDate);
         dest.writeTypedList(qualityInspectionReportList);
     }
 }

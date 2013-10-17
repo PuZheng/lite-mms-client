@@ -110,4 +110,5 @@
     <string name="retrieve_quality_inspection_report">回收报告</string>
     <string name="confirm_retrieve_qi">确认回收质检结果，工单%d？</string>
     <string name="confirm_retrieve_qi_success">回收质检结果成功</string>
+    <string name="order_create_date">订单创建日期</string>
 </resources>

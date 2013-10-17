@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -550,6 +551,7 @@ public class WebService {
         int handleType = o.getInt("handleType");
         List<QualityInspectionReport> qualityInspectionReports = _parseQualityInspectionReportList(o.getJSONArray("qirList"));
         WorkCommand wc = new WorkCommand(id, productName, orgCount, orgWeight, status, urgent, rejected);
+        wc.setOrderCreateDate(DateFormat.getDateInstance().format(orderCreateTime));
         wc.setPicPath(picPath);
         wc.setProcessedWeight(processedWeight);
         wc.setProcessedCnt(processedCount);
