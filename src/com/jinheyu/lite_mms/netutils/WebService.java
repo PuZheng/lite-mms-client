@@ -680,7 +680,7 @@ public class WebService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("result", qualityInspectionReport.getResult());
             jsonObject.put("weight", qualityInspectionReport.getWeight());
-            if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+            if (!workCommand.measuredByWeight()) {
                 jsonObject.put("quantity", qualityInspectionReport.getQuantity());
             }
             qirList.put(jsonObject);

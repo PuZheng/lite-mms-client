@@ -147,7 +147,7 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
     private void _setOrgWeightAndCnt() {
         TextView textView = (TextView) rootView.findViewById(R.id.org_weight_and_cnt);
         TextView weightAndCntView = (TextView) rootView.findViewById(R.id.org_weight_and_cnt_view);
-        if (mWorkCommand.measured_by_weight()) {
+        if (mWorkCommand.measuredByWeight()) {
             weightAndCntView.setText(R.string.org_weight);
         } else {
             weightAndCntView.setText(R.string.org_weight_and_cnt);
@@ -169,7 +169,7 @@ public class WorkCommandFragment extends Fragment implements UpdateWorkCommand {
     private void _setProcessedWeightAndCnt() {
         TextView textView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt);
         TextView weightAndCntView = (TextView) rootView.findViewById(R.id.processed_weight_and_cnt_row);
-        if (mWorkCommand.measured_by_weight()) {
+        if (mWorkCommand.measuredByWeight()) {
             weightAndCntView.setText(R.string.processed_weight);
         } else {
             weightAndCntView.setText(R.string.processed_weight_and_cnt);
