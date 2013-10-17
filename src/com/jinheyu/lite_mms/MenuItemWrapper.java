@@ -505,7 +505,7 @@ public class MenuItemWrapper {
 
         TextView processedCntView = (TextView) rootView.findViewById(R.id.processed_cnt);
         processedCntView.setText(String.format("%d %s", workCommand.getProcessedCnt(), workCommand.getUnit()));
-        if (workCommand.measured_by_weight()) {
+        if (workCommand.measuredByWeight()) {
             rootView.findViewById(R.id.org_cnt_row).setVisibility(View.GONE);
             rootView.findViewById(R.id.processed_cnt_row).setVisibility(View.GONE);
         }else{
