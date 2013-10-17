@@ -48,7 +48,7 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
                     targetQualityInspectionReport = qualityInspectionReport;
                 } else {
                     targetQualityInspectionReport.setWeight(qualityInspectionReport.getWeight() + targetQualityInspectionReport.getWeight());
-                    if (!workCommand.measured_by_weight()) {
+                    if (!workCommand.measuredByWeight()) {
                         targetQualityInspectionReport.setQuantity(qualityInspectionReport.getQuantity() + targetQualityInspectionReport.getQuantity());
                     }
                 }

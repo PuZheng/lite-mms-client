@@ -33,11 +33,12 @@ public class CreateQIReportStep2 extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acitivity_create_qi_report_step2);
         pairs = new ArrayList<Pair<Integer, String>>();
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.NEXT_PROCEDURE, "--通过并转下道工序"));
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.DISCARD, "--报废"));
+
         pairs.add(new Pair<Integer, String>(QualityInspectionReport.FINISHED, "--通过"));
+        pairs.add(new Pair<Integer, String>(QualityInspectionReport.NEXT_PROCEDURE, "--通过并转下道工序"));
         pairs.add(new Pair<Integer, String>(QualityInspectionReport.REPAIR, "--返修"));
         pairs.add(new Pair<Integer, String>(QualityInspectionReport.REPLATE, "--返镀"));
+        pairs.add(new Pair<Integer, String>(QualityInspectionReport.DISCARD, "--报废"));
 
         List<String> results = new ArrayList<String>();
         for (Pair<Integer, String> pair: pairs) {

@@ -146,8 +146,6 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                     List<QualityInspectionReport> qualityInspectionReports = MyApp.getQualityInspectionReports();
                     if (qualityInspectionReports.isEmpty()) {
                         Toast.makeText(QualityInspectorWorkCommandActivity.this, "请至少填写一条质检报告！", Toast.LENGTH_SHORT).show();
-                    } else if (!qualityInspectionReportListFragment.isModified()) {
-                        Toast.makeText(QualityInspectorWorkCommandActivity.this, "您没有对质检报告作出变动，不必提交!", Toast.LENGTH_SHORT).show();
                     } else {
                         showNoticeDialog(qualityInspectionReports, this.workCommand);
                     }
@@ -314,7 +312,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 textViewResult.setPadding((int) (10 * dpSize), 0, 0, 0);
                 TextView textViewWeight = new TextView(getActivity());
-                if (!workCommand.measured_by_weight()) {
+                if (!workCommand.measuredByWeight()) {
                     totalQuantity += qir.getQuantity();
                 }
                 textViewWeight.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);

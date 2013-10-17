@@ -13,7 +13,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jinheyu.lite_mms.data_structures.Order;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -40,7 +39,7 @@ public class CreateQIReportStep1 extends Activity {
         TableRow tableRowQuantity = (TableRow) findViewById(R.id.tableRowQuantity);
 
         this.workCommand = getIntent().getParcelableExtra("workCommand");
-        if (workCommand.getOrderType() == Order.STANDARD_ORDER_TYPE) {
+        if (workCommand.measuredByWeight()) {
             tableRowQuantity.setVisibility(View.GONE);
         }
         int qualityInspectedWeight = 0;
@@ -58,11 +57,23 @@ public class CreateQIReportStep1 extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Utils.isEmptyString(editTextWeight.getText().toString())) {
+                    Toast.makeText(CreateQIReportStep1.this, "请输入重量", Toast.LENGTH_SHORT).show();
+                    editTextWeight.requestFocus();
+                    return;
+                }
+                if (!workCommand.measuredByWeight()) {
+                    if (Utils.isEmptyString(editTextQuantity.getText().toString().trim())) {
+                        Toast.makeText(CreateQIReportStep1.this, "请输入数量", Toast.LENGTH_SHORT).show();
+                        editTextQuantity.requestFocus();
+                        return;
+                    }
+                }
                 Intent intent = new Intent(CreateQIReportStep1.this, CreateQIReportStep2.class);
                 intent.putExtra("workCommand", CreateQIReportStep1.this.workCommand);
                 QualityInspectionReport qualityInspectionReport = new QualityInspectionReport();
                 qualityInspectionReport.setWeight(Integer.valueOf(CreateQIReportStep1.this.editTextWeight.getText().toString()));
-                if (workCommand.getOrderType() == Order.EXTRA_ORDER_TYPE) {
+                if (!workCommand.measuredByWeight()) {
                     qualityInspectionReport.setQuantity(Integer.valueOf(CreateQIReportStep1.this.editTextQuantity.getText().toString()));
                 }
                 intent.putExtra("qualityInspectionReport", qualityInspectionReport);
