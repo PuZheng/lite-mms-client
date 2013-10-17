@@ -12,7 +12,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.User;
@@ -236,7 +235,7 @@ public class Utils {
     }
 
     public static String getWeightAndQuantity(int weight, int quantity, WorkCommand workCommand) {
-        return workCommand.measured_by_weight() ? String.format("%d 公斤", weight) :
+        return workCommand.measuredByWeight() ? String.format("%d 公斤", weight) :
                 String.format("%d 公斤/%d %s", weight, quantity, workCommand.getUnit());
     }
 

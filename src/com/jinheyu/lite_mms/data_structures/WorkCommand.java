@@ -303,7 +303,7 @@ public class WorkCommand implements Parcelable {
         return urgent;
     }
 
-    public boolean measured_by_weight() {
+    public boolean measuredByWeight() {
         return orderType == Constants.STANDARD_ORDER_TYPE;
     }
 
