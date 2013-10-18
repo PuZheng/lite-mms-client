@@ -68,6 +68,7 @@ public abstract class AbstractGetWorkCommandListTask extends AsyncTask<Void, Voi
     protected void onPostExecute(List<WorkCommand> workCommandList) {
         if (ex != null) {
             mFragment.unmask(ex);
+            mFragment.setRefreshComplete();
             return;
         }
         doUpdateView(workCommandList);

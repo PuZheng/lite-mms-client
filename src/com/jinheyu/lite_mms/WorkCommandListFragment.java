@@ -11,12 +11,7 @@ import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
@@ -114,6 +109,9 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         mPullToRefreshAttacher = ((WorkCommandListActivity) getActivity()).getPullToRefreshAttacher();
         final PullToRefreshLayout ptrLayout = (PullToRefreshLayout) rootView.findViewById(R.id.ptr_layout);
         ptrLayout.setPullToRefreshAttacher(mPullToRefreshAttacher, this);
+
+        ScrollView view = (ScrollView) rootView.findViewById(R.id.linearyLayoutError);
+        mPullToRefreshAttacher.addRefreshableView(view, this);
 
         final ListView listView = (ListView) rootView.findViewById(android.R.id.list);
         TextView noDataView = (TextView) rootView.findViewById(android.R.id.empty);
