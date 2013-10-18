@@ -1,12 +1,10 @@
 package com.jinheyu.lite_mms;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -220,10 +218,6 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     private boolean isInActionMode() {
         return mActionMode != null;
-    }
-
-    private ProgressDialog newProgressDialog() {
-        return ProgressDialog.show(WorkCommandListFragment.this.getActivity(), getString(R.string.loading_data), getString(R.string.please_wait), true);
     }
 
     private void selectAtPosition(int position) {
