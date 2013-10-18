@@ -81,7 +81,7 @@ public class GetImageTask extends AsyncTask<Integer, Void, Bitmap> {
                 });
             }
         } else {
-            if (!Utils.isEmptyString(mKey)) {
+            if (!Utils.isEmptyString(mUrl)) {
                 mImageView.setImageResource(R.drawable.broken_image);
                 if (mShowToast) {
                     Toast.makeText(mImageView.getContext(), R.string.load_failure, Toast.LENGTH_SHORT).show();
