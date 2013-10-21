@@ -270,38 +270,6 @@ public class WebService {
         return ret;
     }
 
-    public Pair<Integer, List<QualityInspectionReport>> getQualityInspectionReportList(int workCommandId) throws IOException, JSONException, BadRequest {
-        List<QualityInspectionReport> qualityInspectionReports;
-
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("work_command_id", String.valueOf(workCommandId));
-        String url = composeUrl("manufacture_ws", "quality-inspection-report-list", params);
-        HttpResponse response = sendRequest(url);
-        int stateCode = response.getStatusLine().getStatusCode();
-        String result = EntityUtils.toString(response.getEntity(), "utf-8");
-        JSONObject root = new JSONObject(result);
-        int orderType;
-        if (stateCode == HttpStatus.SC_OK) {
-            orderType = root.getInt("order_type");
-            JSONArray data = root.getJSONArray("data");
-            qualityInspectionReports = new ArrayList<QualityInspectionReport>();
-            for (int i = 0; i < data.length(); ++i) {
-                JSONObject jo = data.getJSONObject(i);
-                int _id = jo.getInt("id");
-                int _quantity = jo.getInt("quantity");
-                int _weight = jo.getInt("weight");
-                int _result = jo.getInt("result");
-                int _actorId = jo.getInt("actorId");
-                String _picUrl = jo.getString("picUrl");
-                qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
-            }
-        } else {
-            throw new BadRequest(result);
-        }
-
-        return new Pair(orderType, qualityInspectionReports);
-    }
-
     public InputStream getSteamFromUrl(String pirUrl) throws IOException {
         Pair<String, Integer> pair = Utils.getServerAddress(context);
         URL url = new URL(String.format("http://%s:%d%s", pair.first, pair.second, pirUrl));
@@ -493,7 +461,8 @@ public class WebService {
             int _result = jo.getInt("result");
             int _actorId = jo.getInt("actorId");
             String _picUrl = jo.getString("picUrl");
-            qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl));
+            String _smallPicUrl = jo.getString("smallPicUrl");
+            qualityInspectionReports.add(new QualityInspectionReport(_id, _quantity, _weight, _result, _actorId, _picUrl, _smallPicUrl));
         }
         return qualityInspectionReports;
     }

@@ -13,7 +13,15 @@ public class QualityInspectionReport implements Parcelable {
     public static final int REPAIR = 3;
     public static final int REPLATE = 4;
     public static final int DISCARD = 5;
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public QualityInspectionReport createFromParcel(Parcel in) {
+            return new QualityInspectionReport(in);
+        }
 
+        public QualityInspectionReport[] newArray(int size) {
+            return new QualityInspectionReport[size];
+        }
+    };
     private int id;
     private int quantity;
     private int weight;
@@ -21,15 +29,17 @@ public class QualityInspectionReport implements Parcelable {
     private int actorId;
     private String picUrl;
     private String localPicPath;
+    private String smallPicUrl;
 
     public QualityInspectionReport(int id, int quantity, int weight, int result,
-                                   int actorId, String picUrl) {
+                                   int actorId, String picUrl, String smallPicUrl) {
         this.id = id;
         this.quantity = quantity;
         this.weight = weight;
         this.result = result;
         this.actorId = actorId;
         this.picUrl = picUrl;
+        this.smallPicUrl = smallPicUrl;
     }
 
     public QualityInspectionReport(Parcel in) {
@@ -40,34 +50,28 @@ public class QualityInspectionReport implements Parcelable {
         actorId = in.readInt();
         picUrl = in.readString();
         localPicPath = in.readString();
+        smallPicUrl = in.readString();
     }
 
     public QualityInspectionReport() {
 
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public int getResult() {
-        return result;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public int getActorId() {
         return actorId;
     }
 
-    public String getPicUrl() {
-        return picUrl;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getLiterableResult() {
@@ -94,9 +98,48 @@ public class QualityInspectionReport implements Parcelable {
         return ret;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getLocalPicPath() {
+        return localPicPath;
+    }
+
+    public void setLocalPicPath(String localPicPath) {
+        this.localPicPath = localPicPath;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public int getResult() {
+        return result;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
+
+    public String getSmallPicUrl() {
+        return smallPicUrl;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     @Override
@@ -108,43 +151,6 @@ public class QualityInspectionReport implements Parcelable {
         dest.writeInt(actorId);
         dest.writeString(picUrl);
         dest.writeString(localPicPath);
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public QualityInspectionReport createFromParcel(Parcel in) {
-            return new QualityInspectionReport(in);
-        }
-
-        public QualityInspectionReport[] newArray(int size) {
-            return new QualityInspectionReport[size];
-        }
-    };
-
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public void setResult(int result) {
-        this.result = result;
-    }
-
-    public void setPicUrl(String picUrl) {
-        this.picUrl = picUrl;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setLocalPicPath(String localPicPath) {
-        this.localPicPath = localPicPath;
-    }
-
-    public String getLocalPicPath() {
-        return localPicPath;
+        dest.writeString(smallPicUrl);
     }
 }
