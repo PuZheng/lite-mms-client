@@ -80,6 +80,16 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
         modified = false;
     }
 
+    public void setTextViewQualityInspected() {
+        int qualityInspectedCnt = 0;
+        int qualityInspectedWeight = 0;
+        for (QualityInspectionReport qir : MyApp.getQualityInspectionReports()) {
+            qualityInspectedCnt += qir.getQuantity();
+            qualityInspectedWeight += qir.getWeight();
+        }
+        textViewQualityInspected.setText(Utils.getWeightAndQuantity(qualityInspectedWeight, qualityInspectedCnt, workCommand));
+    }
+
     @Override
     public void updateWorkCommand(WorkCommand workCommand) {
         mask.setVisibility(View.GONE);
@@ -117,16 +127,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     private void setTextViewProcessed() {
         textViewWorkCommandProcessedRow.setText(workCommand.measuredByWeight() ? "工单重量:" : "工单重量/数量:");
         textViewWorkCommandProcessed.setText(Utils.getWeightAndQuantity(workCommand.getProcessedWeight(), workCommand.getProcessedCnt(), workCommand));
-    }
-
-    public void setTextViewQualityInspected() {
-        int qualityInspectedCnt = 0;
-        int qualityInspectedWeight = 0;
-        for (QualityInspectionReport qir : MyApp.getQualityInspectionReports()) {
-            qualityInspectedCnt += qir.getQuantity();
-            qualityInspectedWeight += qir.getWeight();
-        }
-        textViewQualityInspected.setText(Utils.getWeightAndQuantity(qualityInspectedWeight, qualityInspectedCnt, workCommand));
     }
 
     private class MyAdapter extends BaseAdapter {
@@ -189,25 +189,30 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 viewHolder.imageButton.setImageResource(R.drawable.content_picture);
             }
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
-            viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage("您确认要删除这一条质检报告?");
-                    builder.setNegativeButton(android.R.string.cancel, null);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MyApp.getQualityInspectionReports().remove(position);
-                            modified = true;
-                            notifyDataSetChanged();
-                            setTextViewProcessed();
-                            setTextViewQualityInspected();
-                        }
-                    });
-                    builder.show();
-                }
-            });
+            if (workCommand.getStatus() == Constants.STATUS_FINISHED) {
+                viewHolder.imageButtonDiscard.setVisibility(View.GONE);
+            } else {
+                viewHolder.imageButtonDiscard.setVisibility(View.VISIBLE);
+                viewHolder.imageButtonDiscard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage("您确认要删除这一条质检报告?");
+                        builder.setNegativeButton(android.R.string.cancel, null);
+                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MyApp.getQualityInspectionReports().remove(position);
+                                modified = true;
+                                notifyDataSetChanged();
+                                setTextViewProcessed();
+                                setTextViewQualityInspected();
+                            }
+                        });
+                        builder.show();
+                    }
+                });
+            }
             viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
             return convertView;
         }
