@@ -183,8 +183,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-            } else if (!Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
-                new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getPicUrl()).execute(Constants.SMALL_SAMPLE_SIZE);
+            } else if (!Utils.isEmptyString(qualityInspectionReport.getSmallPicUrl())) {
+                new GetImageTask(viewHolder.imageButton, qualityInspectionReport.getSmallPicUrl()).execute();
             } else {
                 viewHolder.imageButton.setImageResource(R.drawable.content_picture);
             }
