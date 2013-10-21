@@ -615,6 +615,7 @@ public class WebService {
         int orgCount = o.getInt("orgCount");
         int orgWeight = o.getInt("orgWeight");
         String picPath = o.getString("picPath");
+        String smallPicPath = o.getString("smallPicPath");
         Date last_mod = new Date(o.getLong("lastMod") * MILLSECONDS_PER_SECOND);
         Date orderCreateTime = new Date(o.getLong("orderCreateTime") * MILLSECONDS_PER_SECOND);
         int subOrderId = o.getInt("subOrderId");
@@ -646,6 +647,7 @@ public class WebService {
         wc.setProcedure(procedure);
         wc.setTechReq(tech_req);
         wc.setSubOrderId(subOrderId);
+        wc.setSmallPicPath(smallPicPath);
         for (QualityInspectionReport qualityInspectionReport : qualityInspectionReports) {
             wc.addQualityInspectionReport(qualityInspectionReport);
         }

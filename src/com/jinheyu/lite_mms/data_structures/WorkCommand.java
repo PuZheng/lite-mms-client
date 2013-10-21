@@ -68,6 +68,7 @@ public class WorkCommand implements Parcelable {
     private boolean reject;
     private String productName;
     private List<QualityInspectionReport> qualityInspectionReportList;
+    private String smallPicPath;
 
     public WorkCommand(Parcel parcel) {
         this.id = parcel.readInt();
@@ -93,6 +94,7 @@ public class WorkCommand implements Parcelable {
         this.subOrderId = parcel.readInt();
         this.qualityInspectionReportList = new ArrayList<QualityInspectionReport>();
         this.orderCreateDate = parcel.readString();
+        this.smallPicPath = parcel.readString();
         parcel.readTypedList(this.qualityInspectionReportList, QualityInspectionReport.CREATOR);
     }
 
@@ -129,6 +131,10 @@ public class WorkCommand implements Parcelable {
 
     public String getCustomerName() {
         return customerName;
+    }
+
+    public String getSmallPicPath() {
+        return smallPicPath;
     }
 
     public void setCustomerName(String customerName) {
@@ -243,6 +249,10 @@ public class WorkCommand implements Parcelable {
         return spec;
     }
 
+    public void setSmallPicPath(String smallPicPath) {
+        this.smallPicPath = smallPicPath;
+    }
+
     public void setSpec(String spec) {
         this.spec = spec;
     }
@@ -338,6 +348,7 @@ public class WorkCommand implements Parcelable {
         dest.writeString(previous_procedure);
         dest.writeInt(subOrderId);
         dest.writeString(orderCreateDate);
+        dest.writeString(smallPicPath);
         dest.writeTypedList(qualityInspectionReportList);
     }
 }

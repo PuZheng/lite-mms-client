@@ -275,7 +275,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
         viewHolder.specTypeTextView.setText(String.format("(%s-%s)",
                 Utils.isEmptyString(workCommand.getSpec()) ? "  " : workCommand.getSpec(),
                 Utils.isEmptyString(workCommand.getType()) ? "  " : workCommand.getType()));
-        new GetImageTask(viewHolder.imageButton, workCommand.getPicPath(), false).execute(Constants.SMALL_SAMPLE_SIZE);
+        new GetImageTask(viewHolder.imageButton, workCommand.getSmallPicPath(), false).execute();
     }
 
     private boolean startActionMode() {
