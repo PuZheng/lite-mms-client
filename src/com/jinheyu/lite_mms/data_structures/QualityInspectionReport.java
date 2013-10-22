@@ -3,6 +3,11 @@ package com.jinheyu.lite_mms.data_structures;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by xc on 13-10-7.
  */
@@ -22,6 +27,17 @@ public class QualityInspectionReport implements Parcelable {
             return new QualityInspectionReport[size];
         }
     };
+
+    public static final Map<Integer, String> resultMap = new LinkedHashMap<Integer, String>() {
+        {
+            put(QualityInspectionReport.FINISHED, "通过");
+            put(NEXT_PROCEDURE, "通过并转下道工序");
+            put(REPAIR, "返修");
+            put(REPLATE, "返镀");
+            put(DISCARD, "报废");
+        }
+    };
+
     private int id;
     private int quantity;
     private int weight;
@@ -57,6 +73,10 @@ public class QualityInspectionReport implements Parcelable {
 
     }
 
+    public static List<Integer> getResultList() {
+        return new ArrayList<Integer>(resultMap.keySet());
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -74,28 +94,12 @@ public class QualityInspectionReport implements Parcelable {
         this.id = id;
     }
 
-    public String getLiterableResult() {
-        String ret = "";
-        switch (result) {
-            case FINISHED:
-                ret = "完成";
-                break;
-            case NEXT_PROCEDURE:
-                ret = "转下道工序";
-                break;
-            case REPAIR:
-                ret = "返镀";
-                break;
-            case REPLATE:
-                ret = "返修";
-                break;
-            case DISCARD:
-                ret = "废弃";
-                break;
-            default:
-                break;
-        }
-        return ret;
+    public String getLiteralResult() {
+        return getLiteralResult(result);
+    }
+
+    public static String getLiteralResult(int result) {
+        return resultMap.get(result);
     }
 
     public String getLocalPicPath() {

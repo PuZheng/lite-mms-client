@@ -57,18 +57,11 @@ public class CreateQIReportStep1 extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utils.isEmptyString(editTextWeight.getText().toString())) {
-                    Toast.makeText(CreateQIReportStep1.this, "请输入重量", Toast.LENGTH_SHORT).show();
-                    editTextWeight.requestFocus();
+                if (!Utils.testLackInput(CreateQIReportStep1.this, editTextWeight, "请输入重量") ||
+                        (!workCommand.measuredByWeight() && !Utils.testLackInput(CreateQIReportStep1.this, editTextQuantity, "请输入数量"))) {
                     return;
                 }
-                if (!workCommand.measuredByWeight()) {
-                    if (Utils.isEmptyString(editTextQuantity.getText().toString().trim())) {
-                        Toast.makeText(CreateQIReportStep1.this, "请输入数量", Toast.LENGTH_SHORT).show();
-                        editTextQuantity.requestFocus();
-                        return;
-                    }
-                }
+
                 Intent intent = new Intent(CreateQIReportStep1.this, CreateQIReportStep2.class);
                 intent.putExtra("workCommand", CreateQIReportStep1.this.workCommand);
                 QualityInspectionReport qualityInspectionReport = new QualityInspectionReport();

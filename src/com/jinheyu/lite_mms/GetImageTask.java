@@ -3,11 +3,12 @@ package com.jinheyu.lite_mms;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.util.Log;
+
 import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.netutils.ImageCache;
 
@@ -16,6 +17,7 @@ import com.jinheyu.lite_mms.netutils.ImageCache;
  */
 public class GetImageTask extends AsyncTask<Integer, Void, Bitmap> {
 
+    private final View.OnClickListener onClickListener;
     private Exception ex;
     private String mKey;
     private String mUrl;
@@ -29,11 +31,27 @@ public class GetImageTask extends AsyncTask<Integer, Void, Bitmap> {
     }
 
     public GetImageTask(ImageView imageView, String url, boolean showToast) {
+        this(imageView, url, showToast, null);
+    }
+
+    public GetImageTask(ImageView imageView, String url, boolean showToast, View.OnClickListener onClickListener) {
         this.mImageView = imageView;
         this.mUrl = url;
         this.mKey = Utils.getMd5Hash(url);
         this.mShowToast = showToast;
         mImageCache = ImageCache.getInstance(mImageView.getContext());
+        if (onClickListener != null) {
+            this.onClickListener = onClickListener;
+        } else {
+            this.onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mImageView.getContext(), ImageActivity.class);
+                    intent.putExtra("imageUrl", mUrl);
+                    mImageView.getContext().startActivity(intent);
+                }
+            };
+        }
     }
 
     @Override
@@ -71,14 +89,8 @@ public class GetImageTask extends AsyncTask<Integer, Void, Bitmap> {
         if (ex == null && bitmap != null) {
             mImageView.setImageBitmap(bitmap);
             if (mImageView instanceof ImageButton) {
-                mImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(mImageView.getContext(), ImageActivity.class);
-                        intent.putExtra("imageUrl", mUrl);
-                        mImageView.getContext().startActivity(intent);
-                    }
-                });
+
+                mImageView.setOnClickListener(this.onClickListener);
             }
         } else {
             if (!Utils.isEmptyString(mUrl)) {
