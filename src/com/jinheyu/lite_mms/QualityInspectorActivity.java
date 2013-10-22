@@ -25,6 +25,7 @@ public class QualityInspectorActivity extends WorkCommandListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.quality_inspector, menu);
+        setSearchView(menu.findItem(R.id.action_search));
         return super.onCreateOptionsMenu(menu);
     }
 
