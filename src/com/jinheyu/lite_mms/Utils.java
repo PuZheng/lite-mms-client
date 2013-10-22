@@ -12,6 +12,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.User;
@@ -241,5 +244,15 @@ public class Utils {
 
     public static String getFakeQIReportPicPath(int i) {
         return getStorageDir() + "qir-" + "-" + i + ".jpeg";
+    }
+
+    public static boolean testLackInput(Activity activity, EditText editText, String hint) {
+        if (Utils.isEmptyString(editText.getText().toString())) {
+            Toast.makeText(activity, hint, Toast.LENGTH_SHORT).show();
+            editText.requestFocus();
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            return false;
+        }
+        return true;
     }
 }

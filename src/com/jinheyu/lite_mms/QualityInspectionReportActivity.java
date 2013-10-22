@@ -18,8 +18,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableRow;
-import android.widget.Toast;
 
+import com.jinheyu.lite_mms.data_structures.Constants;
 import com.jinheyu.lite_mms.data_structures.QualityInspectionReport;
 import com.jinheyu.lite_mms.data_structures.WorkCommand;
 
@@ -78,10 +78,10 @@ public class QualityInspectionReportActivity extends Activity {
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inPurgeable = true;
             options.inInputShareable = true;
-            options.inSampleSize = 2;
+            options.inSampleSize = Constants.MIDDLE_SAMPLE_SIZE;
             imageButton.setImageBitmap(BitmapFactory.decodeFile(qualityInspectionReport.getLocalPicPath(), options));
         } else if (!Utils.isEmptyString(qualityInspectionReport.getPicUrl())) {
-            new GetImageTask(imageButton, qualityInspectionReport.getPicUrl(), true, onClickListener).execute(2);
+            new GetImageTask(imageButton, qualityInspectionReport.getPicUrl(), true, onClickListener).execute(Constants.MIDDLE_SAMPLE_SIZE);
         } else {
             imageButton.setImageResource(R.drawable.content_picture);
         }
@@ -143,16 +143,8 @@ public class QualityInspectionReportActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_confirm:
-                if (Utils.isEmptyString(editTextWeight.getText().toString())) {
-                    Toast.makeText(this, "请填写重量", Toast.LENGTH_SHORT).show();
-                    editTextWeight.requestFocus();
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                } else if (!workCommand.measuredByWeight() && Utils.isEmptyString(editTextQuantity.getText().toString())) {
-                    Toast.makeText(this, "请填写数量", Toast.LENGTH_LONG).show();
-                    editTextQuantity.requestFocus();
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                } else {
-
+                if (Utils.testLackInput(this, editTextWeight, "请填写重量") &&
+                        (workCommand.measuredByWeight() || Utils.testLackInput(this, editTextQuantity, "请填写数量"))) {
                     MyApp.removeQualityInspectionReport(qualityInspectionReport.getResult());
                     QualityInspectionReport targetQualityInspectionReport = MyApp.getQualityInspectionReport(qualityInspectionResult);
                     if (targetQualityInspectionReport == null) {
