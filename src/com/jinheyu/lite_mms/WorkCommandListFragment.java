@@ -33,6 +33,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     private ActionMode.Callback mActionModeListener = getActionModeCallback();
     private HashSet<Integer> mSelectedPositions = new HashSet<Integer>();
     private PullToRefreshAttacher mPullToRefreshAttacher;
+    private boolean isReloadingWorkCommandList;
 
     public View getItemView(final int position, View convertView) {
         final WorkCommand workCommand = getWorkCommandAtPosition(position);
@@ -84,6 +85,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
     }
 
     public void mask() {
+        isReloadingWorkCommandList = true;
         if (rootView != null) {
             View mask = rootView.findViewById(R.id.linearLayoutMask);
             if (mask != null) {
@@ -121,6 +123,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
 
     @Override
     public void onRefreshStarted(View view) {
+        ((WorkCommandListActivity) getActivity()).collapseActionView();
         loadWorkCommandList();
     }
 
@@ -141,6 +144,7 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
             View main = rootView.findViewById(R.id.ptr_layout);
             main.setVisibility(View.VISIBLE);
         }
+        isReloadingWorkCommandList = false;
     }
 
     public void unmask(Exception ex) {
@@ -152,7 +156,12 @@ public abstract class WorkCommandListFragment extends ListFragment implements Pu
             View error = rootView.findViewById(R.id.linearyLayoutError);
             error.setVisibility(View.VISIBLE);
         }
+        isReloadingWorkCommandList = false;
         Utils.displayError(this.getActivity(), ex);
+    }
+
+    public boolean getReloadingStatus() {
+        return isReloadingWorkCommandList;
     }
 
     protected void clearAllCheckedItems() {
@@ -345,6 +354,8 @@ class WorkCommandListAdapter extends BaseAdapter {
         return mFragment.getItemView(position, convertView);
     }
 
-
+    public List<WorkCommand> getWorkCommandList() {
+        return this.mWorkCommandList;
+    }
 }
 

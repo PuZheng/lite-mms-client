@@ -2,21 +2,31 @@ package com.jinheyu.lite_mms;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.text.InputType;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class WorkCommandListActivity extends FragmentActivity {
 
+public abstract class WorkCommandListActivity extends ActionBarActivity {
     protected ActionBar.TabListener mTabListener = new ActionBar.TabListener() {
         /**
          * Called when a tab that is already selected is chosen again by the user.
@@ -42,6 +52,7 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
          */
         @Override
         public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+            collapseActionView();
             mViewPager.setCurrentItem(tab.getPosition());
         }
 
@@ -60,8 +71,15 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
 
     };
     protected ViewPager mViewPager;
+    /**
+     * lastQuery 上次查询
+     */
+    private String lastQuery;
+    private WorkCommandListAdapter mCurrentListAdapter;
+    private List<WorkCommand> allWorkCommandList;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private boolean doubleBackToExitPressedOnce;
+    private MenuItem searchItem;
 
     public PullToRefreshAttacher getPullToRefreshAttacher() {
         return mPullToRefreshAttacher;
@@ -90,7 +108,6 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
 
         mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-
         final ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -99,34 +116,10 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
             actionBar.setCustomView(getSpinner());
             actionBar.setDisplayShowCustomEnabled(true);
         } else {
-            initTabs(actionBar, 0); 
+            initTabs(actionBar, 0);
             // make action bar hide title
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayShowHomeEnabled(false);
-        }
-    }
-
-    private void initTabs(final ActionBar actionBar, int position) {
-        FragmentPagerAdapter fragmentPagerAdapter = getFragmentPagerAdapter(position);
-        mViewPager.setAdapter(fragmentPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-        actionBar.removeAllTabs();
-        for (int i = 0; i < fragmentPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(fragmentPagerAdapter.getPageTitle(i))
-                            .setTabListener(mTabListener));
         }
     }
 
@@ -135,6 +128,83 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
     }
 
     protected abstract FragmentPagerAdapter getFragmentPagerAdapter(int position);
+
+    protected void setSearchView(MenuItem searchItem) {
+        this.searchItem = searchItem;
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        if (searchView != null) {
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint("输入工单号搜索");
+            searchView.setInputType(InputType.TYPE_CLASS_NUMBER);
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+                    return doSearch(s);
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                    return doSearch(s);
+                }
+            });
+        }
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                if (!Utils.isEmptyString(lastQuery)) {
+                    doSearch("");
+                }
+                mCurrentListAdapter = null;
+                lastQuery = null;
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                if (mCurrentListAdapter == null) {
+                    try {
+                        List<Fragment> fragments = WorkCommandListActivity.this.getSupportFragmentManager().getFragments();
+                        WorkCommandListFragment listFragment = (WorkCommandListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        if (listFragment.getReloadingStatus()) {
+                            return false;
+                        }
+                        mCurrentListAdapter = (WorkCommandListAdapter) listFragment.getListAdapter();
+                        List<WorkCommand> list = mCurrentListAdapter.getWorkCommandList();
+                        allWorkCommandList = new ArrayList<WorkCommand>();
+                        allWorkCommandList.addAll(list);
+                    } catch (Exception e) {
+                        Log.e("搜索失败", e.getMessage());
+                        return false;
+                    }
+
+                }
+                return true;
+            }
+        });
+    }
+
+    public void collapseActionView() {
+        if (searchItem != null) {
+            searchItem.collapseActionView();
+        }
+    }
+
+    private boolean doSearch(String query) {
+        if (lastQuery != null) {
+            List<WorkCommand> currentWorkCommandList = mCurrentListAdapter.getWorkCommandList();
+            currentWorkCommandList.clear();
+            for (WorkCommand workCommand : allWorkCommandList) {
+                if (String.valueOf(workCommand.getId()).contains(query)) {
+                    currentWorkCommandList.add(workCommand);
+                }
+            }
+            mCurrentListAdapter.notifyDataSetChanged();
+        }
+        lastQuery = query;
+        return true;
+    }
 
     private Spinner getSpinner() {
         ArrayAdapter adapter = getArrayAdapter(android.R.layout.simple_spinner_item);
@@ -160,5 +230,29 @@ public abstract class WorkCommandListActivity extends FragmentActivity {
             }
         });
         return spinner;
+    }
+
+    private void initTabs(final ActionBar actionBar, int position) {
+        FragmentPagerAdapter fragmentPagerAdapter = getFragmentPagerAdapter(position);
+        mViewPager.setAdapter(fragmentPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // When swiping between different app sections, select the corresponding tab.
+                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
+                // Tab.
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
+        actionBar.removeAllTabs();
+        for (int i = 0; i < fragmentPagerAdapter.getCount(); i++) {
+            // Create a tab with text corresponding to the page title defined by the adapter.
+            // Also specify this Activity object, which implements the TabListener interface, as the
+            // listener for when this tab is selected.
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(fragmentPagerAdapter.getPageTitle(i))
+                            .setTabListener(mTabListener));
+        }
     }
 }

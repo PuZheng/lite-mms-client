@@ -22,6 +22,7 @@ public class DepartmentLeaderActivity extends WorkCommandListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.logout_menu, menu);
+        setSearchView(menu.findItem(R.id.action_search));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -112,7 +113,7 @@ class DepartmentListWorkCommandListFragment extends WorkCommandListFragment {
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 mode.getMenuInflater().inflate(
                         getSymbols()[WorkCommandListFragment.STATUS_INDEX] == Constants.STATUS_LOCKED ?
-                        R.menu.department_leader_deny_only : R.menu.department_leader_dispatch, menu);
+                                R.menu.department_leader_deny_only : R.menu.department_leader_dispatch, menu);
                 mode.setTitle(getString(R.string.please_select));
                 return true;
             }

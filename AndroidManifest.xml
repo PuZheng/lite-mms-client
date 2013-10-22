@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jinheyu.lite_mms"
     android:versionCode="1"
-    android:versionName="1.1">
+    android:versionName="1.2">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -58,6 +58,9 @@
             android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow">
             <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+            <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
@@ -66,6 +69,9 @@
             android:name=".DepartmentLeaderActivity"
             android:screenOrientation="portrait"
             android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
@@ -76,6 +82,9 @@
             android:screenOrientation="portrait"
             android:label="@string/title_activity_work_command">
             <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+            <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
@@ -83,6 +92,9 @@
             android:name=".QualityInspectorWorkCommandActivity"
             android:uiOptions="splitActionBarWhenNarrow"
             android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
