@@ -3,7 +3,9 @@ package com.jinheyu.lite_mms;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.*;
 import android.widget.ArrayAdapter;
 import com.jinheyu.lite_mms.data_structures.Constants;
@@ -21,8 +23,10 @@ public class TeamLeaderActivity extends WorkCommandListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.logout_or_off_duty, menu);
+        setSearchView(menu.findItem(R.id.action_search));
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

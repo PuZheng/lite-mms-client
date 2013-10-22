@@ -345,6 +345,8 @@ class WorkCommandListAdapter extends BaseAdapter {
         return mFragment.getItemView(position, convertView);
     }
 
-
+    public List<WorkCommand> getWorkCommandList() {
+        return this.mWorkCommandList;
+    }
 }
 
