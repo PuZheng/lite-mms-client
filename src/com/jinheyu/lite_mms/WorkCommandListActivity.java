@@ -194,7 +194,6 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
     private boolean doSearch(String query) {
         if (lastQuery != null) {
             List<WorkCommand> currentWorkCommandList = mCurrentListAdapter.getWorkCommandList();
-            ;
             currentWorkCommandList.clear();
             for (WorkCommand workCommand : allWorkCommandList) {
                 if (String.valueOf(workCommand.getId()).contains(query)) {
