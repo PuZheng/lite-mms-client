@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,11 +34,9 @@ public class QualityInspectionReportActivity extends Activity {
     private EditText editTextWeight;
     private EditText editTextQuantity;
     private WorkCommand workCommand;
-    private ArrayList<Pair<Integer, String>> pairs;
     private int qualityInspectionResult = -1;
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private ImageButton imageButton;
-    private String picLocalPath;
     private QualityInspectionReport qualityInspectionReport;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -88,13 +85,11 @@ public class QualityInspectionReportActivity extends Activity {
         imageButton.setOnClickListener(onClickListener);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        pairs = new ArrayList<Pair<Integer, String>>();
         List<String> results = new ArrayList<String>();
         int position = 0;
         for (int i=0; i < QualityInspectionReport.getResultList().size(); ++i) {
             int result = QualityInspectionReport.getResultList().get(i);
             String literalResult = QualityInspectionReport.getLiteralResult(result);
-            pairs.add(new Pair<Integer, String>(result, literalResult));
             if (result == qualityInspectionReport.getResult()) {
                 position = i;
             }
@@ -109,7 +104,7 @@ public class QualityInspectionReportActivity extends Activity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                qualityInspectionResult = pairs.get(position).first;
+                qualityInspectionResult = QualityInspectionReport.getResultList().get(position);
             }
 
             @Override
@@ -185,10 +180,9 @@ public class QualityInspectionReportActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 Bitmap photo;
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
+                options.inSampleSize = Constants.MIDDLE_SAMPLE_SIZE;
                 photo = BitmapFactory.decodeFile(Utils.getTempQIReportPicUri().getPath(), options);
                 imageButton.setImageBitmap(photo);
-                picLocalPath = Utils.getTempQIReportPicUri().getPath();
 
             }
         }

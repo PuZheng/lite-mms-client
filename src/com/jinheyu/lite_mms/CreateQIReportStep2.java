@@ -7,7 +7,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -26,19 +25,15 @@ import java.util.List;
 public class CreateQIReportStep2 extends FragmentActivity {
 
     private static final int TAKE_PICTURE_CODE = 100;
-    private List<Pair<Integer, String>> pairs;
     private ListView listView;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acitivity_create_qi_report_step2);
-        pairs = new ArrayList<Pair<Integer, String>>();
         List<String> results = new ArrayList<String>();
         for (int result: QualityInspectionReport.getResultList()) {
             String literalResult = QualityInspectionReport.getLiteralResult(result);
-            pairs.add(new Pair<Integer, String>(result, literalResult));
             results.add(literalResult);
-
         }
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(new MyListAdapter(this, R.layout.qi_report_result_list_item, R.id.text1, results));
@@ -54,7 +49,7 @@ public class CreateQIReportStep2 extends FragmentActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             View ret = super.getView(position, convertView, parent);
             Button button = (Button) ret.findViewById(R.id.buttonNextStep);
-            button.setTag(pairs.get(position).first);
+            button.setTag(QualityInspectionReport.getResultList().get(position));
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -67,7 +62,7 @@ public class CreateQIReportStep2 extends FragmentActivity {
                 }
             });
             button = (Button) ret.findViewById(R.id.buttonSubmit);
-            button.setTag(pairs.get(position).first);
+            button.setTag(QualityInspectionReport.getResultList().get(position));
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

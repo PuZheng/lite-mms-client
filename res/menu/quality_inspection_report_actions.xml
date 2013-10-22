@@ -7,7 +7,7 @@
         android:showAsAction="always" />
     <item
         android:id="@+id/action_confirm"
-        android:title="@string/confirm"
+        android:title="@android:string/ok"
         android:showAsAction="always" />
 
 </menu>
