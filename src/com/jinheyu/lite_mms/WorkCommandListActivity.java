@@ -23,6 +23,7 @@ import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -70,18 +71,13 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
 
     };
     protected ViewPager mViewPager;
-
     /**
-     * hasQuery 是否有过有效查询
+     * lastQuery 上次查询
      */
-    private boolean hasQuery;
-
-    /**
-     * firstQuery 是否是展开SearchView
-     */
-    private boolean firstQuery;
+    private String lastQuery;
     private WorkCommandListFragment mCurrentWorkCommandListFragment;
-    private List<WorkCommand> mWorkCommandList;
+    private List<WorkCommand> allWorkCommandList;
+    private List<WorkCommand> currentWorkCommandList;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private boolean doubleBackToExitPressedOnce;
 
@@ -156,10 +152,11 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                if (hasQuery) {
-                    mCurrentWorkCommandListFragment.setListAdapter(new WorkCommandListAdapter(mCurrentWorkCommandListFragment, mWorkCommandList));
+                if (!Utils.isEmptyString(lastQuery)) {
+                    doSearch("");
                 }
                 mCurrentWorkCommandListFragment = null;
+                lastQuery = null;
                 return true;
             }
 
@@ -169,30 +166,31 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
                     try {
                         List<Fragment> fragments = WorkCommandListActivity.this.getSupportFragmentManager().getFragments();
                         mCurrentWorkCommandListFragment = (WorkCommandListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        allWorkCommandList = new ArrayList<WorkCommand>();
+                        allWorkCommandList.addAll(getCurrentWorkCommandList());
                     } catch (Exception e) {
                         Log.e("搜索失败", e.getMessage());
                         return false;
                     }
-                    mWorkCommandList = getCurrentWorkCommandList();
+
                 }
-                firstQuery = true;
                 return true;
             }
         });
     }
 
     private boolean doSearch(String query) {
-        if (!firstQuery) {
-            List<WorkCommand> results = new ArrayList<WorkCommand>();
-            for (WorkCommand workCommand : mWorkCommandList) {
+        if (lastQuery != null) {
+            currentWorkCommandList = getCurrentWorkCommandList();
+            currentWorkCommandList.clear();
+            for (WorkCommand workCommand : allWorkCommandList) {
                 if (String.valueOf(workCommand.getId()).contains(query)) {
-                    results.add(workCommand);
+                    currentWorkCommandList.add(workCommand);
                 }
             }
-            mCurrentWorkCommandListFragment.setListAdapter(new WorkCommandListAdapter(mCurrentWorkCommandListFragment, results));
+            ((WorkCommandListAdapter) mCurrentWorkCommandListFragment.getListAdapter()).notifyDataSetChanged();
         }
-        firstQuery = false;
-        hasQuery = !Utils.isEmptyString(query);
+        lastQuery = query;
         return true;
     }
 
