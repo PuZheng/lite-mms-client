@@ -33,7 +33,7 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
         View view = View.inflate(getActivity(), R.layout.dialog_create_quality_inspection_report, null);
         TextView textViewResult = (TextView) view.findViewById(R.id.textViewResult);
         TextView textViewWeight = (TextView) view.findViewById(R.id.textViewWeight);
-        textViewResult.setText(qualityInspectionReport.getLiterableResult());
+        textViewResult.setText(qualityInspectionReport.getLiteralResult());
         textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

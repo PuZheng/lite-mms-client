@@ -309,7 +309,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
                 }
                 odd = !odd;
                 TextView textViewResult = new TextView(getActivity());
-                textViewResult.setText(qir.getLiterableResult());
+                textViewResult.setText(qir.getLiteralResult());
                 textViewResult.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
                 textViewResult.setPadding((int) (10 * dpSize), 0, 0, 0);
                 TextView textViewWeight = new TextView(getActivity());

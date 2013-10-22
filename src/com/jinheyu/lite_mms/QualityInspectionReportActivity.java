@@ -89,26 +89,20 @@ public class QualityInspectionReportActivity extends Activity {
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         pairs = new ArrayList<Pair<Integer, String>>();
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.FINISHED, "通过"));
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.NEXT_PROCEDURE, "通过并转下道工序"));
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.REPAIR, "返修"));
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.REPLATE, "返镀"));
-        pairs.add(new Pair<Integer, String>(QualityInspectionReport.DISCARD, "报废"));
-        int position = 0;
-        for (; position < pairs.size(); ++position) {
-            if (pairs.get(position).first == qualityInspectionReport.getResult()) {
-                break;
-            }
-        }
-
         List<String> results = new ArrayList<String>();
-        for (Pair<Integer, String> pair: pairs) {
-            results.add(pair.second);
+        int position = 0;
+        for (int i=0; i < QualityInspectionReport.getResultList().size(); ++i) {
+            int result = QualityInspectionReport.getResultList().get(i);
+            String literalResult = QualityInspectionReport.getLiteralResult(result);
+            pairs.add(new Pair<Integer, String>(result, literalResult));
+            if (result == qualityInspectionReport.getResult()) {
+                position = i;
+            }
+            results.add(literalResult);
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.simple_spinner_item, android.R.id.text1,
                 results);
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setSelection(position);

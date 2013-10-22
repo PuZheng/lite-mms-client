@@ -193,7 +193,7 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             } else {
                 viewHolder.imageButton.setImageResource(R.drawable.content_picture);
             }
-            viewHolder.textViewResult.setText(qualityInspectionReport.getLiterableResult());
+            viewHolder.textViewResult.setText(qualityInspectionReport.getLiteralResult());
             if (workCommand.getStatus() == Constants.STATUS_FINISHED) {
                 viewHolder.imageButtonDiscard.setVisibility(View.GONE);
             } else {
