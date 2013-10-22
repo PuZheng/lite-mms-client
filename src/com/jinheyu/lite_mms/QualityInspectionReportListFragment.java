@@ -1,11 +1,14 @@
 package com.jinheyu.lite_mms;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 class QualityInspectionReportListFragment extends ListFragment implements UpdateWorkCommand {
+    private static final int MODIFY_QUALITY_INSPECTION_REPORT = 100;
+    private static final String TAG = "QualityInspectionReportListFragment";
     private View mask;
     private View main;
     private View error;
@@ -214,6 +219,15 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 });
             }
             viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), QualityInspectionReportActivity.class);
+                    intent.putExtra("qualityInspectionReport", qualityInspectionReport);
+                    intent.putExtra("workCommand", workCommand);
+                    startActivityForResult(intent, MODIFY_QUALITY_INSPECTION_REPORT);
+                }
+            });
             return convertView;
         }
 
@@ -229,6 +243,18 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 this.textViewResult = textViewResult;
                 this.textViewWeight = textViewWeight;
                 this.imageButtonDiscard = imageButtonDiscard;
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MODIFY_QUALITY_INSPECTION_REPORT) {
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "reset quality inspection report");
+                ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+                setTextViewQualityInspected();
+                modified = true;
             }
         }
     }

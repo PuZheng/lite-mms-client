@@ -61,4 +61,19 @@ public class MyApp extends Application {
         qualityInspectionReports = new ArrayList<QualityInspectionReport>();
         Utils.assertDirExists(Utils.getStorageDir());
     }
+
+    public static boolean removeQualityInspectionReport(int result) {
+        int i = 0;
+        for (i=0; i < qualityInspectionReports.size(); ++i) {
+            QualityInspectionReport qualityInspectionReport = qualityInspectionReports.get(i);
+            if (qualityInspectionReport.getResult() == result) {
+                break;
+            }
+        }
+        if (i != qualityInspectionReports.size()) {
+            qualityInspectionReports.remove(i);
+            return true;
+        }
+        return false;
+    }
 }

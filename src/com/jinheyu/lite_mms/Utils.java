@@ -239,4 +239,7 @@ public class Utils {
                 String.format("%d 公斤/%d %s", weight, quantity, workCommand.getUnit());
     }
 
+    public static String getFakeQIReportPicPath(int i) {
+        return getStorageDir() + "qir-" + "-" + i + ".jpeg";
+    }
 }

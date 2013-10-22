@@ -78,19 +78,19 @@ public class QualityInspectionReport implements Parcelable {
         String ret = "";
         switch (result) {
             case FINISHED:
-                ret = "完成";
+                ret = "通过";
                 break;
             case NEXT_PROCEDURE:
-                ret = "转下道工序";
+                ret = "通过并转下道工序";
                 break;
             case REPAIR:
-                ret = "返镀";
-                break;
-            case REPLATE:
                 ret = "返修";
                 break;
+            case REPLATE:
+                ret = "返镀";
+                break;
             case DISCARD:
-                ret = "废弃";
+                ret = "报废";
                 break;
             default:
                 break;

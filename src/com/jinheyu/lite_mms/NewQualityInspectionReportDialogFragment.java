@@ -53,7 +53,7 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
                     }
                 }
                 if (from.exists()) {
-                    picFileName = getFakeQIReportPicPath(targetQualityInspectionReport.getResult());
+                    picFileName = Utils.getFakeQIReportPicPath(targetQualityInspectionReport.getResult());
                     targetQualityInspectionReport.setLocalPicPath(picFileName);
                     File to = new File(picFileName);
                     from.renameTo(to);
@@ -66,7 +66,4 @@ public class NewQualityInspectionReportDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private String getFakeQIReportPicPath(int i) {
-        return Utils.getStorageDir() + "qir-" + "-" + i + ".jpeg";
-    }
 }

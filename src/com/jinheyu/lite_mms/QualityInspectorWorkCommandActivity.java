@@ -205,6 +205,7 @@ public class QualityInspectorWorkCommandActivity extends FragmentActivity implem
             qualityInspectionReportListFragment.setTextViewQualityInspected();
             qualityInspectionReportListFragment.setModified(true);
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void saveQualityInspectionReports(final WorkCommand workCommand, final List<QualityInspectionReport> qualityInspectionReports) {
