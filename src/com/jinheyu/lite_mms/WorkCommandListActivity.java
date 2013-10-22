@@ -185,6 +185,9 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
         });
     }
 
+    /**
+     * 关闭搜索框，同时还原listAdapter展示的workCommandList
+     */
     public void collapseActionView() {
         if (searchItem != null) {
             searchItem.collapseActionView();
