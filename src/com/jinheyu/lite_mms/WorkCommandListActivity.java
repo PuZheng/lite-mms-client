@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
@@ -53,6 +52,7 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
          */
         @Override
         public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+            collapseActionView();
             mViewPager.setCurrentItem(tab.getPosition());
         }
 
@@ -79,6 +79,7 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
     private List<WorkCommand> allWorkCommandList;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private boolean doubleBackToExitPressedOnce;
+    private MenuItem searchItem;
 
     public PullToRefreshAttacher getPullToRefreshAttacher() {
         return mPullToRefreshAttacher;
@@ -129,6 +130,7 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
     protected abstract FragmentPagerAdapter getFragmentPagerAdapter(int position);
 
     protected void setSearchView(MenuItem searchItem) {
+        this.searchItem = searchItem;
         SearchView searchView = (SearchView) searchItem.getActionView();
         if (searchView != null) {
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -164,10 +166,14 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
                 if (mCurrentListAdapter == null) {
                     try {
                         List<Fragment> fragments = WorkCommandListActivity.this.getSupportFragmentManager().getFragments();
-                        ListFragment listFragment = (ListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        WorkCommandListFragment listFragment = (WorkCommandListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        if (listFragment.getReloadingStatus()) {
+                            return false;
+                        }
                         mCurrentListAdapter = (WorkCommandListAdapter) listFragment.getListAdapter();
+                        List<WorkCommand> list = mCurrentListAdapter.getWorkCommandList();
                         allWorkCommandList = new ArrayList<WorkCommand>();
-                        allWorkCommandList.addAll(getCurrentWorkCommandList());
+                        allWorkCommandList.addAll(list);
                     } catch (Exception e) {
                         Log.e("搜索失败", e.getMessage());
                         return false;
@@ -179,9 +185,16 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
         });
     }
 
+    public void collapseActionView() {
+        if (searchItem != null) {
+            searchItem.collapseActionView();
+        }
+    }
+
     private boolean doSearch(String query) {
         if (lastQuery != null) {
-            List<WorkCommand> currentWorkCommandList = getCurrentWorkCommandList();
+            List<WorkCommand> currentWorkCommandList = mCurrentListAdapter.getWorkCommandList();
+            ;
             currentWorkCommandList.clear();
             for (WorkCommand workCommand : allWorkCommandList) {
                 if (String.valueOf(workCommand.getId()).contains(query)) {
@@ -192,10 +205,6 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
         }
         lastQuery = query;
         return true;
-    }
-
-    private List<WorkCommand> getCurrentWorkCommandList() {
-        return mCurrentListAdapter.getWorkCommandList();
     }
 
     private Spinner getSpinner() {
