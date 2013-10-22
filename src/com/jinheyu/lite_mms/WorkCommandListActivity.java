@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
@@ -23,7 +24,6 @@ import com.jinheyu.lite_mms.data_structures.WorkCommand;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -75,9 +75,8 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
      * lastQuery 上次查询
      */
     private String lastQuery;
-    private WorkCommandListFragment mCurrentWorkCommandListFragment;
+    private WorkCommandListAdapter mCurrentListAdapter;
     private List<WorkCommand> allWorkCommandList;
-    private List<WorkCommand> currentWorkCommandList;
     private PullToRefreshAttacher mPullToRefreshAttacher;
     private boolean doubleBackToExitPressedOnce;
 
@@ -155,17 +154,18 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
                 if (!Utils.isEmptyString(lastQuery)) {
                     doSearch("");
                 }
-                mCurrentWorkCommandListFragment = null;
+                mCurrentListAdapter = null;
                 lastQuery = null;
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                if (mCurrentWorkCommandListFragment == null) {
+                if (mCurrentListAdapter == null) {
                     try {
                         List<Fragment> fragments = WorkCommandListActivity.this.getSupportFragmentManager().getFragments();
-                        mCurrentWorkCommandListFragment = (WorkCommandListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        ListFragment listFragment = (ListFragment) fragments.get(WorkCommandListActivity.this.mViewPager.getCurrentItem());
+                        mCurrentListAdapter = (WorkCommandListAdapter) listFragment.getListAdapter();
                         allWorkCommandList = new ArrayList<WorkCommand>();
                         allWorkCommandList.addAll(getCurrentWorkCommandList());
                     } catch (Exception e) {
@@ -181,22 +181,21 @@ public abstract class WorkCommandListActivity extends ActionBarActivity {
 
     private boolean doSearch(String query) {
         if (lastQuery != null) {
-            currentWorkCommandList = getCurrentWorkCommandList();
+            List<WorkCommand> currentWorkCommandList = getCurrentWorkCommandList();
             currentWorkCommandList.clear();
             for (WorkCommand workCommand : allWorkCommandList) {
                 if (String.valueOf(workCommand.getId()).contains(query)) {
                     currentWorkCommandList.add(workCommand);
                 }
             }
-            ((WorkCommandListAdapter) mCurrentWorkCommandListFragment.getListAdapter()).notifyDataSetChanged();
+            mCurrentListAdapter.notifyDataSetChanged();
         }
         lastQuery = query;
         return true;
     }
 
     private List<WorkCommand> getCurrentWorkCommandList() {
-        WorkCommandListAdapter currentAdapter = (WorkCommandListAdapter) mCurrentWorkCommandListFragment.getListAdapter();
-        return currentAdapter.getWorkCommandList();
+        return mCurrentListAdapter.getWorkCommandList();
     }
 
     private Spinner getSpinner() {
