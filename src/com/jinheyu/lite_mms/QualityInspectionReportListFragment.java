@@ -62,6 +62,18 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MODIFY_QUALITY_INSPECTION_REPORT) {
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "reset quality inspection report");
+                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                setTextViewQualityInspected();
+                modified = true;
+            }
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_quality_inspection_report_list, container, false);
@@ -171,20 +183,18 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
             // 若有对应的本地图片，读取本地对应的图片。注意，若是重新加载的质检报告列表，本地图片都是空的，所以也不存在会
             // 读取之前遗留的本地图片的问题
             if (!Utils.isEmptyString(qualityInspectionReport.getLocalPicPath())) {
-                InputStream in = null;
+                InputStream in;
                 try {
                     in = new FileInputStream(new File(qualityInspectionReport.getLocalPicPath()));
-                    if (in != null) {
-                        BufferedInputStream bufferedInputStream = new BufferedInputStream(in, 1024);
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = false;
-                        options.inPreferredConfig = Bitmap.Config.RGB_565;
-                        options.inPurgeable = true;
-                        options.inInputShareable = true;
-                        options.inSampleSize = Constants.SMALL_SAMPLE_SIZE;
-                        Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream, null, options);
-                        viewHolder.imageButton.setImageBitmap(bitmap);
-                    }
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(in, 1024);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = false;
+                    options.inPreferredConfig = Bitmap.Config.RGB_565;
+                    options.inPurgeable = true;
+                    options.inInputShareable = true;
+                    options.inSampleSize = Constants.SMALL_SAMPLE_SIZE;
+                    Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream, null, options);
+                    viewHolder.imageButton.setImageBitmap(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -194,6 +204,8 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 viewHolder.imageButton.setImageResource(R.drawable.content_picture);
             }
             viewHolder.textViewResult.setText(qualityInspectionReport.getLiteralResult());
+            viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
+
             if (workCommand.getStatus() == Constants.STATUS_FINISHED) {
                 viewHolder.imageButtonDiscard.setVisibility(View.GONE);
             } else {
@@ -217,17 +229,16 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                         builder.show();
                     }
                 });
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), QualityInspectionReportActivity.class);
+                        intent.putExtra("qualityInspectionReport", qualityInspectionReport);
+                        intent.putExtra("workCommand", workCommand);
+                        startActivityForResult(intent, MODIFY_QUALITY_INSPECTION_REPORT);
+                    }
+                });
             }
-            viewHolder.textViewWeight.setText(Utils.getQIRWeightAndQuantity(qualityInspectionReport, workCommand));
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getActivity(), QualityInspectionReportActivity.class);
-                    intent.putExtra("qualityInspectionReport", qualityInspectionReport);
-                    intent.putExtra("workCommand", workCommand);
-                    startActivityForResult(intent, MODIFY_QUALITY_INSPECTION_REPORT);
-                }
-            });
             return convertView;
         }
 
@@ -243,18 +254,6 @@ class QualityInspectionReportListFragment extends ListFragment implements Update
                 this.textViewResult = textViewResult;
                 this.textViewWeight = textViewWeight;
                 this.imageButtonDiscard = imageButtonDiscard;
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == MODIFY_QUALITY_INSPECTION_REPORT) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "reset quality inspection report");
-                ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
-                setTextViewQualityInspected();
-                modified = true;
             }
         }
     }
